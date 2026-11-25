@@ -247,20 +247,29 @@ async function main() {
     let config = {
         nomedono: '',
         numerodono: '',
-        nomebot: '',
-        prefixo: '!',
+        nomebot: '★彡 ASTA MD 彡★',
+        prefixo: '.',
         site_vex: 'https://vexapi.com.br',
-        apikey_vex: 'SUAKEY',
+        apikey_vex: '',
+        lidowner: '',
 
         github_ofc: 'https://github.com/DevTokyoVx/nazuna',
         autor: 'DevTokyoVx',
         repositorio: 'nazuna',
-        modoaluguel: off,
+        modoaluguel: false,
 
         WA_WEB_VERSION: {
             aviso: 'Não mexa aqui, pode afetar o funcionamento do BOT.',
             value: [2, 3000, 1034740716]
-        }
+        },
+        globalMode: true,
+        figSomMaxSeg: 30,
+        figVideoSomMaxSeg: 30,
+        menuBotoes: true,
+        botoesBotNode: false,
+        repoAtualizacao: 'geovanesouzx/asta-md',
+        ramoAtualizacao: 'main',
+        avisoAtualizacao: true
     };
     try {
         const existingConfig = JSON.parse(await fs.readFile(CONFIG_FILE, 'utf8'));
@@ -276,7 +285,7 @@ async function main() {
     config.nomebot = await promptInput(rl, '🤖 Nome do bot', config.nomebot);
     config.prefixo = await promptInput(rl, '🔣 Prefixo do bot (1 caractere)', config.prefixo, (v) => v.length === 1);
 
-    config.apikey_vex = await promptInput(rl, '🔑 Api-key do site https://vexapi.com.br', config.apikey_vex);
+    config.apikey_vex = await promptInput(rl, '🔑 Api-key do site https://vexapi.com.br (Enter para deixar em branco)', config.apikey_vex);
 
     await fs.mkdir(path.dirname(CONFIG_FILE), { recursive: true });
     await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2));

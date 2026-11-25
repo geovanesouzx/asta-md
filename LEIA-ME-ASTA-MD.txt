@@ -312,3 +312,10 @@ v10.7.3 — !atualizar FUNCIONANDO (direto do GitHub do ASTA MD)
 - !atualizar forcar -> reinstala a versão do GitHub mesmo sem versão nova.
 - Pelo terminal: npm run update
 - Removido um aviso inofensivo no console: [EXPORTS] Module 'Logos2' not found.
+
+==================================================
+v10.7.4 — CORREÇÃO DO CONFIGURADOR
+==================================================
+- Corrigido "Erro fatal: off is not defined" ao ligar o bot sem config.json
+  (o configurador nunca funcionava). Agora ele cria um config.json completo do ASTA MD.
+- Removido o aviso "DeprecationWarning DEP0190" no Windows.

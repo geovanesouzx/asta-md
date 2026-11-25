@@ -198,7 +198,8 @@ const depsSignature = (pkg) => JSON.stringify({ d: pkg?.dependencies || {}, o: p
 export function runNpmInstall(onLine = () => { }) {
   return new Promise((resolve) => {
     const isWin = process.platform === 'win32';
-    const p = spawn(isWin ? 'npm.cmd' : 'npm', ['install', '--force', '--no-audit', '--no-fund', '--no-bin-links'], { cwd: BOT_ROOT, shell: isWin });
+    const args = ['install', '--force', '--no-audit', '--no-fund', '--no-bin-links'];
+    const p = isWin ? spawn(['npm', ...args].join(' '), { cwd: BOT_ROOT, shell: true }) : spawn('npm', args, { cwd: BOT_ROOT });
     let log = '';
     const take = (d) => { log += d; if (log.length > 20000) log = log.slice(-20000); String(d).split('\n').filter(Boolean).forEach(onLine); };
     p.stdout.on('data', take);

@@ -24,6 +24,11 @@ const colors = {
   bold: '\x1b[1m',
 };
 
+// roda um comando do npm (no Windows passa como texto único: evita o aviso DEP0190 do Node)
+const runNpm = (args, opts = {}) => isWindows
+  ? spawn(['npm', ...args].join(' '), { stdio: 'inherit', shell: true, ...opts })
+  : spawn('npm', args, { stdio: 'inherit', ...opts });
+
 const mensagem = (text) => console.log(`${colors.green}${text}${colors.reset}`);
 const aviso = (text) => console.log(`${colors.red}${text}${colors.reset}`);
 const info = (text) => console.log(`${colors.cyan}${text}${colors.reset}`);
@@ -144,7 +149,7 @@ async function checkPrerequisites() {
     aviso('⚠️ Arquivo de configuração (config.json) não encontrado! Iniciando configuração automática...');
     try {
       await new Promise((resolve, reject) => {
-        const configProcess = spawn('npm', ['run', 'config'], { stdio: 'inherit', shell: isWindows });
+        const configProcess = runNpm(['run', 'config']);
         configProcess.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`Configuração falhou com código ${code}`))));
         configProcess.on('error', reject);
       });
@@ -160,7 +165,7 @@ async function checkPrerequisites() {
     aviso('⚠️ Módulos do Node.js não encontrados! Iniciando instalação automática...');
     try {
       await new Promise((resolve, reject) => {
-        const installProcess = spawn('npm', ['run', 'config:install'], { stdio: 'inherit', shell: isWindows });
+        const installProcess = runNpm(['run', 'config:install']);
         installProcess.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`Instalação falhou com código ${code}`))));
         installProcess.on('error', reject);
       });
@@ -195,7 +200,7 @@ async function ensureSharp() {
   aviso('⚠️ O módulo de figurinhas (sharp) não carregou neste aparelho. Instalando a versão compatível (WebAssembly)...');
   try {
     await new Promise((resolve, reject) => {
-      const p = spawn('npm', ['install', '--no-save', '--force', '--no-audit', '--no-fund', '--no-bin-links', `@img/sharp-wasm32${ver ? '@' + ver : ''}`], { stdio: 'inherit', shell: isWindows });
+      const p = runNpm(['install', '--no-save', '--force', '--no-audit', '--no-fund', '--no-bin-links', `@img/sharp-wasm32${ver ? '@' + ver : ''}`]);
       p.on('close', (c) => (c === 0 ? resolve() : reject(new Error(`código ${c}`))));
       p.on('error', reject);
     });

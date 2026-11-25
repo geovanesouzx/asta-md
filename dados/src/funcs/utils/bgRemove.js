@@ -39,11 +39,9 @@ export const removerError = () => _loadErr?.message || null;
 export function installRemover(onLine = () => { }) {
   return new Promise((resolve) => {
     const isWin = process.platform === 'win32';
-    const p = spawn(isWin ? 'npm.cmd' : 'npm', ['install', `${PKG}@${PKG_VERSION}`, '--no-audit', '--no-fund', '--save'], {
-      cwd: BOT_ROOT,
-      shell: isWin,
-      env: { ...process.env, ONNXRUNTIME_NODE_INSTALL_CUDA: 'skip' }
-    });
+    const args = ['install', `${PKG}@${PKG_VERSION}`, '--no-audit', '--no-fund', '--save'];
+    const opts = { cwd: BOT_ROOT, env: { ...process.env, ONNXRUNTIME_NODE_INSTALL_CUDA: 'skip' } };
+    const p = isWin ? spawn(['npm', ...args].join(' '), { ...opts, shell: true }) : spawn('npm', args, opts);
     let out = '';
     const take = (d) => { out += d; String(d).split('\n').filter(Boolean).forEach((l) => onLine(l)); if (out.length > 20000) out = out.slice(-20000); };
     p.stdout.on('data', take);
