@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.7.5-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.7.6-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -59,7 +59,7 @@
 ## 🆕 Novidades da Última Atualização
 
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.7.5-blue?style=for-the-badge" alt="v10.7.5" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.7.6-blue?style=for-the-badge" alt="v10.7.6" />
 </p>
 
 <details open>
@@ -133,6 +133,7 @@
 - `.menubotoes on/off` · `.autoreload on/off` · `.cargos asta` / `.cargos padrao`
 
 **⚙️ Sistema**
+- 📱 **Termux sempre ligado:** liga ao abrir o Termux e ao ligar o celular (Termux:Boot), religa se fechar, sem duplicar · figurinhas usando todos os núcleos do celular
 - 🔄 `.atualizar` → atualiza o bot direto do GitHub, sem Git e sem mexer em arquivos (mantém sessão, dados, config e banner), com backup e reinício automático. O bot avisa o dono quando sai versão nova (`.atualizar aviso on/off`)
 - ♻️ Reinício automático quando os arquivos do bot mudam (é só extrair a atualização por cima)
 - 💾 Backup diário automático da sessão (não precisa escanear o QR de novo)
@@ -147,6 +148,7 @@
 
 <br>
 
+- No Termux, o autostart antigo abria **uma cópia nova do bot** cada vez que o Termux era aberto (causava quedas e "Bad MAC") → refeito
 - "Comando não encontrado" ao fazer **figurinhas em lote** (comando com Enter depois, caracteres invisíveis do copiar/colar, fotos enviadas em álbum) → corrigido, e as conversões agora entram numa fila em vez de sobrecarregar o computador
 - `.tm` e `.divdono` transmitiam figurinha **sem o som** → agora transmitem com som
 - Comandos que mexem em figurinha (take, rename, pack, sl, sc, s2, hidetag, automsg, comandos personalizados...) perdiam o som → agora mantêm
@@ -204,7 +206,7 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.7.5-blue?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.7.6-blue?style=flat-square) |
 | 🧩 Comandos e atalhos | ![Comandos](https://img.shields.io/badge/+1700-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
@@ -242,6 +244,15 @@ O que esse comando faz:
 2. Instala o Git, o FFmpeg e o Node.js (se você ainda não tiver).
 3. Baixa o ASTA MD na pasta pessoal do Termux (se já estiver baixado, não apaga nada).
 4. Instala as dependências e liga o bot.
+5. Pergunta **uma vez** se o bot deve ficar **sempre ligado** — responda `s`.
+
+**🔋 Bot sempre ligado no celular**
+- Ao abrir o Termux, o bot liga sozinho em segundo plano (nunca abre duas cópias).
+- Se o bot fechar ou travar, ele religa sozinho em 5 segundos.
+- Para ligar também quando o **celular reiniciar**: instale o app **[Termux:Boot](https://f-droid.org/packages/com.termux.boot/)** (F-Droid) e abra ele uma vez.
+- Em **Configurações → Apps → Termux → Bateria**, escolha **Sem restrições** (senão o Android fecha o Termux).
+- Comandos no Termux: `asta-log` (ver o console) · `asta-parar` · `asta-reiniciar` · `asta-iniciar`
+- As figurinhas usam todos os núcleos do processador do celular (menos 1, para o bot continuar respondendo).
 
 <details>
   <summary><strong>📌 Dicas e problemas comuns no Termux</strong></summary>
@@ -253,7 +264,7 @@ O que esse comando faz:
 - **Instale na pasta pessoal (`~`), não em `/sdcard`.** O armazenamento compartilhado não aceita links simbólicos e o `npm` falha lá.
 - O módulo de figurinhas (sharp) não tem versão pronta para Android. O bot detecta isso e instala sozinho a versão compatível (WebAssembly).
 - `.sfundo` em vídeo e o `.instalarfundo` não funcionam no Termux (o removedor de fundo local não roda no Android). Em foto, o `.sfundo` usa a API.
-- **Para ligar de novo depois:** `cd ~/asta-md && npm start`
+- **Para ligar de novo depois:** `asta-iniciar` (ou `cd ~/asta-md && sh iniciar.sh`)
 - **Para atualizar:** `cd ~/asta-md && git pull && npm start`
 </details>
 
@@ -368,7 +379,7 @@ O que **não** muda: a sessão do WhatsApp, os dados dos grupos e usuários (`da
 - `.atualizar forcar` → reinstala a versão do GitHub mesmo sem versão nova
 - Pelo terminal: `npm run update`
 
-> Quem está numa versão **anterior à v10.7.5** precisa atualizar uma vez do jeito manual (baixar o ZIP e extrair por cima, ou `git pull`). Depois disso, o `.atualizar` faz tudo sozinho.
+> Quem está numa versão **anterior à v10.7.6** precisa atualizar uma vez do jeito manual (baixar o ZIP e extrair por cima, ou `git pull`). Depois disso, o `.atualizar` faz tudo sozinho.
 </details>
 
 <details>

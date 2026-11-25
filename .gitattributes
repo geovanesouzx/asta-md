@@ -1,0 +1,3 @@
+# scripts do Termux/Linux precisam de quebra de linha LF; os do Windows, CRLF
+*.sh text eol=lf
+*.bat text eol=crlf

@@ -46,64 +46,112 @@ const getVersion = () => {
 let botProcess = null;
 const version = getVersion();
 
+// ===== TERMUX: bot sempre ligado =====
+// Pergunta UMA vez e configura:
+//  1) ao abrir o Termux, o bot liga sozinho em segundo plano (se ainda não estiver ligado)
+//  2) ao ligar o celular, o bot volta sozinho (precisa do app Termux:Boot)
+//  3) comandos: asta-log, asta-parar, asta-reiniciar, asta-iniciar
+// (a versão antiga abria uma cópia nova do bot a cada vez que o Termux era aberto)
+const TERMUX_MARK_START = '# >>> ASTA MD (não apague estas linhas) >>>';
+const TERMUX_MARK_END = '# <<< ASTA MD <<<';
+
+function termuxBashrcBlock(botDir) {
+  const q = (x) => `"${x}"`;
+  return `${TERMUX_MARK_START}
+ASTA_DIR=${q(botDir)}
+asta_rodando() { [ -f "$ASTA_DIR/dados/database/.asta-rodando.pid" ] && kill -0 "$(cat "$ASTA_DIR/dados/database/.asta-rodando.pid" 2>/dev/null)" 2>/dev/null; }
+asta-iniciar() {
+  if asta_rodando; then echo "⚔️ O ASTA MD já está ligado. Console: asta-log"; return; fi
+  if [ "$(ls "$ASTA_DIR/dados/database/qr-code" 2>/dev/null | wc -l)" -le 2 ]; then
+    echo "📱 Primeira conexão: conecte o WhatsApp abaixo."; (cd "$ASTA_DIR" && sh "$ASTA_DIR/iniciar.sh"); return
+  fi
+  mkdir -p "$ASTA_DIR/dados/logs"
+  nohup sh "$ASTA_DIR/iniciar.sh" >> "$ASTA_DIR/dados/logs/termux.log" 2>&1 &
+  echo "🚀 ASTA MD ligado em segundo plano."
+}
+asta-log() { tail -n 40 -f "$ASTA_DIR/dados/logs/termux.log"; }
+asta-parar() {
+  pkill -f "$ASTA_DIR/iniciar.sh" 2>/dev/null; pkill -f "dados/src/.scripts/start.js" 2>/dev/null; pkill -f "dados/src/connect.js" 2>/dev/null
+  rm -f "$ASTA_DIR/dados/database/.asta-rodando.pid"; echo "🛑 ASTA MD parado. Para ligar: asta-iniciar"
+}
+asta-reiniciar() { asta-parar; sleep 2; asta-iniciar; }
+if [ -z "$ASTA_SEM_AUTO" ] && [ -z "$ASTA_JA_ABRIU" ] && [ -d "$ASTA_DIR" ]; then
+  export ASTA_JA_ABRIU=1
+  asta-iniciar
+  echo "📜 Console: asta-log  |  🛑 Parar: asta-parar  |  ♻️ Reiniciar: asta-reiniciar"
+fi
+${TERMUX_MARK_END}`;
+}
+
+function termuxBootScript(botDir) {
+  return `#!/data/data/com.termux/files/usr/bin/sh
+# ASTA MD — liga o bot quando o celular liga (precisa do app Termux:Boot)
+termux-wake-lock
+sleep 25
+ASTA_DIR="${botDir}"
+PIDF="$ASTA_DIR/dados/database/.asta-rodando.pid"
+if [ -f "$PIDF" ] && kill -0 "$(cat "$PIDF" 2>/dev/null)" 2>/dev/null; then exit 0; fi
+mkdir -p "$ASTA_DIR/dados/logs"
+cd "$ASTA_DIR" && nohup sh "$ASTA_DIR/iniciar.sh" >> "$ASTA_DIR/dados/logs/termux.log" 2>&1 &
+`;
+}
+
+async function writeTermuxAutostart(botDir) {
+  const home = process.env.HOME;
+  const bashrcPath = path.join(home, '.bashrc');
+  let rc = fsSync.existsSync(bashrcPath) ? await fs.readFile(bashrcPath, 'utf8') : '';
+  // remove o autostart antigo (am startservice ... RUN_COMMAND), que duplicava o bot
+  rc = rc.replace(/\n?am startservice --user 0 \\\n(?:.*\\\n)*?.*RUN_COMMAND_SESSION_ACTION.*\n?/g, '\n');
+  // remove o bloco do ASTA (se já existir) e escreve de novo (o caminho da pasta pode ter mudado)
+  const re = new RegExp(`\\n?${TERMUX_MARK_START.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]*?${TERMUX_MARK_END.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n?`, 'g');
+  rc = rc.replace(re, '\n').replace(/\n{3,}/g, '\n\n').trimEnd();
+  rc += `\n\n${termuxBashrcBlock(botDir)}\n`;
+  await fs.writeFile(bashrcPath, rc);
+  const bootDir = path.join(home, '.termux', 'boot');
+  await fs.mkdir(bootDir, { recursive: true });
+  const bootFile = path.join(bootDir, 'asta-md.sh');
+  await fs.writeFile(bootFile, termuxBootScript(botDir));
+  try { await fs.chmod(bootFile, 0o755); } catch { }
+  try { await fs.chmod(path.join(botDir, 'iniciar.sh'), 0o755); } catch { }
+}
+
 async function setupTermuxAutostart() {
-  if (!isTermux) {
-    info('📱 Não está rodando no Termux. Ignorando configuração de autostart.');
+  if (!isTermux) return;
+  const botDir = process.cwd();
+  const statePath = path.join(botDir, 'dados', 'database', 'termux-auto.json');
+  let state = {};
+  try { state = JSON.parse(fsSync.readFileSync(statePath, 'utf8')); } catch { }
+  const bashrcPath = path.join(process.env.HOME || '', '.bashrc');
+  const rc = fsSync.existsSync(bashrcPath) ? fsSync.readFileSync(bashrcPath, 'utf8') : '';
+  const hasOld = rc.includes('com.termux.RUN_COMMAND');
+
+  // já configurado: só atualiza em silêncio (pasta mudou / versão nova do bloco)
+  if (rc.includes(TERMUX_MARK_START)) {
+    if (!rc.includes(`ASTA_DIR="${botDir}"`) || hasOld) {
+      try { await writeTermuxAutostart(botDir); } catch { }
+    }
     return;
   }
+  if (state.recusado && !hasOld) return;
+  // sem terminal (ex.: ligado pelo Termux:Boot): não dá para perguntar
+  if (!process.stdin.isTTY) return;
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const answer = await rl.question(`${colors.yellow}📱 Detectado ambiente Termux. Deseja configurar inicialização automática? (s/n): ${colors.reset}`);
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await rl.question(`${colors.yellow}📱 Termux detectado. Deixar o ASTA MD SEMPRE ligado (liga sozinho ao abrir o Termux e ao ligar o celular)? (S/n): ${colors.reset}`);
   rl.close();
-
-  if (answer.trim().toLowerCase() !== 's') {
-    info('📱 Configuração de autostart ignorada pelo usuário.');
+  if (answer.trim().toLowerCase().startsWith('n')) {
+    try { fsSync.mkdirSync(path.dirname(statePath), { recursive: true }); fsSync.writeFileSync(statePath, JSON.stringify({ recusado: true })); } catch { }
+    info('📱 Ok! Para ligar depois: cd ~/asta-md && sh iniciar.sh');
     return;
   }
-
-  info('📱 Configurando inicialização automática no Termux...');
-
   try {
-    const termuxProperties = path.join(process.env.HOME, '.termux', 'termux.properties');
-    await fs.mkdir(path.dirname(termuxProperties), { recursive: true });
-    if (!fsSync.existsSync(termuxProperties)) {
-      await fs.writeFile(termuxProperties, '');
-    }
-    execSync(`sed '/^# *allow-external-apps *= *true/s/^# *//' ${termuxProperties} -i && termux-reload-settings`, { stdio: 'inherit' });
-    mensagem('📝 Configuração de termux.properties concluída.');
-
-    const bashrcPath = path.join(process.env.HOME, '.bashrc');
-    const termuxServiceCommand = `
-am startservice --user 0 \\
-  -n com.termux/com.termux.app.RunCommandService \\
-  -a com.termux.RUN_COMMAND \\
-  --es com.termux.RUN_COMMAND_PATH '/data/data/com.termux/files/usr/bin/npm' \\
-  --esa com.termux.RUN_COMMAND_ARGUMENTS 'start' \\
-  --es com.termux.RUN_COMMAND_SESSION_NAME 'ASTA MD' \\
-  --es com.termux.RUN_COMMAND_WORKDIR '${path.join(process.cwd())}' \\
-  --ez com.termux.RUN_COMMAND_BACKGROUND 'false' \\
-  --es com.termux.RUN_COMMAND_SESSION_ACTION '0'
-`.trim();
-
-    let bashrcContent = '';
-    if (fsSync.existsSync(bashrcPath)) {
-      bashrcContent = await fs.readFile(bashrcPath, 'utf8');
-    }
-
-    if (!bashrcContent.includes(termuxServiceCommand)) {
-      await fs.appendFile(bashrcPath, `\n${termuxServiceCommand}\n`);
-      mensagem('📝 Comando am startservice adicionado ao ~/.bashrc');
-    } else {
-      info('📝 Comando am startservice já presente no ~/.bashrc');
-    }
-
-    mensagem('📱 Configuração de inicialização automática no Termux concluída!');
+    await writeTermuxAutostart(botDir);
+    mensagem('✅ Pronto! Agora o ASTA MD liga sozinho ao abrir o Termux.');
+    info('📱 Para ligar também quando o celular reiniciar: instale o app "Termux:Boot" (F-Droid) e abra ele uma vez.');
+    info('🔋 Importante: em Configurações > Apps > Termux > Bateria, escolha "Sem restrições".');
+    info('📜 Comandos: asta-log (ver console) | asta-parar | asta-reiniciar | asta-iniciar');
   } catch (error) {
-    aviso(`❌ Erro ao configurar autostart no Termux: ${error.message}`);
+    aviso(`❌ Erro ao configurar o modo sempre ligado: ${error.message}`);
   }
 }
 

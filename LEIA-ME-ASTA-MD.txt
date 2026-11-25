@@ -332,3 +332,17 @@ v10.7.5 — FIGURINHAS EM LOTE SEM ERRO
   as outras esperam a vez em vez de falhar. Config opcional: "ffmpegSimultaneos": 3
 - O !scorte não trava mais o bot enquanto procura a tarja.
 - Novo atalho: !sq = !squadrado
+
+==================================================
+v10.7.6 — TERMUX: SEMPRE LIGADO E MAIS RÁPIDO
+==================================================
+- Na primeira vez no Termux, o bot pergunta UMA vez se deve ficar sempre ligado. Se sim:
+  - ao abrir o Termux, o bot liga sozinho em segundo plano (nunca abre duas cópias);
+  - ao ligar o celular, o bot volta sozinho (instale o app Termux:Boot pelo F-Droid e abra uma vez);
+  - se o bot fechar ou travar, ele religa em 5s;
+  - comandos no Termux: asta-log (ver o console), asta-parar, asta-reiniciar, asta-iniciar.
+- Corrigido: o autostart antigo abria uma CÓPIA NOVA do bot cada vez que o Termux era aberto
+  (duas cópias na mesma sessão causam quedas e erros "Bad MAC"). Ele é removido sozinho.
+- Figurinhas no celular: usa todos os núcleos do processador menos 1 (antes: 2 a 4),
+  e o "wake lock" impede o Android de deixar o processador lento com a tela apagada.
+- Novo: iniciar.sh (Termux/Linux) mantém o bot sempre ligado.
