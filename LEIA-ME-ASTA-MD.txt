@@ -319,3 +319,16 @@ v10.7.4 — CORREÇÃO DO CONFIGURADOR
 - Corrigido "Erro fatal: off is not defined" ao ligar o bot sem config.json
   (o configurador nunca funcionava). Agora ele cria um config.json completo do ASTA MD.
 - Removido o aviso "DeprecationWarning DEP0190" no Windows.
+
+==================================================
+v10.7.5 — FIGURINHAS EM LOTE SEM ERRO
+==================================================
+- Corrigido "comando não encontrado" em lotes de figurinhas:
+  - comando com ENTER depois (".squadrado" + nova linha + "cima") agora funciona;
+  - caracteres invisíveis do copiar/colar e de alguns teclados são ignorados;
+  - fotos/vídeos enviados JUNTOS (álbum) agora são lidos — antes eram ignorados;
+  - grupos com mensagens temporárias: os comandos de figurinha acham a mídia.
+- Fila de conversão: no máximo 2 a 4 conversões ao mesmo tempo (conforme o processador);
+  as outras esperam a vez em vez de falhar. Config opcional: "ffmpegSimultaneos": 3
+- O !scorte não trava mais o bot enquanto procura a tarja.
+- Novo atalho: !sq = !squadrado

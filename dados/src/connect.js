@@ -1520,7 +1520,7 @@ async function createBotSocket(authDir) {
         // Baileys usa isso para reenviar mensagens que falharam ao descriptografar
         getMessage: async (key) => {
             const cached = messagesCache.get(`${key.remoteJid}_${key.id}`);
-            return cached?.message || undefined;
+            return cached?.__rawMessage || cached?.message || undefined;
         },
         // Evita buscar os dados do grupo no WhatsApp a cada mensagem enviada
         cachedGroupMetadata: async (jid) => groupMetadataCache.get(jid)

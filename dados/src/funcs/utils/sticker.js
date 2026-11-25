@@ -1,3 +1,4 @@
+import { withFfmpegSlot } from './ffmpegQueue.js';
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
@@ -59,7 +60,9 @@ function animEncoder() {
   return _animEncoder;
 }
 
-function runFfmpeg(args, timeoutMs = 180000) {
+// passa pela fila (lotes de figurinhas não sobrecarregam o computador)
+const runFfmpeg = (args, timeoutMs = 180000) => withFfmpegSlot(() => runFfmpegRaw(args, timeoutMs));
+function runFfmpegRaw(args, timeoutMs = 180000) {
   return new Promise((resolve, reject) => {
     const p = spawn('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', ...args], { stdio: ['ignore', 'ignore', 'pipe'] });
     let err = '';
@@ -414,8 +417,15 @@ async function detectBlackBars(buffer, isVideo = true) {
     if (isVideo) args.push('-t', '60', '-vf', 'fps=2,cropdetect=limit=28:round=2:reset=1');
     else args.push('-frames:v', '1', '-vf', 'cropdetect=limit=28:round=2:reset=1:skip=0');
     args.push('-an', '-f', 'null', '-');
-    const r = spawnSync('ffmpeg', args, { encoding: 'utf8', timeout: 90000, maxBuffer: 32 * 1024 * 1024 });
-    const err = String(r.stderr || '');
+    // assíncrono e pela fila (o spawnSync travava o bot inteiro durante a análise)
+    const err = await withFfmpegSlot(() => new Promise((resolve) => {
+      const p = spawn('ffmpeg', args, { stdio: ['ignore', 'ignore', 'pipe'] });
+      let e = '';
+      p.stderr.on('data', (d) => { e += d; if (e.length > 8_000_000) e = e.slice(-4_000_000); });
+      const t = setTimeout(() => { try { p.kill('SIGKILL'); } catch { } resolve(e); }, 90000);
+      p.on('error', () => { clearTimeout(t); resolve(e); });
+      p.on('close', () => { clearTimeout(t); resolve(e); });
+    }));
     const dim = err.match(/Stream #.*Video:.*?(\d{2,5})x(\d{2,5})/);
     if (!dim) return null;
     const W = Number(dim[1]), H = Number(dim[2]);

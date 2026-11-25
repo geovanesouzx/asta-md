@@ -1051,6 +1051,23 @@ const liveSock = (fallback) => global.__nazunaSock || fallback;
 const autoAcceptIntervals = global.__nazunaAutoAcceptIntervals || (global.__nazunaAutoAcceptIntervals = new Map());
 
 async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirationManager = null) {
+  // ===== DESEMBRULHA A MENSAGEM =====
+  // Fotos/vídeos enviados JUNTOS (álbum) chegam dentro de "associatedChildMessage"; em grupos com
+  // mensagens temporárias, dentro de "ephemeralMessage". Os comandos procuram a mídia direto em
+  // info.message, então abre esses embrulhos aqui (a visualização única continua como está).
+  try {
+    let mm = info?.message;
+    for (let i = 0; i < 5 && mm; i++) {
+      const inner = mm.ephemeralMessage?.message || mm.associatedChildMessage?.message || mm.deviceSentMessage?.message || mm.documentWithCaptionMessage?.message;
+      if (!inner) break;
+      mm = { ...inner, ...(mm.messageContextInfo && !inner.messageContextInfo ? { messageContextInfo: mm.messageContextInfo } : {}) };
+    }
+    if (mm && mm !== info.message) {
+      // a original (embrulhada) fica guardada para o reenvio/retry do WhatsApp
+      try { Object.defineProperty(info, '__rawMessage', { value: info.message, enumerable: false, configurable: true }); } catch { }
+      info.message = mm;
+    }
+  } catch { }
   // Log de início de processamento para debug paralelo
   const msgId = info?.key?.id?.slice(-6) || 'unknown';
   const from = info?.key?.remoteJid || 'unknown';
@@ -2317,10 +2334,17 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
       }
     }
 
+    // tira caracteres invisíveis que teclados e o copiar/colar colocam (zero-width, marcas de direção...)
+    body = String(body || '').replace(/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD\u180E\u202A-\u202E]/g, '');
     var isCmd = body.trim().startsWith(groupPrefix);
 
-    // Suporte para "! comando" (com espaço após o prefixo)
-    const bodyWithoutPrefix = body.trim().slice(groupPrefix.length).trimStart();
+    // Suporte para "! comando" (com espaço após o prefixo) e comando seguido de QUEBRA DE LINHA
+    // (".scorte\ncima" virava "scortecima" e dava "comando não encontrado")
+    const bodyWithoutPrefix = (() => {
+      const raw = body.trim().slice(groupPrefix.length).trimStart();
+      const m = raw.match(/^(\S+)[ \t]*\r?\n+([\s\S]*)$/);
+      return m ? `${m[1]} ${m[2]}` : raw;
+    })();
 
     const aliases = loadCommandAliases();
     const matchedAlias = aliases.find(item => normalizar(bodyWithoutPrefix.split(/ +/).shift().trim()) === item.alias);
@@ -27803,6 +27827,7 @@ break;
         break;
       // ===== FIGURINHA QUADRADA DE VERDADE (corta 1:1, sem esticar e sem bordas) — mantém o som =====
       case 'squadrado':
+      case 'sq':
       case 'quadrado':
       case 'squad':
       case 's1x1':

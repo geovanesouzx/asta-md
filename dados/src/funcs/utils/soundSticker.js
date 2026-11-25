@@ -12,6 +12,7 @@
  * Quem não tem a função no WhatsApp ainda vê uma figurinha normal.
  * Referência da estrutura: github.com/nabilboubakri23-del/NEO-BOT (systems/media/soundSticker.js)
  */
+import { withFfmpegSlot } from './ffmpegQueue.js';
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
@@ -218,7 +219,9 @@ const tmpDir = () => {
 };
 const tmpFile = (ext) => path.join(tmpDir(), `snd_${Date.now()}_${Math.floor(Math.random() * 1e6)}.${ext}`);
 
-const runFfmpeg = (args, timeoutMs = 60_000) =>
+// passa pela fila (lotes de figurinhas não sobrecarregam o computador)
+const runFfmpeg = (args, timeoutMs = 60_000) => withFfmpegSlot(() => runFfmpegRaw(args, timeoutMs));
+const runFfmpegRaw = (args, timeoutMs = 60_000) =>
   new Promise((resolve, reject) => {
     const p = spawn('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', ...args], { stdio: ['ignore', 'ignore', 'pipe'] });
     let err = '';

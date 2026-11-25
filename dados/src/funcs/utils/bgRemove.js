@@ -6,6 +6,7 @@
  * Vídeo -> remove o fundo quadro a quadro e devolve um vídeo .mov com transparência
  *          (depois vira figurinha animada normal pelo convertToWebp).
  */
+import { withFfmpegSlot } from './ffmpegQueue.js';
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
@@ -64,7 +65,9 @@ const TMP = () => {
 };
 const tmpName = (ext) => path.join(TMP(), `bg_${Date.now()}_${Math.floor(Math.random() * 1e6)}.${ext}`);
 
-const runFfmpeg = (args, timeoutMs = 180_000) =>
+// passa pela fila (lotes de figurinhas não sobrecarregam o computador)
+const runFfmpeg = (args, timeoutMs = 180_000) => withFfmpegSlot(() => runFfmpegRaw(args, timeoutMs));
+const runFfmpegRaw = (args, timeoutMs = 180_000) =>
   new Promise((resolve, reject) => {
     const p = spawn('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', ...args], { stdio: ['ignore', 'ignore', 'pipe'] });
     let err = '';

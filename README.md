@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.7.4-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.7.5-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -59,7 +59,7 @@
 ## 🆕 Novidades da Última Atualização
 
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.7.4-blue?style=for-the-badge" alt="v10.7.4" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.7.5-blue?style=for-the-badge" alt="v10.7.5" />
 </p>
 
 <details open>
@@ -81,7 +81,7 @@
 - `.soundinfo` → relatório técnico de uma figurinha (diagnóstico)
 
 **🎨 Novos comandos de figurinha**
-- `.squadrado` → corta foto/vídeo/figurinha em quadrado 1:1 **de verdade** (sem esticar e sem bordas), com som · `.squadrado cima / baixo / esquerda / direita`
+- `.squadrado` (ou `.sq`) → corta foto/vídeo/figurinha em quadrado 1:1 **de verdade** (sem esticar e sem bordas), com som · `.squadrado cima / baixo / esquerda / direita`
 - `.scorte` → acha e corta a **tarja preta** (em cima/embaixo ou nas laterais) e mantém o som. Se a mídia não tiver tarja, nada é cortado
 - `.sfundo` → tira o fundo de **fotos, vídeos e figurinhas** no próprio aparelho (sem API), vídeo mantém o som · `.rmbg` devolve PNG transparente · `.instalarfundo` (dono, uma vez)
 - `.sc` → figurinha redonda · `.sl <texto>` → figurinha com legenda estilo meme
@@ -147,6 +147,7 @@
 
 <br>
 
+- "Comando não encontrado" ao fazer **figurinhas em lote** (comando com Enter depois, caracteres invisíveis do copiar/colar, fotos enviadas em álbum) → corrigido, e as conversões agora entram numa fila em vez de sobrecarregar o computador
 - `.tm` e `.divdono` transmitiam figurinha **sem o som** → agora transmitem com som
 - Comandos que mexem em figurinha (take, rename, pack, sl, sc, s2, hidetag, automsg, comandos personalizados...) perdiam o som → agora mantêm
 - Som da figurinha no **iPhone**: a figurinha agora vai com os mesmos campos que o celular manda
@@ -203,7 +204,7 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.7.4-blue?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.7.5-blue?style=flat-square) |
 | 🧩 Comandos e atalhos | ![Comandos](https://img.shields.io/badge/+1700-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
@@ -367,7 +368,7 @@ O que **não** muda: a sessão do WhatsApp, os dados dos grupos e usuários (`da
 - `.atualizar forcar` → reinstala a versão do GitHub mesmo sem versão nova
 - Pelo terminal: `npm run update`
 
-> Quem está numa versão **anterior à v10.7.4** precisa atualizar uma vez do jeito manual (baixar o ZIP e extrair por cima, ou `git pull`). Depois disso, o `.atualizar` faz tudo sozinho.
+> Quem está numa versão **anterior à v10.7.5** precisa atualizar uma vez do jeito manual (baixar o ZIP e extrair por cima, ou `git pull`). Depois disso, o `.atualizar` faz tudo sozinho.
 </details>
 
 <details>
