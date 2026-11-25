@@ -21,5 +21,8 @@
   "figSomMaxSeg": 30,
   "figVideoSomMaxSeg": 30,
   "menuBotoes": true,
-  "botoesBotNode": false
+  "botoesBotNode": false,
+  "repoAtualizacao": "geovanesouzx/asta-md",
+  "ramoAtualizacao": "main",
+  "avisoAtualizacao": true
 }

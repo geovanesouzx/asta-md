@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.7.2-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.7.3-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -59,7 +59,7 @@
 ## 🆕 Novidades da Última Atualização
 
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.7.2-blue?style=for-the-badge" alt="v10.7.2" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.7.3-blue?style=for-the-badge" alt="v10.7.3" />
 </p>
 
 <details open>
@@ -133,6 +133,7 @@
 - `.menubotoes on/off` · `.autoreload on/off` · `.cargos asta` / `.cargos padrao`
 
 **⚙️ Sistema**
+- 🔄 `.atualizar` → atualiza o bot direto do GitHub, sem Git e sem mexer em arquivos (mantém sessão, dados, config e banner), com backup e reinício automático. O bot avisa o dono quando sai versão nova (`.atualizar aviso on/off`)
 - ♻️ Reinício automático quando os arquivos do bot mudam (é só extrair a atualização por cima)
 - 💾 Backup diário automático da sessão (não precisa escanear o QR de novo)
 - 🔔 Aviso de aluguel vencendo com botões 🔄 RENOVAR / 📞 FALAR COM O DONO
@@ -158,7 +159,8 @@
 - `.revelar` mandava a foto corrompida
 - Erro `Could not load the "sharp" module` na instalação (a instalação usava `--no-optional`)
 - Avisos falsos `Erro ao ler configurações do grupo ... ENOENT`
-- O atualizador antigo (`.atualizar`) baixava o Nazuna original e apagava o ASTA MD → bloqueado
+- O atualizador antigo (`.atualizar`) baixava a Nazuna original e apagava o ASTA MD → refeito, agora atualiza pelo repositório do ASTA MD
+- Aviso `[EXPORTS] Module 'Logos2' not found` no console
 </details>
 
 <details open>
@@ -178,6 +180,7 @@
 - `.autosticker` — com som
 - `.take` / `.rename` / `.pack` — mantêm o som
 - `.assistente` — personalidade do Asta
+- `.atualizar` — funcionando de novo: pelo GitHub do ASTA MD, com botões, backup e aviso de versão nova
 </details>
 
 ---
@@ -200,7 +203,7 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.7.2-blue?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.7.3-blue?style=flat-square) |
 | 🧩 Comandos e atalhos | ![Comandos](https://img.shields.io/badge/+1700-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
@@ -355,12 +358,16 @@ Sim. O ASTA MD continua em desenvolvimento ativo pelo ★彡 GEOVANE MD 彡★.
 <details>
   <summary><strong>🔄 Como atualizar o bot?</strong></summary>
 
-- Com Git: na pasta do bot, rode `git pull` e ligue de novo.
-- Sem Git: baixe o ZIP novo e extraia **por cima** da pasta do bot. **Não apague** `dados/database/qr-code` (é a sua sessão do WhatsApp) nem o seu `dados/src/config.json`.
+**Pelo WhatsApp (mais fácil):** mande `.atualizar` no privado do bot (só o dono).
+O bot mostra a versão nova e o que mudou. Toque em **✅ ATUALIZAR AGORA** (ou digite `.atualizar sim`) e pronto: ele baixa, aplica, instala o que precisar e reinicia sozinho.
 
-Com o bot ligado, ele reinicia sozinho quando os arquivos mudam.
+O que **não** muda: a sessão do WhatsApp, os dados dos grupos e usuários (`dados/database`), o seu `config.json` (só ganha opções novas), o seu banner e as suas mídias. Antes de trocar qualquer arquivo, o bot faz um backup em `dados/database/backups-atualizacao`.
 
-⚠️ Não use o `.atualizar` antigo: ele está bloqueado porque baixava a Nazuna original por cima do ASTA MD.
+- `.atualizar aviso on/off` → o bot te avisa no privado quando sair versão nova (ligado por padrão)
+- `.atualizar forcar` → reinstala a versão do GitHub mesmo sem versão nova
+- Pelo terminal: `npm run update`
+
+> Quem está numa versão **anterior à v10.7.3** precisa atualizar uma vez do jeito manual (baixar o ZIP e extrair por cima, ou `git pull`). Depois disso, o `.atualizar` faz tudo sozinho.
 </details>
 
 <details>

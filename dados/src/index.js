@@ -608,7 +608,6 @@ const {
   styleText,
   logos,
   edits,
-  Logos2,
   emojiMix,
   upload,
   tictactoe,
@@ -17268,210 +17267,60 @@ ${prefix}addsubbot @152656307871952`
       case 'atualizar':
       case 'update':
       case 'atualizarbot':
-        if (!isOwner || isSubOwner) return reply("🚫 Apenas o Dono principal pode atualizar o bot!");
-        if (config.atualizacaoLiberada !== true) {
-          return reply(`🛡️ *Atualização automática bloqueada*\n\nO atualizador baixa o projeto original (Nazuna) e apagaria tudo do ★彡 ASTA MD 彡★ (nome, textos, botões, figurinhas com som...).\n\nPara atualizar o ASTA MD, extraia o novo asta-md.zip por cima da pasta: o bot reinicia sozinho.\n\n⚠️ Se quiser mesmo usar o atualizador original, coloque "atualizacaoLiberada": true no config.json.`);
-        }
-
         try {
-          const updateScriptPath = pathz.join(__dirname, '.scripts', 'update.js');
+          if (!isOwner || isSubOwner) return reply("🚫 Apenas o Dono principal pode atualizar o bot!");
+          const subUp = String(q || '').trim().toLowerCase();
+          const upd = await import('./funcs/utils/autoUpdate.js');
 
-          // Verifica se o script de atualização existe
-          if (!fs.existsSync(updateScriptPath)) {
-            return reply("❌ Script de atualização não encontrado!\n\n📂 Caminho esperado: dados/src/.scripts/update.js");
+          // aviso automático de versão nova (liga/desliga)
+          if (/^aviso(s)?\b/.test(subUp) || /^auto\b/.test(subUp)) {
+            const liga = /\bon\b|ligar|ativar/.test(subUp), desliga = /\boff\b|desligar|desativar/.test(subUp);
+            const cfgU = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
+            if (liga || desliga) { cfgU.avisoAtualizacao = liga; fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfgU, null, 2)); }
+            return reply(`🔔 Aviso de atualização: *${(cfgU.avisoAtualizacao ?? true) ? 'LIGADO' : 'DESLIGADO'}*\n\nQuando tiver versão nova no GitHub, o bot te avisa no privado.\n• ${prefix}atualizar aviso on / off`);
+          }
+          if (subUp === 'cancelar' || subUp === 'nao' || subUp === 'não') return reply('👍 Atualização cancelada. Quando quiser: ' + prefix + 'atualizar');
+
+          if (subUp !== 'sim' && subUp !== 'forcar' && subUp !== 'forçar') {
+            await reply('🔍 Procurando atualização no GitHub...');
+            const inf = await upd.checkForUpdate();
+            const dataUp = inf.date ? new Date(inf.date).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '?';
+            if (!inf.available) {
+              return reply(`✅ *O bot já está atualizado!*\n\n📦 Versão: *${inf.current}*\n🔖 Commit: ${inf.shortSha} (${dataUp})\n📁 ${inf.repo}\n\n💡 Para reinstalar a versão do GitHub mesmo assim: ${prefix}atualizar forcar`);
+            }
+            const textoUp = `🆕 *ATUALIZAÇÃO DISPONÍVEL*\n\n📦 Versão atual: *${inf.current}*\n✨ Nova versão: *${inf.latest}*\n📝 ${inf.message || '-'}\n🕒 ${dataUp}\n\n✅ *Ficam do jeito que estão:* sessão do WhatsApp, grupos, usuários, configurações (config.json), banner e backups.\n🔒 Os arquivos trocados ganham um backup antes.\n♻️ O bot reinicia sozinho no final (uns segundos fora do ar).\n\nSe os botões não aparecerem, digite *${prefix}atualizar sim*`;
+            try {
+              await sendButtons(nazu, from, { text: textoUp, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('✅ ATUALIZAR AGORA', `${prefix}atualizar sim`), quickReply('❌ AGORA NÃO', `${prefix}atualizar cancelar`)] });
+            } catch { await reply(textoUp); }
+            return;
           }
 
-          // Se não passou o parâmetro "sim", mostra o aviso
-          if (!q || q.toLowerCase() !== 'sim') {
-            const avisoMsg = `⚠️ *ATENÇÃO - ATUALIZAÇÃO DO BOT* ⚠️
-
-┏━━━━━━━━━━━━━━━━━━━━━
-┃ 📢 *AVISOS IMPORTANTES:*
-┣━━━━━━━━━━━━━━━━━━━━━
-┃
-┃ ⚠️ Edições manuais no código 
-┃    serão *PERDIDAS*
-┃
-┃ ✅ Banco de dados será 
-┃    *PRESERVADO*
-┃
-┃ ✅ Configurações (config.json)
-┃    serão *MANTIDAS*
-┃
-┃ ✅ Mídias serão *PRESERVADAS*
-┃
-┃ 🔒 Backup automático será criado
-┃
-┃ ⏸️ Processamento de mensagens
-┃    será *PAUSADO* durante update
-┃
-┣━━━━━━━━━━━━━━━━━━━━━
-┃ 💡 *RECOMENDAÇÃO:*
-┃ Faça um backup manual antes!
-┣━━━━━━━━━━━━━━━━━━━━━
-┃
-┃ 📝 Para confirmar, use:
-┃ ${prefix}atualizar sim
-┃
-┗━━━━━━━━━━━━━━━━━━━━━`;
-
-            return reply(avisoMsg);
-          }
-
-          // Confirmação recebida, iniciar atualização
-          await reply("🚀 *INICIANDO ATUALIZAÇÃO...*\n\n⏸️ Pausando processamento de mensagens...");
-
-          // Pausa o processamento de mensagens
-          const messageQueueModule = await import('./connect.js');
-          if (messageQueueModule.messageQueue && typeof messageQueueModule.messageQueue.pause === 'function') {
-            messageQueueModule.messageQueue.pause();
-            await reply("✅ Processamento pausado com sucesso!\n\n🔄 Iniciando script de atualização...");
-          }
-
-          // Cria o processo de atualização
-          const updateProcess = spawn('node', [updateScriptPath], {
-            cwd: pathz.join(__dirname, '..', '..'),
-            stdio: ['ignore', 'pipe', 'pipe'],
-            detached: false
-          });
-
-          let outputBuffer = '';
-          const messagesSent = new Set(); // Rastreia mensagens já enviadas para evitar duplicatas
-          const messageQueue = []; // Fila de mensagens pendentes
-          let isProcessingQueue = false;
-
-          // Mapeamento de triggers para mensagens
-          const updateMessages = {
-            'Verificando requisitos': '🔍 Verificando requisitos do sistema...',
-            'Criando backup': '📁 Criando backup dos arquivos importantes...',
-            'Backup salvo': '✅ Backup criado com sucesso!',
-            'Baixando a versão': '📥 Baixando atualização do GitHub...',
-            'Download concluído': '✅ Download concluído!\n\n🧹 Limpando arquivos antigos...',
-            'Limpeza concluída': '✅ Limpeza concluída!\n\n🚀 Aplicando atualização...',
-            'Atualização aplicada': '✅ Atualização aplicada!\n\n📂 Restaurando dados preservados...',
-            'Backup restaurado': '✅ Dados restaurados!\n\n📦 Instalando dependências...',
-            'Instalando dependências': '📦 Instalando/verificando dependências...\n⏳ Isso pode levar alguns minutos...',
-            'Dependências instaladas': '✅ Dependências instaladas com sucesso!'
-          };
-
-          // Processa a fila de mensagens sequencialmente
-          const processMessageQueue = async () => {
-            if (isProcessingQueue || messageQueue.length === 0) return;
-
-            isProcessingQueue = true;
-            while (messageQueue.length > 0) {
-              const message = messageQueue.shift();
-              try {
-                await reply(message);
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Delay entre mensagens
-              } catch (e) {
-                console.error('Erro ao enviar update:', e);
-              }
-            }
-            isProcessingQueue = false;
-          };
-
-          // Adiciona mensagem à fila se não foi enviada ainda
-          const queueUpdate = (trigger, message) => {
-            if (!messagesSent.has(trigger)) {
-              messagesSent.add(trigger);
-              messageQueue.push(message);
-              processMessageQueue();
-            }
-          };
-
-          // Captura stdout
-          updateProcess.stdout.on('data', async (data) => {
-            const output = data.toString();
-            console.log('UPDATE:', output);
-            outputBuffer += output;
-
-            // Verifica cada trigger e enfileira a mensagem correspondente
-            for (const [trigger, message] of Object.entries(updateMessages)) {
-              if (output.includes(trigger)) {
-                queueUpdate(trigger, message);
-              }
-            }
-          });
-
-          // Captura stderr
-          updateProcess.stderr.on('data', (data) => {
-            const error = data.toString();
-            console.error('UPDATE ERROR:', error);
-          });
-
-          // Quando o processo terminar
-          updateProcess.on('close', async (code) => {
-            if (code === 0) {
-              await reply(`✅ *ATUALIZAÇÃO CONCLUÍDA COM SUCESSO!*
-
-🎉 O bot foi atualizado para a versão mais recente!
-
-🔄 Reiniciando automaticamente em 3 segundos...`);
-
-              // Aguarda 3 segundos antes de reiniciar
-              setTimeout(async () => {
-                await reply('🔄 Reiniciando agora...');
-
-                // Aguarda mais 1 segundo para garantir que a mensagem foi enviada
-                setTimeout(() => {
-                  console.log('[UPDATE] Reiniciando após atualização...');
-                  process.exit(0); // Exit code 0 indica sucesso, o gerenciador de processos deve reiniciar
-                }, 1000);
-              }, 3000);
-            } else {
-              await reply(`❌ *ERRO NA ATUALIZAÇÃO!*
-
-⚠️ O processo de atualização falhou com código: ${code}
-
-🔧 *O que fazer:*
-┃
-┃ 1️⃣ Verifique sua conexão com a internet
-┃ 2️⃣ Certifique-se de ter Git instalado
-┃ 3️⃣ Tente novamente em alguns minutos
-┃ 4️⃣ Se persistir, atualize manualmente:
-┃    cd dados/src/.scripts
-┃    node update.js
-┃
-┗━━━━━━━━━━━━━━━━━━━━━
-
-📂 Backup foi preservado para segurança.`);
-
-              // Retoma o processamento de mensagens
-              if (messageQueueModule.messageQueue && typeof messageQueueModule.messageQueue.resume === 'function') {
-                messageQueueModule.messageQueue.resume();
-              }
-            }
-          });
-
-          // Timeout de segurança (15 minutos)
-          setTimeout(async () => {
-            if (!updateProcess.killed) {
-              updateProcess.kill();
-              await reply("⏱️ Timeout na atualização (15min).\n\n❌ Processo cancelado por segurança.\n\n🔄 Retomando processamento de mensagens...");
-
-              if (messageQueueModule.messageQueue && typeof messageQueueModule.messageQueue.resume === 'function') {
-                messageQueueModule.messageQueue.resume();
-              }
-            }
-          }, 15 * 60 * 1000); // 15 minutos
-
+          if (global.__astaUpdating) return reply('⏳ Já tem uma atualização em andamento.');
+          await reply('🚀 *Atualizando o ★彡 ASTA MD 彡★...*\nNão desligue o bot.');
+          const r = await upd.applyUpdate(async (t) => { try { await reply(t); } catch { } }, { force: subUp !== 'sim' });
+          if (r.nothing) return reply(`✅ Já está na versão mais nova (*${r.current}*).`);
+          const resumoUp = [
+            `✅ *Atualização aplicada!* → v${r.version} (${r.shortSha})`,
+            `📝 ${r.message || '-'}`,
+            `🧩 ${r.changed} arquivo(s) atualizado(s), ${r.added} novo(s)`,
+            r.configAdded.length ? `⚙️ Opções novas no config: ${r.configAdded.join(', ')}` : '',
+            r.depsChanged ? (r.npmOk ? '📦 Dependências instaladas' : '⚠️ Dependências com erro (veja o console)') : '',
+            r.backup ? `💾 Backup: ${r.backup}` : '',
+            '',
+            '♻️ Reiniciando em 3 segundos... te aviso quando voltar.'
+          ].filter(Boolean).join('\n');
+          await reply(resumoUp);
+          upd.writeState({ notify: from, notifyVersion: r.version });
+          global.__astaUpdateRestarting = true;
+          try { const mq = await import('./connect.js'); mq.messageQueue?.pause?.(); } catch { }
+          setTimeout(() => process.exit(0), 3000);
         } catch (e) {
-          console.error("Erro no comando atualizar:", e);
-          await reply(`❌ Erro ao executar atualização: ${e.message}\n\n🔄 Retomando processamento de mensagens...`);
-
-          // Garante retomar o processamento em caso de erro
-          try {
-            const messageQueueModule = await import('./connect.js');
-            if (messageQueueModule.messageQueue && typeof messageQueueModule.messageQueue.resume === 'function') {
-              messageQueueModule.messageQueue.resume();
-            }
-          } catch (resumeError) {
-            console.error('Erro ao retomar processamento:', resumeError);
-          }
+          global.__astaUpdating = false;
+          console.error('[ATUALIZAR] Erro:', e);
+          const msgE = /ENOTFOUND|EAI_AGAIN|ECONNRESET|ETIMEDOUT|timeout/i.test(e?.message || '') ? 'sem conexão com o GitHub agora' : (e?.response?.status === 404 ? 'repositório não encontrado (confira "repoAtualizacao" no config.json)' : e?.response?.status === 403 ? 'o GitHub limitou as consultas — tente de novo em 1 hora' : e.message);
+          await reply(`❌ Não consegui atualizar: ${msgE}\n\n💾 Se algum arquivo chegou a ser trocado, o backup está em dados/database/backups-atualizacao. O bot continua funcionando.`);
         }
         break;
-
       case 'reiniciar':
       case 'restart':
       case 'reboot':

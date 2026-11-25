@@ -25,6 +25,8 @@ async function menuDono(prefix, botName = "MeuBot", userName = "Usuário", {
 
 ${menuTopBorder}${separatorIcon} *⚔️ NOVIDADES ASTA MD*
 ${middleBorder}${menuItemIcon}${prefix}instalarfundo (removedor de fundo local)
+${middleBorder}${menuItemIcon}${prefix}atualizar (baixa a versão nova do GitHub)
+${middleBorder}${menuItemIcon}${prefix}atualizar aviso on/off
 ${middleBorder}
 ${middleBorder}${menuItemIcon}${prefix}autoreload on/off
 ${middleBorder}${menuItemIcon}${prefix}status

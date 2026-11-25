@@ -258,12 +258,14 @@ function startCodeWatcher() {
     try {
         fsSync.watch(srcDir, { recursive: true }, (evento, arquivo) => {
             if (!arquivo) return;
+            if (global.__astaUpdating) return; // o !atualizar reinicia sozinho no final
             const nome = String(arquivo);
             if (!/\.(m?js|cjs)$/i.test(nome) || ignorar.test(nome)) return;
             alterados.add(nome);
             clearTimeout(timer);
             // espera 3s sem novas alterações (extrair um zip mexe em vários arquivos de uma vez)
             timer = setTimeout(() => {
+                if (global.__astaUpdating || global.__astaUpdateRestarting) { alterados.clear(); return; }
                 if (!lerAutoReload()) {
                     console.log(`♻️ Arquivos alterados (${[...alterados].join(', ')}), mas o reinício automático está desligado (!autoreload on).`);
                     alterados.clear();
@@ -1886,6 +1888,35 @@ async function createBotSocket(authDir) {
                         setTimeout(() => {
                             followChannelsOnce(NazunaSock).catch(() => { });
                         }, 20_000);
+
+                        // ===== ATUALIZADOR: avisa que voltou atualizado + procura versão nova a cada 6h =====
+                        setTimeout(async () => {
+                            try {
+                                const upd = await import('./funcs/utils/autoUpdate.js');
+                                const st = upd.readState();
+                                if (st.notify && isSockOpen(NazunaSock)) {
+                                    await NazunaSock.sendMessage(st.notify, { text: `✅ *★彡 ASTA MD 彡★ atualizado!*\n\n📦 Versão: *${upd.localVersion()}*\n🟢 Bot online de novo.` }).catch(() => { });
+                                    upd.writeState({ notify: null });
+                                    console.log(`✅ Atualizado para a versão ${upd.localVersion()}`);
+                                }
+                                const verificar = async () => {
+                                    try {
+                                        const cfgA = JSON.parse(fsSync.readFileSync(path.join(__dirname, 'config.json'), 'utf-8'));
+                                        if (cfgA.avisoAtualizacao === false || !isSockOpen(NazunaSock)) return;
+                                        const inf = await upd.checkForUpdate();
+                                        const st2 = upd.readState();
+                                        if (!inf.available || st2.notifiedSha === inf.sha) return;
+                                        const ownerJid = buildUserId(numerodono, config);
+                                        const pfx = cfgA.prefixo || '!';
+                                        await NazunaSock.sendMessage(ownerJid, { text: `🆕 *Tem atualização do ★彡 ASTA MD 彡★!*\n\n📦 Atual: *${inf.current}* → Nova: *${inf.latest}*\n📝 ${inf.message || '-'}\n\n👉 Para atualizar: *${pfx}atualizar*\n🔕 Para não receber este aviso: ${pfx}atualizar aviso off` });
+                                        upd.writeState({ notifiedSha: inf.sha });
+                                        console.log(`🆕 Atualização disponível: ${inf.current} -> ${inf.latest} (${inf.shortSha})`);
+                                    } catch (e) { if (DEBUG_MODE) console.log('[ATUALIZAR] verificação falhou:', e.message); }
+                                };
+                                await verificar();
+                                if (!global.__astaUpdateTimer) global.__astaUpdateTimer = setInterval(verificar, 6 * 60 * 60_000);
+                            } catch (e) { console.log('[ATUALIZAR] erro no aviso:', e.message); }
+                        }, 25_000);
 
                         try {
                             const msgBotOnConfig = loadMsgBotOn();

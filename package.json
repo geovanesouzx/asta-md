@@ -1,6 +1,6 @@
 {
     "name": "asta-md",
-    "version": "10.7.2",
+    "version": "10.7.3",
     "description": "★彡 ASTA MD 彡★ - Bot de WhatsApp atualizado (baseado no Nazuna)",
     "type": "module",
     "main": "dados/src/connect.js",

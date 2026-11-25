@@ -298,3 +298,17 @@ v10.7.2 — TRANSMISSÃO COM SOM + INSTALAÇÃO EM QUALQUER APARELHO
   de cada sistema e causava o erro "Could not load the sharp module").
 - Se o sharp não carregar (Termux/Android ou erro no Windows), o bot instala sozinho a versão
   WebAssembly, que funciona em qualquer aparelho.
+
+==================================================
+v10.7.3 — !atualizar FUNCIONANDO (direto do GitHub do ASTA MD)
+==================================================
+- !atualizar -> procura versão nova em github.com/geovanesouzx/asta-md e mostra o que mudou,
+  com botões ✅ ATUALIZAR AGORA / ❌ AGORA NÃO (ou digite !atualizar sim).
+- Não precisa de Git nem de mexer em arquivos. Mantém: sessão do WhatsApp, dados/database,
+  config.json (só acrescenta opções novas), banner e mídias.
+- Faz backup dos arquivos trocados em dados/database/backups-atualizacao (3 últimos),
+  instala dependências novas sozinho e reinicia. Quando volta, avisa no privado.
+- O bot procura atualização a cada 6h e avisa o dono. !atualizar aviso on/off
+- !atualizar forcar -> reinstala a versão do GitHub mesmo sem versão nova.
+- Pelo terminal: npm run update
+- Removido um aviso inofensivo no console: [EXPORTS] Module 'Logos2' not found.
