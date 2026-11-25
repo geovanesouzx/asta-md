@@ -1,0 +1,300 @@
+★彡 ASTA MD 彡★  —  v10.4.0
+Dono: ★彡 GEOVANE MD 彡★  (wa.me/5575920016995)
+==================================================
+
+COMO INSTALAR
+1. Desligue o bot.
+2. Extraia este zip por cima da pasta do bot.
+3. NÃO apague dados/database/qr-code (é a sua sessão).
+4. Se você já tinha um config.json com mudanças suas, confira estas chaves em dados/src/config.json:
+     "nomebot": "★彡 ASTA MD 彡★",  "nomedono": "★彡 GEOVANE MD 彡★",  "numerodono": "5575920016995",
+     "menuBotoes": true,  "botoesBotNode": false,  "figSomMaxSeg": 30,  "figVideoSomMaxSeg": 30
+5. Ligue o bot.
+
+!tm  (TRANSMISSÃO PARA TODOS OS GRUPOS) — agora envia QUALQUER coisa
+- !tm <texto>
+- Envie foto/vídeo/GIF/documento com a legenda !tm <texto>
+- Responda QUALQUER mensagem com !tm [texto]: foto, vídeo, GIF, áudio, nota de voz, figurinha
+  (inclusive figurinha com som), documento, enquete, evento, localização, contato, visualização única...
+- !tm enquete Pergunta | opção 1 | opção 2   (termine a pergunta com * para várias respostas)
+- A mídia é enviada ao servidor uma vez só e reaproveitada em todos os grupos (mais rápido).
+
+!divdono  — novos tipos (envie a mídia com a legenda, ou responda a mensagem)
+- !divdono img <texto>      !divdono video <texto>     !divdono gif <texto>
+- !divdono fig              !divdono audio             !divdono voz
+- !divdono doc <texto>      !divdono enquete Pergunta | op1 | op2   (ou responda uma enquete)
+- !divdono evento           !divdono local             !divdono contato
+- !divdono tudo [texto]     -> aceita qualquer tipo de mensagem
+- Sem texto, imagem/vídeo/doc usam a legenda original ou a mensagem salva em !divdono msg.
+- !divdonomidia on/off continua ligando/desligando os envios de mídia.
+
+MENU COM BOTÕES
+- !menu mostra a imagem do bot + saudação + 3 botões:
+    PRINCIPAL (menu completo) · LISTA (todas as categorias) · FALAR COM O DONO
+- !menu texto            -> menu completo em texto (como antes)
+- !menubotoes on/off     -> liga/desliga os botões
+- !menubotoes privado on -> use se os botões não aparecerem no privado
+- Se o envio com botões falhar, o bot manda o menu em texto automaticamente.
+- O antibotão NÃO remove mais quem só CLICA em botões (continua punindo quem envia botões).
+
+VISUAL E NOME
+- Nome, dono e número trocados; banner novo em dados/midias/menu.jpg.
+- Textos de "Nazuna"/feminino trocados por ASTA MD no masculino.
+- IA (!assistente): a personalidade padrão agora é o Asta (masculino, determinado e leal).
+  Use !assistente asta. Se perguntarem a sério se é um bot, ele admite, sem sair do personagem.
+
+CORREÇÃO (botões x prefixo)
+- Clicar nos botões/lista do menu agora funciona com QUALQUER prefixo (! . / # etc.),
+  inclusive em menus enviados antes de trocar o prefixo com !prefixo.
+- Cliques em conversa temporária também funcionam.
+- No terminal aparece "[BOTÃO] Clique ..." mostrando qual comando o clique executou.
+
+FIGURINHAS ANIMADAS A 30 FPS
+- Padrão: TODAS as figurinhas animadas saem a 30 fps, até as de 30 segundos.
+- O WhatsApp limita figurinha animada a ~1MB: em vídeos longos o bot baixa resolução/qualidade
+  para manter os 30 fps (vídeo de 30s fica mais borrado que um de 8s).
+- !figfps 30   -> 30 fps fixo (padrão)
+  !figfps 24 / 20 -> meio-termo
+  !figfps auto -> 30 fps nos curtos, 24 até 10s, 20 nos longos (mais nítido)
+- O terminal mostra "[FIGURINHA] animada ...px 30fps ...".
+- Este pacote NÃO traz dados/database (sessão e dados) nem o config.json: suas configurações ficam intactas.
+
+==================================================
+NOVIDADES (v10.5)
+==================================================
+INICIAR NO WINDOWS
+- Dê dois cliques em iniciar.bat (na pasta asta-md). Ele sempre abre o bot da pasta certa,
+  instala as dependências se faltarem e reinicia se o bot fechar.
+
+!tm COM PRÉVIA
+- !tm <qualquer coisa> -> o bot mostra AQUI como vai ficar + botões ✅ ENVIAR / ❌ CANCELAR.
+- O envio roda em segundo plano e no fim chega um relatório.
+- !tmparar            -> interrompe uma transmissão em andamento
+- !tmexcluir          -> (no grupo, ou com o ID) o grupo deixa de receber !tm
+- !tmincluir <id>     -> volta a receber      !tmexcluidos -> lista
+- !tm direto <texto>  -> envia sem prévia     !tmprevia on/off -> liga/desliga a prévia
+
+!divdono — AGENDAMENTO COM MÍDIA (rodízio)
+- !divdono salvar [texto]  (envie ou responda QUALQUER mensagem: foto, vídeo, figurinha com som, áudio...)
+- !divdono salvar enquete Pergunta | op1 | op2
+- !divdono itens | veritem <n> | enviaritem [n] | remitem <n> | limparitens
+- Com itens salvos, o horário do !divdono time envia UM item por dia, alternando (até 20 itens).
+- Sem itens, continua enviando a mensagem de texto (!divdono msg).
+
+BOTÕES
+- Os submenus agora têm botões ⬅️ VOLTAR AO MENU / 📜 MENU COMPLETO.
+- !play <música> mostra a capa com botões 🎵 ÁUDIO / 🎬 VÍDEO / ▶️ YOUTUBE.
+  (!ytmp3 e !ytmp4 continuam baixando direto)
+
+FIGURINHAS
+- !s 0:15 10   -> corta o vídeo: começa em 0:15 e dura 10s.  !s 12 -> primeiros 12s
+- Vídeos maiores que 30s não são mais recusados: usa o começo (ou o trecho que você escolher).
+- !sc (ou !s circulo) -> figurinha REDONDA (imagem ou vídeo)
+- !ssom <link do TikTok>             -> figurinha animada com o som do vídeo
+- !ssom <link do YouTube ou nome>    -> capa do vídeo + música (pega a parte mais forte)
+  !ssom <link> 1:05 10               -> trecho escolhido
+- !somfig (respondendo figurinha com som) -> devolve o áudio. !somfig musica -> como arquivo de áudio
+
+!status (só o dono)
+- Conexão, reconexões, última queda, fila de mensagens, memória, backup da sessão, transmissões.
+
+BACKUP DA SESSÃO
+- Uma cópia por dia da pasta qr-code em dados/database/backups-sessao (guarda as 3 últimas).
+- Se a sessão corromper: desligue o bot, apague dados/database/qr-code, copie a pasta
+  backups-sessao/qr-code-AAAA-MM-DD mais recente para dados/database/ e renomeie para qr-code.
+
+SEGURANÇA
+- O config.json tem sua apikey da VexAPI. Não mande o config.json para ninguém; se já mandou,
+  gere uma chave nova no site da VexAPI.
+
+==================================================
+NOVIDADES (v10.6)
+==================================================
+♻️ REINÍCIO AUTOMÁTICO
+- Quando qualquer arquivo .js do bot muda (ex.: ao extrair uma atualização por cima), o bot
+  reinicia sozinho em ~5s e já carrega as funções novas. !autoreload on/off
+- O atualizador antigo (!atualizar / npm run update) ficou BLOQUEADO: ele baixava o Nazuna original
+  e apagaria o ASTA MD. Para atualizar, é só extrair o novo asta-md.zip por cima.
+
+👥 GRUPOS (ADMs)
+- !bvbotoes on/off ........ botões 📜 REGRAS / 📋 MENU depois das boas-vindas
+- !verificarnovato on [min] quem entra toca em ✅ SOU HUMANO, senão é removido (padrão 2 min)
+- !punir @fulano .......... painel com ⚠️ ADVERTIR / 🔇 SILENCIAR 1H / 🚫 BANIR
+- !mutar @fulano 30m ...... silencia por tempo (apaga as mensagens até o prazo). Sem tempo = como antes
+- !resumo / !resumo semana  quem mais falou, horário de pico, entradas e saídas
+
+🎮 DIVERSÃO
+- !quizanime / !quizrank .. quiz de anime com botões (+1 ponto e 50 💰 para quem acertar primeiro)
+- !sorteiobotao 10m [qtd] <prêmio>  botão 🎟️ PARTICIPAR e resultado automático
+- !figdia on [HH:MM] ...... figurinha aleatória todo dia no grupo
+- !rankingsemanal on ...... todo domingo 20h: top 10 da semana + 💰 500/300/200
+- !cargos ................. títulos por nível. Dono: !cargos asta (tema ASTA) / !cargos padrao
+
+🎨 FIGURINHAS
+- !sl <texto> ............. figurinha com legenda estilo meme (imagem ou vídeo, mantém o som)
+- !tovideo ................ figurinha animada vira vídeo (com o som, se tiver)
+- !pack add | nome | ver | limpar ... junte até 30 figurinhas e reenvie todas com o mesmo nome de pacote
+
+🧠 IA E ORGANIZAÇÃO
+- !assistentevoz on ....... o Asta responde também em áudio (voz masculina)
+- !resumir [n] ............ a IA resume as últimas mensagens do grupo (o !resumirchat antigo continua)
+- !agendar HH:MM [DD/MM] <texto> (ou respondendo qualquer mensagem) · !agendados · !desagendar <n>
+- !votacao 30m Pergunta | a | b ... votação com botões e resultado automático no fim
+- !evento Nome | DD/MM HH:MM | Local | Descrição ... evento nativo do WhatsApp
+- Lembretes (!lembrete) agora chegam com ⏰ ADIAR 10 MIN / ✅ FEITO
+- Transcrição automática de áudio já existia: !autotranscrever
+
+👑 DONO
+- !manutencao on [motivo] / off ... só você usa comandos; os outros recebem um aviso
+- !tmcanal <link do canal> ........ a prévia do !tm ganha o botão 📢 GRUPOS + CANAL
+- !backupdados ................... envia agora um .zip com os dados (SEM a sessão) no seu privado
+- !backupsemanal on/off .......... o mesmo, todo domingo às 03:00 (ligado por padrão)
+- !logs .......................... últimos erros + total de comandos do dia
+                                    (registro completo em dados/database/logs-comandos, 7 dias)
+- !avisos on/off ................. erro em comando ou conexão instável chegam no seu privado
+- !painelweb on [porta] / off .... página no navegador com status do bot (link com senha)
+- Aviso de aluguel vencendo agora vem com 🔄 RENOVAR ALUGUEL / 📞 FALAR COM O DONO
+
+OBSERVAÇÕES
+- Este pacote não traz dados/database, node_modules nem config.json: nada seu é substituído.
+- Na primeira vez, extraia com o bot DESLIGADO (o reinício automático vem nesta versão).
+  Das próximas vezes, pode extrair com ele ligado: ele reinicia sozinho.
+
+==================================================
+v10.6.1 — FIGURINHAS ANIMADAS NÍTIDAS (modo qualidade)
+==================================================
+- O WhatsApp só toca figurinha animada de até ~1MB (acima disso ela trava ou não toca).
+  O modo "30 fps sempre" deixava vídeos longos pixelados para caber nesse limite.
+- Agora o padrão é o MODO QUALIDADE (como os bons conversores fazem):
+    vídeo curto (até 6s) ........ 30 fps, 320px, nítido
+    8-10s ....................... ~15-24 fps, 320px, nítido
+    longos (15-30s) ............. menos quadros por segundo (12-8 fps), mas sem pixelar
+- !figfps qualidade -> padrão (nítida)
+  !figfps auto      -> equilíbrio
+  !figfps 30        -> sempre fluida (vídeos longos ficam pixelados)
+- Se você tinha usado "!figfps 30" antes, mande "!figfps qualidade" uma vez.
+
+==================================================
+v10.6.2 — AUTOSTICKER COM SOM
+==================================================
+- Com o !autosticker ligado, vídeos COM áudio viram figurinha COM som automaticamente.
+- Vídeos longos não são mais ignorados: usa o começo (até 30s, ou o limite do config).
+- Vídeo sem som e GIF continuam virando figurinha comum.
+- !autosticker som on/off -> liga/desliga só o som (o autosticker continua funcionando).
+
+==================================================
+v10.6.3 — 30 FPS ATÉ 15 SEGUNDOS
+==================================================
+- Figurinhas de vídeo de até 15s saem SEMPRE a 30 fps.
+  Para caber no limite de ~1MB do WhatsApp sem pixelar, o bot segura a qualidade e, se
+  precisar, reduz um pouco a resolução (fica mais suave em vez de "quadriculado").
+- Acima de 15s: modo nítido (menos quadros por segundo, imagem limpa).
+- !figfps ate <seg> -> muda o limite dos 30 fps (ex.: !figfps ate 10 ou !figfps ate 20)
+
+==================================================
+v10.6.4 — SOM EM TODOS OS COMANDOS + FIGURINHA NÍTIDA + BOTÕES
+==================================================
+- Todos os comandos que mexem em figurinha mantêm o SOM quando ela tem áudio:
+  take, rename/mudarpack, pack, sl, sc, s2, .s respondendo figurinha, hidetag,
+  automsg, automídia, comandos personalizados com mídia.
+  (!togif avisa que GIF não tem som.)
+- Figurinha animada agora pode sair em até 512px (antes travava em 320px).
+  Vídeo que já cabe em ~1MB sai em alta resolução, sem pixelar.
+  O bot mede o vídeo antes e escolhe a melhor combinação nitidez x fluidez.
+- Figurinha de imagem: 512px com qualidade alta.
+- Botões ✅ ENVIAR / ❌ CANCELAR do !tm corrigidos: aceitam todos os formatos de
+  clique (celular, WhatsApp Web, Business e versões antigas).
+- Se o botão não aparecer no seu aparelho, digite:
+  .tmconfirmar  -> envia a transmissão pendente
+  .tmconfirmar canal -> envia para grupos + canal
+  .tmcancelar   -> cancela
+
+==================================================
+v10.6.5 — !scorte: FIGURINHA SEM TARJA PRETA
+==================================================
+- !scorte (ou !semtarja / !scrop) respondendo vídeo, imagem ou figurinha:
+  acha as tarjas pretas (em cima/embaixo ou nas laterais) e corta antes de virar figurinha.
+- Mantém o SOM: vídeo com som e figurinha com som continuam com som.
+- Se a mídia não tiver tarja, nada é cortado (o bot avisa e faz a figurinha normal).
+- Opções: !scorte 0:05 10 (trecho) | !scorte mudo | !scorte esticar (preenche o quadrado) | !scorte circulo
+
+==================================================
+v10.6.6 — VISUALIZAÇÃO ÚNICA
+==================================================
+- Figurinha de visualização única: responda a foto, o vídeo ou o áudio de visualização única
+  com !s (ou !sc, !s2, !sl, !scorte...). Vídeo e áudio viram figurinha COM SOM.
+- !revelar (ou !abrir / !rvisu) respondendo uma visualização única: o bot reenvia a foto,
+  o vídeo ou o áudio normal no grupo.  !revelar pv -> envia no seu privado.
+- O bot guarda a referência das mídias de visualização única que chegam enquanto ele está
+  ligado (por 24h), porque o WhatsApp tira a mídia de dentro das respostas.
+- Limite do WhatsApp: mídias enviadas antes do bot ligar, ou que o WhatsApp só libera para
+  o celular principal, não podem ser abertas (o bot avisa).
+
+==================================================
+v10.6.7 — VISUALIZAÇÃO ÚNICA (CORREÇÕES)
+==================================================
+- O comando pode ir escrito NA PRÓPRIA foto/vídeo de visualização única (legenda .s).
+- As visualizações únicas recebidas ficam guardadas em database/visuunica.json por 24h:
+  não se perdem mais quando o bot reinicia (inclusive no reinício automático).
+- Se o WhatsApp mandar só o aviso (sem a mídia), o bot explica em vez de dar erro, e o
+  console mostra: [VISU ÚNICA] ... o WhatsApp mandou só o aviso, SEM a mídia.
+  Isso é um bloqueio do próprio WhatsApp para aparelhos conectados (como o bot).
+
+==================================================
+v10.6.8 — VISUALIZAÇÃO ÚNICA: PEDE O ARQUIVO AO CELULAR
+==================================================
+- O WhatsApp manda para o bot (aparelho conectado) só um aviso da visualização única, e o
+  Baileys descartava esse aviso sem fazer nada. Agora o bot pede a mensagem completa ao
+  celular principal (o celular precisa estar com internet).
+- No console:
+  [VISU ÚNICA] ... chegou só o aviso — pedindo o arquivo ao celular principal...
+  [VISU ÚNICA] pedido enviado ao celular. Aguardando resposta...
+  [VISU ÚNICA] ... mídia de visualização única recebida e guardada ✅   <- deu certo
+
+==================================================
+v10.6.9 — IPHONE, CONEXÃO E AVISOS
+==================================================
+- Figurinha com som agora vai no formato mais parecido com o do celular
+  (messageContextInfo + horário de envio da figurinha) — tentativa de corrigir o som no iPhone.
+- !soundinfo respondendo uma figurinha -> gera um RELATÓRIO (.txt) com a estrutura completa.
+  Use numa figurinha com som que funciona no iPhone (encaminhada do celular) para comparar.
+- Se a conexão cair no meio do envio de uma figurinha, o bot espera reconectar e reenvia.
+- Não mostra mais "Erro ao ler configurações do grupo ... ENOENT" (era só grupo sem
+  configuração salva, o que é normal).
+
+==================================================
+v10.7.0 — !squadrado E !sfundo EM VÍDEO
+==================================================
+- !squadrado (ou !quadrado / !squad / !s1x1): corta a foto, o vídeo ou a figurinha em
+  quadrado 1:1 DE VERDADE (sem esticar e sem bordas) e mantém o som.
+  !squadrado cima / baixo / esquerda / direita -> escolhe que parte fica
+  !squadrado 0:05 10 -> trecho do vídeo   |   !squadrado mudo -> sem som
+- !sfundo (ou !sbg / !semfundo): tira o fundo de FOTOS, VÍDEOS e FIGURINHAS, no próprio
+  computador (sem API). Vídeo mantém o som. Vídeo vai até 6s (config: figFundoMaxSeg)
+  e demora (o fundo é tirado quadro a quadro: ~1 a 3 min).
+  !rmbg / !removebg -> devolve a foto sem fundo em PNG transparente.
+- !instalarfundo (dono): instala o removedor de fundo uma vez (~300MB).
+  Sem ele, o !sfundo em foto continua usando a API antiga e vídeo não funciona.
+  Se der erro, no terminal (pasta do bot): npm install @imgly/background-removal-node@1.4.5
+
+==================================================
+v10.7.1 — SOM DA FIGURINHA NO IPHONE
+==================================================
+- A figurinha com som agora vai com os mesmos campos que o celular manda
+  (baseado no protocolo oficial do WhatsApp Web usado pelo whatsmeow/neonize):
+  áudio como "áudio" (não nota de voz), mediaDomainInfo (E2EE) na figurinha e no áudio,
+  premium/isAvatar/isAiSticker/isLottie, horário de envio e messageSecret.
+- Áudio codificado com as opções que os celulares exigem para tocar
+  (-avoid_negative_ts make_zero, sem metadados).
+
+==================================================
+v10.7.2 — TRANSMISSÃO COM SOM + INSTALAÇÃO EM QUALQUER APARELHO
+==================================================
+- !tm e !divdono agora transmitem a figurinha COM o som. (O WhatsApp tira o som da figurinha
+  quando alguém responde ela; o bot agora busca o som na mensagem original.)
+  Vale também para take, rename, pack e os outros comandos que respondem figurinha.
+- Transmissões levam os mesmos campos do iPhone que o .s.
+- Instalação: o bot não usa mais "npm install --no-optional" (isso pulava a parte do sharp
+  de cada sistema e causava o erro "Could not load the sharp module").
+- Se o sharp não carregar (Termux/Android ou erro no Windows), o bot instala sozinho a versão
+  WebAssembly, que funciona em qualquer aparelho.

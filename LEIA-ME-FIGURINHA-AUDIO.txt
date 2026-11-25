@@ -1,0 +1,40 @@
+FIGURINHA COM ÁUDIO - NAZUNA
+============================
+
+COMO USAR (no WhatsApp)
+- Marque (responda) um ÁUDIO ou NOTA DE VOZ com:  .s
+- Duração:        .s 8          (8 segundos, entre 1 e 20)
+- Início+duração: .s 0:30 8     (começa em 0:30 e dura 8s)
+- Sem argumentos: áudio curto vai inteiro (até 10s); áudio longo usa o trecho mais "forte" (refrão).
+- Capa própria:   envie uma IMAGEM com a legenda .s respondendo o áudio -> a imagem vira a capa.
+- Sem imagem: o bot gera uma capa colorida com a onda do áudio.
+- .s em imagem/vídeo continua funcionando como antes.
+
+ARQUIVOS
+- dados/src/funcs/utils/soundSticker.js  -> NOVO: patch do protobuf (campo 26), corte/normalização
+                                            do áudio, capa e envio
+- dados/src/funcs/utils/sticker.js       -> exporta writeExif (nome do pack/autor)
+- dados/src/index.js                     -> comando .s reconhece áudio marcado
+- dados/src/menus/menufig.js             -> menu atualizado
+
+REQUISITOS
+- ffmpeg instalado no servidor (o bot já usava para figurinhas) e o pacote sharp (já está no package.json).
+- Funciona com o Baileys 7.0.0-rc13 e 7.0.0-rc14 (patch independente de versão).
+
+OBSERVAÇÕES
+- Quem ainda não tem a função no WhatsApp vê uma figurinha comum (sem som).
+- O WhatsApp pode limitar tamanho/duração do som; se uma figurinha não tocar, teste com .s 5.
+
+ATUALIZAÇÃO (formato corrigido)
+- A figurinha com áudio é enviada no formato do WhatsApp: audioStickerMessage { stickerMessage + audioMessage }.
+- !s em VÍDEO com som agora gera figurinha animada COM o som do vídeo. "!s mudo" gera sem som.
+- !soundinfo (respondendo uma figurinha) mostra a estrutura da figurinha - serve p/ diagnóstico.
+
+ATUALIZAÇÃO (figurinhas mais longas)
+- Áudio: sem argumento, vai o áudio INTEIRO até 30s (áudio maior: o bot pega o trecho mais forte).
+  Ex.: !s 25   |   !s 1:00 30  (começa em 1:00 e dura 30s)
+- Vídeo com som: aceita até 30s (a animação acompanha o som; acima de 10s usa 10 quadros/s p/ caber em ~1MB).
+- Vídeo sem som ("!s mudo"): continua até 9.9s.
+- Para mudar os limites, edite dados/src/config.json:
+    "figSomMaxSeg": 30,        -> duração máxima do som (áudio)
+    "figVideoSomMaxSeg": 30    -> duração máxima do vídeo com som

@@ -1,0 +1,9 @@
+# dependências
+node_modules/
+# sessão do WhatsApp, backups e dados dos grupos (NUNCA subir)
+dados/database/
+# logs e temporários
+dados/logs/
+*.log
+.DS_Store
+Thumbs.db
