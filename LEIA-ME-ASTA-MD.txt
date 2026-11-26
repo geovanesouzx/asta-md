@@ -346,3 +346,134 @@ v10.7.6 — TERMUX: SEMPRE LIGADO E MAIS RÁPIDO
 - Figurinhas no celular: usa todos os núcleos do processador menos 1 (antes: 2 a 4),
   e o "wake lock" impede o Android de deixar o processador lento com a tela apagada.
 - Novo: iniciar.sh (Termux/Linux) mantém o bot sempre ligado.
+
+v10.8.0 — EFEITOS, JOGOS, PERMISSÕES E PAINEL COM CONTROLE
+==================================================
+FIGURINHAS
+- !sefeito lento | rapido | reverso | vaievolta | espelho  -> responda vídeo ou figurinha animada
+  (o som acompanha o efeito; adicione "mudo" para sair sem som)
+- !svoz grave | esquilo | robo | eco | radio | monstro | reverso  -> responda figurinha com som, áudio ou vídeo
+- !trocarsom  -> responda a figurinha com !trocarsom e depois o áudio com !trocarsom (qualquer ordem)
+  !trocarsom 0:30 8 escolhe o trecho do áudio
+- !sfala <texto>  -> figurinha com o texto escrito e uma voz falando
+  (usa a Vex API se tiver chave; sem chave usa a voz grátis do Google)
+  !sfala <texto> | masculino  -> escolhe a voz (Vex API: masculino, feminino, robo, alien)
+- !topfig  -> ranking das figurinhas mais mandadas no grupo
+  !topfig pegar 1 (reenvia, com som)   !topfig zerar (admins)
+- Cache: a mesma mídia com as mesmas opções sai na hora, sem converter de novo
+  (config.json: "cacheFigurinhas": true, "cacheFigurinhasMB": 150)
+
+GRUPO
+- !bangeral (ou !banirtodos / !limpargrupo) -> remove TODOS os membros. Admins, o bot e o dono ficam.
+  Aparecem os botões CONFIRMAR / RECUSAR e só ADMINS podem apertar (vale por 2 minutos).
+  Sem botões: !bangeral confirmar / !bangeral recusar
+- !agendar todo dia 08:00 Bom dia!     !agendar toda segunda 07:30 Reunião
+  !agendar dias uteis 18:00 ...        !agendar fim de semana 10:00 ...   (aparece com 🔁 no !agendados)
+- Parabéns automático no dia do aniversário (quem se cadastrou no !aniversario)
+  !aniversario auto on/off      !aniversario hora 09:00   (padrão: ligado, 08:00)
+- !antifig limite 5  -> cada membro pode mandar até 5 figurinhas por minuto; o resto é apagado com advertência
+  !antifig limite off -> tira o limite.  O antifig agora também pega as figurinhas com som.
+- !bvfig  -> responda uma figurinha (de preferência com som) e ela vai para quem entrar no grupo
+  !bvfig ver   !bvfig off
+
+DIVERSÃO
+- !duelo @fulano [aposta]  -> duelo de magia (Black Clover). Cada um recebe um grimório aleatório.
+  Botões: ATAQUE · MAGIA (forte, pode errar) · DEFESA (metade do próximo golpe) · CURA (2 vezes)
+  60s por turno (senão perde por W.O.). Vencedor: +30 💰 + a aposta.  !duelo desistir  !duelo rank
+  O duelo de perguntas antigo continua em !dueloquiz.
+- !adivinha  -> imagem borrada de um anime que vai clareando; quem acertar o nome no chat ganha +50 💰
+  !adivinha dica   !adivinha parar   !adivinha rank   (usa o site Jikan/MyAnimeList)
+
+DONO
+- !permsub @fulano tm            -> o subdono só pode usar o !tm (e tmparar, tmcanal...)
+  !permsub @fulano tm divdono agendar   !permsub @fulano tudo   !permsub @fulano limpar   !permsub (lista)
+  O subdono precisa ter sido adicionado antes com !addsubdono.
+  Nunca liberados para subdono: permsub, addsubdono, rmsubdono, atualizar, apikey, reiniciar, backupdados...
+- !painelweb on [porta]  -> o painel agora tem CONTROLE:
+  mandar transmissão de texto para todos os grupos (respeita os grupos excluídos do !tm), parar a transmissão,
+  ligar/desligar manutenção, reinício automático, menu com botões, avisos, aviso de versão e cache de figurinhas,
+  e REINICIAR o bot. Não compartilhe o link (ele é a senha).
+
+v10.9.0 — REGISTRO NO PV, LOJINHA, PET, TORNEIO E MAIS
+==================================================
+REGISTRO NO PRIVADO (dono)
+- !registropv on/off  -> ligado: quem não tem registro só usa !registrar e !dono no privado
+  (o aviso aparece no máximo 1 vez a cada 10 minutos; grupos, dono e subdonos não precisam de registro)
+- O usuário faz: !registrar Nome|idade -> termos com ✅ ACEITO / ❌ RECUSO -> imagem com 4 números
+  (captcha, 3 tentativas, 5 minutos) -> registro nº 0001 + cartão
+- !meuregistro   !registrados [busca]   !desregistrar @fulano ou número
+- Para trocar o texto dos termos: "registroTermos": "..." no config.json
+
+GRUPO (admins)
+- !inativos [dias] (padrão 7) -> lista quem não fala há X dias; botão REMOVER que só admins confirmam (3 min)
+  Quem "nunca falou" só entra depois que o bot está contando há X dias.
+- !regrasaceite on/off -> quem entra recebe as regras (!addregra) e o botão ✅ LI E ACEITO.
+  Até aceitar, as mensagens dele são apagadas. Também vale digitar "aceito".
+- !antilinkpro on/off + !linkspermitidos add youtube tiktok meusite.com.br / rm / limpar
+  -> apaga links de sites não liberados (3 = remoção). A lista também vale para o antilinkhard e o antilinksoft.
+- !modonoturno 23:00 07:00 [| texto de boa noite | texto de bom dia]   !modonoturno off
+- !bvcard on [tema] | tema roxo | teste | off   (temas: asta, noite, roxo, verde, dourado, rosa, claro)
+
+DIVERSÃO E ECONOMIA
+- !lojinha (ou !loja quando o Modo RPG está desligado):
+  títulos (200 a 5000), cor do perfil (150), 🛡️ escudo contra roubo 24h (300), ⚡ bônus em dobro 1h (500)
+  !lojinha comprar titulo 3 | cor roxo | escudo | dobro     !titulo   !corperfil   !meuperfil
+  O dobro vale para trabalhar, minerar, pescar, explorar, caçar, diário, duelos, torneio, forca e quem disse.
+- Namoro/casamento: o pedido agora vem com botões 💍 ACEITO / 💔 RECUSO.
+  !casal -> mostra há quantos dias vocês estão juntos e o próximo aniversário (!casal sortear = casal aleatório)
+  Casados ganham +100 💰 todo mês no dia do casamento e +500 💰 no aniversário de casamento.
+- !torneio criar 8 [prêmio]  -> botões ENTRAR/SAIR; quando lota começa sozinho. !torneio iniciar (mínimo 3)
+  !torneio chave   !torneio cancelar     (com Modo RPG ligado use !torneio magia ...)
+- !forcaanime -> lista com as letras; também dá para digitar a letra ou a resposta inteira no chat.
+  Errar a palavra só tira vida com !forcaanime chutar <resposta>.
+- !quemdisse -> frase de alguém do grupo + 4 botões; cada pessoa tem 1 chute; +40 💰
+- !pet adotar <nome> | alimentar (20 💰) | brincar | treinar | nome | rank | soltar
+  Se o pet ficar mais de 1 dia com fome E triste, ele foge.
+
+v10.9.1 — FIGURINHA SEM SOM E MENUS ARRUMADOS
+==================================================
+FIGURINHA SEM SOM (é só colocar "off" no fim do comando)
+- !ssoff        -> igual ao !s, mas sem o som
+- !scoff        -> redonda, sem som
+- !sqoff        -> quadrada, sem som
+- !scorteoff    -> tira a tarja, sem som
+- !sfundooff    -> tira o fundo, sem som
+- !sloff <texto>-> com legenda, sem som
+- !s2off        -> formato original, sem som
+- !sefeitooff lento (ou outro efeito) -> efeito, sem som
+- Respondendo uma figurinha COM som, esses comandos refazem ela SEM o som.
+- (O "mudo" no fim, ex.: !s mudo, continua funcionando.)
+
+MENUS
+- Todos os menus foram reorganizados em seções (sem a seção "Novidades" misturada),
+  sem comandos repetidos e com uma explicação curta em cada comando.
+- Saíram do menu 3 comandos que não existiam no bot: gada, likeff e infoff.
+- O menu de brincadeiras ficou compacto (vários comandos por linha) e o modo lite continua
+  escondendo os comandos +18.
+- O desenho do menu (!designmenu, !setborda, !setitem...) continua valendo para todos.
+
+v10.9.2 — QUEDAS 503 / 403 (CONEXÃO)
+==================================================
+- 403 (o WhatsApp recusou o login): o bot NÃO apaga mais a sessão. Ele espera
+  1 min, 3 min, 10 min, 30 min e depois 60 min entre as tentativas, sem parar e sem pedir QR.
+- 503 (servidor do WhatsApp ocupado): espera 20s, 40s, 80s... (até 5 min) antes de reconectar.
+  Reconectar em 4 segundos era o que fazia o WhatsApp responder 403 logo em seguida.
+- Quando a sessão precisa mesmo ser apagada (401 = aparelho desconectado no celular),
+  o bot guarda uma cópia em dados/database/qr-code-backup (as 3 últimas).
+- Se os 403 continuarem por horas: abra o WhatsApp no celular do bot e veja se aparece
+  aviso de conta restrita/banida. Evite !tm e divulgação para muitos grupos de uma vez.
+
+v10.9.3 — GRUPOS PARADOS (O BOT SAI COM A SUA CONFIRMAÇÃO)
+==================================================
+- O bot anota a última mensagem de PESSOA em cada grupo (mensagens do próprio bot não contam).
+- A cada 6 horas ele confere. Grupo com 5 dias ou mais sem mensagens -> você recebe no privado:
+  🚪 SAIR  ·  ✅ CONTINUAR (conta mais 5 dias)  ·  📌 SEMPRE FICAR (nunca pergunta desse grupo)
+  Cada grupo é avisado uma vez; se alguém mandar mensagem nele, a contagem zera.
+- !gruposinativos            -> lista os grupos parados (com lista para escolher sair/continuar)
+  !gruposinativos sair 1 | continuar 1 | manter 1 | desmanter 1   (o número da lista ou o id do grupo)
+  !gruposinativos todos      -> sai de todos os parados (botão CONFIRMAR, vale 3 minutos)
+  !gruposinativos dias 5     -> muda o prazo (1 a 90 dias)
+  !gruposinativos auto on    -> sai sozinho sem perguntar (você só recebe o aviso depois). Padrão: off
+  !gruposinativos off/on     -> desliga/liga os avisos
+- Antes de sair, o bot manda no grupo: "Estou saindo porque este grupo ficou X dias sem mensagens".
+- A contagem começa quando você instala esta versão (nenhum grupo é avisado logo de cara).

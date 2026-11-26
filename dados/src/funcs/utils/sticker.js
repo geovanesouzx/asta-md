@@ -279,7 +279,63 @@ async function convertVideoToAnimatedWebp(tmpIn, maxDuration, forceSquare, circl
 }
 
 // Converter para WebP (sempre .mp4 para vídeo)
+// ===================== CACHE DE FIGURINHAS =====================
+// Mesma mídia + mesmas opções = mesma figurinha. Guarda a figurinha pronta e, quando mandarem
+// a mesma foto/vídeo de novo (em qualquer comando), responde na hora sem converter de novo.
+// config.json: "cacheFigurinhas": false desliga · "cacheFigurinhasMB": 150 (tamanho máximo)
+const FIG_CACHE_DIR = path.join(__dirname, '../../../database/cache-figurinhas');
+function figCacheCfg() {
+  try {
+    const c = JSON.parse(fsSync.readFileSync(path.join(__dirname, '../../config.json'), 'utf-8'));
+    return { on: c.cacheFigurinhas !== false, maxBytes: Math.max(10, Number(c.cacheFigurinhasMB) || 150) * 1024 * 1024 };
+  } catch { return { on: true, maxBytes: 150 * 1024 * 1024 }; }
+}
+async function figCachePrune(maxBytes) {
+  try {
+    const files = await Promise.all((await fs.readdir(FIG_CACHE_DIR)).filter((f) => f.endsWith('.webp')).map(async (f) => {
+      const st = await fs.stat(path.join(FIG_CACHE_DIR, f)); return { f, size: st.size, t: st.atimeMs || st.mtimeMs };
+    }));
+    let total = files.reduce((a, b) => a + b.size, 0);
+    if (total <= maxBytes && files.length <= 2000) return;
+    files.sort((a, b) => a.t - b.t);
+    for (const x of files) {
+      if (total <= maxBytes * 0.8 && files.length <= 1600) break;
+      await fs.unlink(path.join(FIG_CACHE_DIR, x.f)).catch(() => { });
+      total -= x.size;
+    }
+  } catch { }
+}
+export const figCacheStats = () => global.__astaFigCache || { hits: 0, misses: 0 };
+
 async function convertToWebp(mediaBuffer, isVideo = false, forceSquare = false, maxDuration = 8, opts = {}) {
+  const cfg = figCacheCfg();
+  if (!cfg.on || !Buffer.isBuffer(mediaBuffer) || mediaBuffer.length < 64) return convertToWebpRaw(mediaBuffer, isVideo, forceSquare, maxDuration, opts);
+  const st = global.__astaFigCache || (global.__astaFigCache = { hits: 0, misses: 0 });
+  const crypto = await import('crypto');
+  const key = crypto.createHash('sha1').update(mediaBuffer)
+    .update(JSON.stringify([isVideo, !!forceSquare, isVideo ? Number(maxDuration) : 0, opts.circle || null, opts.crop || null, isVideo ? readFigMode() : null, 'v1']))
+    .digest('hex');
+  const file = path.join(FIG_CACHE_DIR, `${key}.webp`);
+  try {
+    const hit = await fs.readFile(file);
+    if (hit.length) {
+      st.hits++;
+      const now = new Date(); fs.utimes(file, now, now).catch(() => { });
+      if (process.env.FIG_DEBUG) console.log(`[CACHE] figurinha reaproveitada (${key.slice(0, 8)})`);
+      return hit;
+    }
+  } catch { }
+  st.misses++;
+  const out = await convertToWebpRaw(mediaBuffer, isVideo, forceSquare, maxDuration, opts);
+  try {
+    await fs.mkdir(FIG_CACHE_DIR, { recursive: true });
+    await fs.writeFile(file, out);
+    if (st.misses % 20 === 0) figCachePrune(cfg.maxBytes);
+  } catch { }
+  return out;
+}
+
+async function convertToWebpRaw(mediaBuffer, isVideo = false, forceSquare = false, maxDuration = 8, opts = {}) {
   // forma: redonda (circle) ou corte quadrado (crop: 'centro' | 'cima' | 'baixo' | 'esquerda' | 'direita')
   const circle = opts.circle ? true : (typeof opts.crop === 'string' ? opts.crop : false);
   // Se já for webp estático e não for vídeo, retorna direto
@@ -642,4 +698,4 @@ const sendSticker = async (nazu, jid, {
   return webpBuffer;
 };
 
-export { sendSticker, writeExif, convertToWebp, trimMedia, captionMedia, stickerToVideo, detectBlackBars, cropBlackBars };
+export { sendSticker, writeExif, convertToWebp, trimMedia, captionMedia, stickerToVideo, detectBlackBars, cropBlackBars, renderCaptionPng };

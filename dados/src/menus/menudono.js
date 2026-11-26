@@ -1,278 +1,134 @@
-async function menuDono(prefix, botName = "MeuBot", userName = "Usuário", {
-    header = `╭┈⊰ 🌸 『 *${botName}* 』\n┊Olá, #user#!\n╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯`,
-    menuTopBorder = "╭┈",
-    bottomBorder = "╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯",
-    menuTitleIcon = "🍧ฺꕸ▸",
-    menuItemIcon = "•.̇𖥨֗💜⭟",
-    separatorIcon = "❁",
-    middleBorder = "┊",
-    botConfigMenuTitle = "🤖 CONFIGURAÇÕES DO BOT",
-    menuDesignMenuTitle = "🎨 DESIGN & APARÊNCIA",
-    automationMenuTitle = "⚙️ SISTEMA & AUTOMAÇÃO",
-   menuAssistenteMenuTitle = "🤡⚙️PERSONALIDADE DA ASSISTENTE",
-    commandCustomMenuTitle = "🛠️ PERSONALIZAÇÃO DE COMANDOS",
-    commandLimitingMenuTitle = "🚫 LIMITAÇÃO DE COMANDOS",
-    userManagementMenuTitle = "👥 GERENCIAMENTO DE USUÁRIOS",
-    rentalSystemMenuTitle = "💰 SISTEMA DE ALUGUEL",
-    subBotsMenuTitle = "🤖 GERENCIAMENTO DE SUB-BOTS",
-    vipSystemMenuTitle = "💎 SISTEMA VIP/PREMIUM",
-    botControlMenuTitle = "⚡ CONTROLE & MANUTENÇÃO",
-    monitoringMenuTitle = "📊 MONITORAMENTO & ANÁLISE",
-    broadcastMenuTitle = "📡 TRANSMISSÕES"
-} = {}) {
-    const formattedHeader = header.replace(/#user#/g, userName);
-    return `${formattedHeader}
+import { renderMenu } from './_render.js';
 
-${menuTopBorder}${separatorIcon} *⚔️ NOVIDADES ASTA MD*
-${middleBorder}${menuItemIcon}${prefix}instalarfundo (removedor de fundo local)
-${middleBorder}${menuItemIcon}${prefix}atualizar (baixa a versão nova do GitHub)
-${middleBorder}${menuItemIcon}${prefix}atualizar aviso on/off
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}autoreload on/off
-${middleBorder}${menuItemIcon}${prefix}status
-${middleBorder}${menuItemIcon}${prefix}logs
-${middleBorder}${menuItemIcon}${prefix}avisos on/off
-${middleBorder}${menuItemIcon}${prefix}manutencao on/off
-${middleBorder}${menuItemIcon}${prefix}painelweb on/off
-${middleBorder}${menuItemIcon}${prefix}backupdados
-${middleBorder}${menuItemIcon}${prefix}backupsemanal on/off
-${middleBorder}${menuItemIcon}${prefix}tmcanal <link>
-${middleBorder}${menuItemIcon}${prefix}tm (prévia + botões)
-${middleBorder}${menuItemIcon}${prefix}tmparar
-${middleBorder}${menuItemIcon}${prefix}divdono salvar
-${middleBorder}${menuItemIcon}${prefix}figfps 30/24/20/auto
-${middleBorder}${menuItemIcon}${prefix}menubotoes on/off
-${middleBorder}${menuItemIcon}${prefix}cargos asta
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *📚 INÍCIO*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}tutorial
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${botConfigMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}prefixo
-${middleBorder}${menuItemIcon}${prefix}numerodono
-${middleBorder}${menuItemIcon}${prefix}nomedono
-${middleBorder}${menuItemIcon}${prefix}nomebot
-${middleBorder}${menuItemIcon}${prefix}configcmdnotfound
-${middleBorder}${menuItemIcon}${prefix}setcmdmsg
-${middleBorder}${menuItemIcon}${prefix}fotobot
-${middleBorder}${menuItemIcon}${prefix}fotomenu
-${middleBorder}${menuItemIcon}${prefix}videomenu
-${middleBorder}${menuItemIcon}${prefix}audiomenu
-${middleBorder}${menuItemIcon}${prefix}lermais
-${middleBorder}${menuItemIcon}${prefix}personalizargrupo
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${menuAssistenteMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}setpersonalidade
-${middleBorder}${menuItemIcon}${prefix}criarpers
-${middleBorder}${menuItemIcon}${prefix}novapers
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${menuDesignMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}designmenu
-${middleBorder}${menuItemIcon}${prefix}setborda
-${middleBorder}${menuItemIcon}${prefix}setbordafim
-${middleBorder}${menuItemIcon}${prefix}setbordameio
-${middleBorder}${menuItemIcon}${prefix}setitem
-${middleBorder}${menuItemIcon}${prefix}setseparador
-${middleBorder}${menuItemIcon}${prefix}settitulo
-${middleBorder}${menuItemIcon}${prefix}setheader
-${middleBorder}${menuItemIcon}${prefix}resetdesign
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${automationMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addauto
-${middleBorder}${menuItemIcon}${prefix}addautomidia
-${middleBorder}${menuItemIcon}${prefix}listauto
-${middleBorder}${menuItemIcon}${prefix}delauto
-${middleBorder}${menuItemIcon}${prefix}addreact
-${middleBorder}${menuItemIcon}${prefix}listreact
-${middleBorder}${menuItemIcon}${prefix}delreact
-${middleBorder}${menuItemIcon}${prefix}addnopref
-${middleBorder}${menuItemIcon}${prefix}listnopref
-${middleBorder}${menuItemIcon}${prefix}delnopref
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${commandCustomMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addcmd
-${middleBorder}${menuItemIcon}${prefix}addcmdmidia
-${middleBorder}${menuItemIcon}${prefix}listcmd
-${middleBorder}${menuItemIcon}${prefix}delcmd
-${middleBorder}${menuItemIcon}${prefix}testcmd
-${middleBorder}${menuItemIcon}${prefix}addcmd-subdono
-${middleBorder}${menuItemIcon}${prefix}removecmd-subdono
-${middleBorder}${menuItemIcon}${prefix}listcmd-subdono
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addalias
-${middleBorder}${menuItemIcon}${prefix}listalias
-${middleBorder}${menuItemIcon}${prefix}delalias
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addblackglobal
-${middleBorder}${menuItemIcon}${prefix}listblackglobal
-${middleBorder}${menuItemIcon}${prefix}rmblackglobal
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${commandLimitingMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}cmdlimitar
-${middleBorder}${menuItemIcon}${prefix}cmddeslimitar
-${middleBorder}${menuItemIcon}${prefix}cmdlimites
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${userManagementMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addsubdono
-${middleBorder}${menuItemIcon}${prefix}delsubdono
-${middleBorder}${menuItemIcon}${prefix}listasubdonos
-${middleBorder}${menuItemIcon}${prefix}addpremium
-${middleBorder}${menuItemIcon}${prefix}delpremium
-${middleBorder}${menuItemIcon}${prefix}listprem
-${middleBorder}${menuItemIcon}${prefix}resetgold
-${middleBorder}
-${middleBorder}${menuTitleIcon} *INDICAÇÕES* ${menuTitleIcon}
-${middleBorder}${menuItemIcon}${prefix}addindicacao
-${middleBorder}${menuItemIcon}${prefix}topindica
-${middleBorder}${menuItemIcon}${prefix}delindicacao
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}bangp
-${middleBorder}${menuItemIcon}${prefix}unbangp
-${middleBorder}${menuItemIcon}${prefix}listbangp
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${rentalSystemMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}modoaluguel
-${middleBorder}${menuItemIcon}${prefix}addaluguel
-${middleBorder}${menuItemIcon}${prefix}gerarcod
-${middleBorder}${menuItemIcon}${prefix}listaraluguel
-${middleBorder}${menuItemIcon}${prefix}infoaluguel
-${middleBorder}${menuItemIcon}${prefix}estenderaluguel
-${middleBorder}${menuItemIcon}${prefix}removeraluguel
-${middleBorder}${menuItemIcon}${prefix}listaluguel
-${middleBorder}${menuItemIcon}${prefix}limparaluguel
-${middleBorder}${menuItemIcon}${prefix}dayfree
-${middleBorder}${menuItemIcon}${prefix}setdiv
-${middleBorder}${menuItemIcon}${prefix}divulgar
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${subBotsMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addsubbot
-${middleBorder}${menuItemIcon}${prefix}removesubbot
-${middleBorder}${menuItemIcon}${prefix}listarsubbots
-${middleBorder}${menuItemIcon}${prefix}conectarsubbot
-${middleBorder}
-${middleBorder}🔑 Sub-bot use: ${prefix}gerarcodigo
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${vipSystemMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addcmdvip
-${middleBorder}${menuItemIcon}${prefix}removecmdvip
-${middleBorder}${menuItemIcon}${prefix}listcmdvip
-${middleBorder}${menuItemIcon}${prefix}togglecmdvip
-${middleBorder}${menuItemIcon}${prefix}statsvip
-${middleBorder}${menuItemIcon}${prefix}menuvip
-${middleBorder}${menuItemIcon}${prefix}infovip
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${botControlMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}atualizar
-${middleBorder}${menuItemIcon}${prefix}reiniciar
-${middleBorder}${menuItemIcon}${prefix}entrar
-${middleBorder}${menuItemIcon}${prefix}sairgp
-${middleBorder}${menuItemIcon}${prefix}seradm
-${middleBorder}${menuItemIcon}${prefix}sermembro
-${middleBorder}${menuItemIcon}${prefix}blockcmdg
-${middleBorder}${menuItemIcon}${prefix}unblockcmdg
-${middleBorder}${menuItemIcon}${prefix}blockuserg
-${middleBorder}${menuItemIcon}${prefix}unblockuserg
-${middleBorder}${menuItemIcon}${prefix}listblocks
-${middleBorder}${menuItemIcon}${prefix}antibanmarcar
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${monitoringMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}listagp
-${middleBorder}${menuItemIcon}${prefix}antipv
-${middleBorder}${menuItemIcon}${prefix}antipv2
-${middleBorder}${menuItemIcon}${prefix}antipv3
-${middleBorder}${menuItemIcon}${prefix}antipv4
-${middleBorder}${menuItemIcon}${prefix}antipvmsg
-${middleBorder}${menuItemIcon}${prefix}antispamcmd
-${middleBorder}${menuItemIcon}${prefix}viewmsg
-${middleBorder}${menuItemIcon}${prefix}cases
-${middleBorder}${menuItemIcon}${prefix}getcase
-${middleBorder}${menuItemIcon}${prefix}modoliteglobal
-${middleBorder}${menuItemIcon}${prefix}iaclear
-${middleBorder}${menuItemIcon}${prefix}limpardb
-${middleBorder}${menuItemIcon}${prefix}limparrankg
-${middleBorder}${menuItemIcon}${prefix}reviverqr
-${middleBorder}${menuItemIcon}${prefix}nuke
-${middleBorder}${menuItemIcon}${prefix}msgprefix
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${broadcastMenuTitle}*
-${middleBorder}
-${middleBorder}${menuTitleIcon} *Transmissão em Grupos:*
-${middleBorder}${menuItemIcon}${prefix}tm (texto, foto, vídeo, áudio, fig, doc...)
-${middleBorder}${menuItemIcon}${prefix}tm enquete
-${middleBorder}${menuItemIcon}${prefix}tm direto
-${middleBorder}${menuItemIcon}${prefix}tmparar
-${middleBorder}${menuItemIcon}${prefix}tmexcluir / tmincluir
-${middleBorder}${menuItemIcon}${prefix}tmexcluidos
-${middleBorder}${menuItemIcon}${prefix}tmprevia on/off
-${middleBorder}${menuItemIcon}${prefix}status
-${middleBorder}${menuItemIcon}${prefix}menubotoes on/off
-${middleBorder}${menuItemIcon}${prefix}figfps 30/24/20/auto
-${middleBorder}${menuItemIcon}${prefix}tmavisos
-${middleBorder}${menuItemIcon}${prefix}tmavisos lista
-${middleBorder}${menuItemIcon}${prefix}tmavisos ajuda
-${middleBorder}${menuItemIcon}${prefix}tmconfig
-${middleBorder}
-${middleBorder}${menuTitleIcon} *Transmissão Privada:*
-${middleBorder}${menuItemIcon}${prefix}tm2
-${middleBorder}${menuItemIcon}${prefix}statustm
-${middleBorder}
-${middleBorder}📝 Usuários inscrevem com:
-${middleBorder}   ${prefix}inscrevertm (no PV)
-${middleBorder}
-${middleBorder}${menuTitleIcon} *Divulgação do Dono (novo):*
-${middleBorder}${menuItemIcon}${prefix}divdono add
-${middleBorder}${menuItemIcon}${prefix}divdono rem
-${middleBorder}${menuItemIcon}${prefix}divdono list
-${middleBorder}${menuItemIcon}${prefix}divdono msg
-${middleBorder}${menuItemIcon}${prefix}divdono send
-${middleBorder}${menuItemIcon}${prefix}divdono img
-${middleBorder}${menuItemIcon}${prefix}divdono video
-${middleBorder}${menuItemIcon}${prefix}divdono gif
-${middleBorder}${menuItemIcon}${prefix}divdono fig
-${middleBorder}${menuItemIcon}${prefix}divdono audio
-${middleBorder}${menuItemIcon}${prefix}divdono voz
-${middleBorder}${menuItemIcon}${prefix}divdono doc
-${middleBorder}${menuItemIcon}${prefix}divdono enquete
-${middleBorder}${menuItemIcon}${prefix}divdono evento
-${middleBorder}${menuItemIcon}${prefix}divdono local
-${middleBorder}${menuItemIcon}${prefix}divdono contato
-${middleBorder}${menuItemIcon}${prefix}divdono tudo
-${middleBorder}${menuItemIcon}${prefix}divdono salvar
-${middleBorder}${menuItemIcon}${prefix}divdono itens
-${middleBorder}${menuItemIcon}${prefix}divdono veritem
-${middleBorder}${menuItemIcon}${prefix}divdono enviaritem
-${middleBorder}${menuItemIcon}${prefix}divdono remitem
-${middleBorder}${menuItemIcon}${prefix}divdonomidia on/off
-${middleBorder}${menuItemIcon}${prefix}divdono time
-${middleBorder}${menuItemIcon}${prefix}divdono status
-${bottomBorder}
-`;
+export default async function menuDono(prefix, botName = 'MeuBot', userName = 'Usuário', design = {}) {
+  return renderMenu(prefix, botName, userName, design, [
+    {
+      t: '⚔️ SISTEMA', i: [
+        'atualizar — baixa a versão nova do GitHub',
+        'atualizar aviso on/off',
+        'reiniciar',
+        'status · logs',
+        'avisos on/off — erros no seu privado',
+        'manutencao on/off — só você usa o bot',
+        'autoreload on/off',
+        'painelweb on/off — controle pelo navegador',
+        'backupdados · backupsemanal on/off',
+        'instalarfundo — removedor de fundo local',
+        'figfps 30/24/20/auto',
+        'menubotoes on/off',
+        'tutorial'
+      ]
+    },
+    {
+      t: '🔐 PERMISSÕES E REGISTRO', i: [
+        'addsubdono @user · delsubdono @user',
+        'listasubdonos',
+        'permsub @user tm — o que cada subdono pode usar',
+        'registropv on/off — registro obrigatório no PV',
+        'registrados [busca] · desregistrar @user',
+        'addpremium @user · delpremium @user · listprem',
+        'resetgold'
+      ]
+    },
+    {
+      t: '📢 TRANSMISSÃO (!tm)', i: [
+        'tm <texto> — ou responda qualquer mensagem',
+        'tm enquete Pergunta | op1 | op2',
+        'tm direto · tmparar',
+        'tmexcluir · tmincluir · tmexcluidos',
+        'tmprevia on/off',
+        'tmcanal <link>',
+        'tmavisos · tmavisos lista · tmavisos ajuda',
+        'tmconfig',
+        { sub: 'NO PRIVADO' },
+        'tm2 · statustm',
+        'inscrevertm (o usuário manda no PV)'
+      ]
+    },
+    {
+      t: '📣 DIVULGAÇÃO (!divdono)', i: [
+        'divdono add · rem · list',
+        'divdono msg · send · time · status',
+        'divdono img · video · gif · fig',
+        'divdono audio · voz · doc',
+        'divdono enquete · evento · local · contato',
+        'divdono tudo',
+        'divdono salvar · itens · veritem',
+        'divdono enviaritem · remitem',
+        'divdonomidia on/off'
+      ]
+    },
+    {
+      t: '🤖 CONFIGURAR O BOT', i: [
+        'prefixo · nomebot · nomedono · numerodono',
+        'fotobot · fotomenu · videomenu · audiomenu',
+        'lermais',
+        'configcmdnotfound · setcmdmsg',
+        'personalizargrupo',
+        'cargos asta',
+        { sub: 'DESENHO DO MENU' },
+        'designmenu · resetdesign',
+        'setheader · settitulo · setitem',
+        'setborda · setbordameio · setbordafim',
+        'setseparador',
+        { sub: 'ASSISTENTE' },
+        'setpersonalidade · criarpers · novapers'
+      ]
+    },
+    {
+      t: '⚙️ AUTOMAÇÕES', i: [
+        'addauto · addautomidia · listauto · delauto',
+        'addreact · listreact · delreact',
+        'addnopref · listnopref · delnopref'
+      ]
+    },
+    {
+      t: '🧩 COMANDOS PERSONALIZADOS', i: [
+        'addcmd · addcmdmidia · listcmd · delcmd',
+        'testcmd',
+        'addcmd-subdono · removecmd-subdono · listcmd-subdono',
+        'addalias · listalias · delalias',
+        'addblackglobal · listblackglobal · rmblackglobal',
+        { sub: 'LIMITES' },
+        'cmdlimitar · cmddeslimitar · cmdlimites'
+      ]
+    },
+    {
+      t: '🏠 ALUGUEL E DIVULGAÇÃO', i: [
+        'modoaluguel',
+        'addaluguel · gerarcod',
+        'listaraluguel · listaluguel · infoaluguel',
+        'estenderaluguel · removeraluguel · limparaluguel',
+        'dayfree',
+        'setdiv · divulgar',
+        { sub: 'INDICAÇÕES' },
+        'addindicacao · delindicacao · topindica'
+      ]
+    },
+    {
+      t: '🤖 SUB-BOTS', i: ['addsubbot · removesubbot · listarsubbots', 'conectarsubbot · gerarcodigo']
+    },
+    {
+      t: '💎 VIP', i: ['addcmdvip · removecmdvip · listcmdvip', 'togglecmdvip · statsvip · infovip', 'menuvip']
+    },
+    {
+      t: '🛠️ CONTROLE', i: [
+        'entrar <link> · sairgp',
+        'gruposinativos — grupos parados (sair / continuar)',
+        'gruposinativos dias 5 · auto on/off · on/off',
+        'seradm · sermembro',
+        'listagp',
+        'bangp · unbangp · listbangp',
+        'blockcmdg · unblockcmdg',
+        'blockuserg · unblockuserg · listblocks',
+        'antibanmarcar',
+        'antipv · antipv2 · antipv3 · antipv4',
+        'antipvmsg · antispamcmd',
+        'modoliteglobal · msgprefix',
+        'viewmsg · cases · getcase',
+        'iaclear · limpardb · limparrankg',
+        'reviverqr · nuke'
+      ]
+    }
+  ]);
 }
-export default menuDono;

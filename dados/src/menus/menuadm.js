@@ -1,199 +1,145 @@
-export default async function menuadm(prefix, botName = "MeuBot", userName = "Usuário", {
-    header = `╭┈⊰ 🌸 『 *${botName}* 』\n┊Olá, #user#!\n╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯`,
-    menuTopBorder = "╭┈",
-    bottomBorder = "╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯",
-    menuTitleIcon = "🍧ฺꕸ▸",
-    menuItemIcon = "•.̇𖥨֗💜⭟",
-    separatorIcon = "❁",
-    middleBorder = "┊",
-    adminMenuTitle = "🛡️ GESTÃO DE USUÁRIOS",
-    managementMenuTitle = "💬 GESTÃO DO GRUPO",
-    securityMenuTitle = "🔒 SEGURANÇA",
-    moderatorsMenuTitle = "👥 MODERADORES",
-    partnershipsMenuTitle = "🤝 PARCERIAS",
-    activationsMenuTitle = "⚡ ATIVAÇÕES",
-    settingsMenuTitle = "🎨 CONFIGURAÇÕES"
-} = {}) {
-    const formattedHeader = header.replace(/#user#/g, userName);
-    return `${formattedHeader}
+import { renderMenu } from './_render.js';
 
-${menuTopBorder}${separatorIcon} *⚔️ NOVIDADES ASTA MD*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}punir @user
-${middleBorder}${menuItemIcon}${prefix}mutar @user 30m
-${middleBorder}${menuItemIcon}${prefix}verificarnovato on/off
-${middleBorder}${menuItemIcon}${prefix}bvbotoes on/off
-${middleBorder}${menuItemIcon}${prefix}resumo / resumo semana
-${middleBorder}${menuItemIcon}${prefix}agendar HH:MM <msg>
-${middleBorder}${menuItemIcon}${prefix}agendados
-${middleBorder}${menuItemIcon}${prefix}desagendar <n>
-${middleBorder}${menuItemIcon}${prefix}votacao 30m P | a | b
-${middleBorder}${menuItemIcon}${prefix}evento Nome | DD/MM HH:MM
-${middleBorder}${menuItemIcon}${prefix}sorteiobotao 10m <prêmio>
-${middleBorder}${menuItemIcon}${prefix}figdia on/off
-${middleBorder}${menuItemIcon}${prefix}rankingsemanal on/off
-${middleBorder}${menuItemIcon}${prefix}assistentevoz on/off
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${adminMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}ban
-${middleBorder}${menuItemIcon}${prefix}roletaban
-${middleBorder}${menuItemIcon}${prefix}ban2
-${middleBorder}${menuItemIcon}${prefix}enquete
-${middleBorder}${menuItemIcon}${prefix}bam (ban fake)
-${middleBorder}${menuItemIcon}${prefix}setbammsg
-${middleBorder}${menuItemIcon}${prefix}promover
-${middleBorder}${menuItemIcon}${prefix}rebaixar
-${middleBorder}${menuItemIcon}${prefix}mute
-${middleBorder}${menuItemIcon}${prefix}desmute
-${middleBorder}${menuItemIcon}${prefix}mute2
-${middleBorder}${menuItemIcon}${prefix}desmute2
-${middleBorder}${menuItemIcon}${prefix}adv
-${middleBorder}${menuItemIcon}${prefix}rmadv
-${middleBorder}${menuItemIcon}${prefix}listadv
-${middleBorder}${menuItemIcon}${prefix}limparrank
-${middleBorder}${menuItemIcon}${prefix}resetrank
-${middleBorder}${menuItemIcon}${prefix}mantercontador
-${middleBorder}${menuItemIcon}${prefix}atividade
-${middleBorder}${menuItemIcon}${prefix}checkativo
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *🔒 CONTROLE DE ACESSO*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}blockuser
-${middleBorder}${menuItemIcon}${prefix}unblockuser
-${middleBorder}${menuItemIcon}${prefix}listblocksgp
-${middleBorder}${menuItemIcon}${prefix}addblacklist
-${middleBorder}${menuItemIcon}${prefix}delblacklist
-${middleBorder}${menuItemIcon}${prefix}listblacklist
-${middleBorder}${menuItemIcon}${prefix}blockcmd
-${middleBorder}${menuItemIcon}${prefix}unblockcmd
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${managementMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}del
-${middleBorder}${menuItemIcon}${prefix}limpar
-${middleBorder}${menuItemIcon}${prefix}marcar
-${middleBorder}${menuItemIcon}${prefix}hidetag
-${middleBorder}${menuItemIcon}${prefix}sorteio
-${middleBorder}${menuItemIcon}${prefix}nomegp
-${middleBorder}${menuItemIcon}${prefix}descgrupo
-${middleBorder}${menuItemIcon}${prefix}fotogrupo
-${middleBorder}${menuItemIcon}${prefix}addregra
-${middleBorder}${menuItemIcon}${prefix}delregra
-${middleBorder}${menuItemIcon}${prefix}role.criar
-${middleBorder}${menuItemIcon}${prefix}role.alterar
-${middleBorder}${menuItemIcon}${prefix}role.excluir
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *⚙️ GRUPO & PERMISSÕES*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}linkgp
-${middleBorder}${menuItemIcon}${prefix}grupo A/F
-${middleBorder}${menuItemIcon}${prefix}opengp HH:MM|off
-${middleBorder}${menuItemIcon}${prefix}closegp HH:MM|off
-${middleBorder}${menuItemIcon}${prefix}automsg
-${middleBorder}${menuItemIcon}${prefix}banghost
-${middleBorder}${menuItemIcon}${prefix}limitmessage
-${middleBorder}${menuItemIcon}${prefix}dellimitmessage
-${middleBorder}
-${middleBorder}${menuTitleIcon} *SOLICITAÇÕES* ${menuTitleIcon}
-${middleBorder}${menuItemIcon}${prefix}solicitacoes
-${middleBorder}${menuItemIcon}${prefix}aprovar
-${middleBorder}${menuItemIcon}${prefix}aprovar all
-${middleBorder}${menuItemIcon}${prefix}recusarsolic
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${moderatorsMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addmod
-${middleBorder}${menuItemIcon}${prefix}delmod
-${middleBorder}${menuItemIcon}${prefix}listmods
-${middleBorder}${menuItemIcon}${prefix}grantmodcmd
-${middleBorder}${menuItemIcon}${prefix}revokemodcmd
-${middleBorder}${menuItemIcon}${prefix}listmodcmds
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *🛡️ WHITELIST DE ANTIS*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}wladd
-${middleBorder}${menuItemIcon}${prefix}wl.remove
-${middleBorder}${menuItemIcon}${prefix}wl.lista
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${partnershipsMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}parcerias
-${middleBorder}${menuItemIcon}${prefix}addparceria
-${middleBorder}${menuItemIcon}${prefix}delparceria
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *🔒 SEGURANÇA & PROTEÇÃO*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}anticategoria [categoria]
-${middleBorder}${menuItemIcon}${prefix}antiflood
-${middleBorder}${menuItemIcon}${prefix}x9
-${middleBorder}${menuItemIcon}${prefix}antidoc
-${middleBorder}${menuItemIcon}${prefix}antiloc
-${middleBorder}${menuItemIcon}${prefix}antifig
-${middleBorder}${menuItemIcon}${prefix}antibtn
-${middleBorder}${menuItemIcon}${prefix}antistickerplus
-${middleBorder}${menuItemIcon}${prefix}antilinkgp
-${middleBorder}${menuItemIcon}${prefix}antilinkcanal
-${middleBorder}${menuItemIcon}${prefix}antilinkhard
-${middleBorder}${menuItemIcon}${prefix}antilinksoft
-${middleBorder}${menuItemIcon}${prefix}antiporn
-${middleBorder}${menuItemIcon}${prefix}antistatus
-${middleBorder}${menuItemIcon}${prefix}antitoxic <on/off>
-${middleBorder}${menuItemIcon}${prefix}antitoxic config <ação>
-${middleBorder}${menuItemIcon}${prefix}antitoxic sensibilidade <0-100>
-${middleBorder}${menuItemIcon}${prefix}antipalavra <on/off/add/del/list>
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *${settingsMenuTitle}*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}legendasaiu
-${middleBorder}${menuItemIcon}${prefix}legendabv
-${middleBorder}${menuItemIcon}${prefix}fotobv
-${middleBorder}${menuItemIcon}${prefix}set-fotobv
-${middleBorder}${menuItemIcon}${prefix}set-bannerbv
-${middleBorder}${menuItemIcon}${prefix}rmfotobv
-${middleBorder}${menuItemIcon}${prefix}fotosaiu
-${middleBorder}${menuItemIcon}${prefix}rmfotosaiu
-${middleBorder}${menuItemIcon}${prefix}setprefix
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *💬 AUTO-RESPOSTAS*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}addautoadm
-${middleBorder}${menuItemIcon}${prefix}addautoadmidia
-${middleBorder}${menuItemIcon}${prefix}listautoadm
-${middleBorder}${menuItemIcon}${prefix}delautoadm
-${middleBorder}${menuItemIcon}${prefix}autorespostas
-${middleBorder}${menuItemIcon}${prefix}autorepo
-${bottomBorder}
-
-${menuTopBorder}${separatorIcon} *⚡ MODO & ATIVAÇÕES*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}autodl
-${middleBorder}${menuItemIcon}${prefix}minmessage
-${middleBorder}${menuItemIcon}${prefix}assistente
-${middleBorder}${menuItemIcon}${prefix}modobn
-${middleBorder}${menuItemIcon}${prefix}modoparceria
-${middleBorder}${menuItemIcon}${prefix}modorpg
-${middleBorder}${menuItemIcon}${prefix}modolite
-${middleBorder}${menuItemIcon}${prefix}bemvindo
-${middleBorder}${menuItemIcon}${prefix}bemvindo2
-${middleBorder}${menuItemIcon}${prefix}saida
-${middleBorder}${menuItemIcon}${prefix}autosticker
-${middleBorder}${menuItemIcon}${prefix}autotranscrever
-${middleBorder}${menuItemIcon}${prefix}soadm
-${middleBorder}${menuItemIcon}${prefix}cmdlimit
-${middleBorder}${menuItemIcon}${prefix}fotomenugrupo
-${middleBorder}${menuItemIcon}${prefix}nomegp
-${middleBorder}${menuItemIcon}${prefix}infoperso
-${bottomBorder}
-`;
+export default async function menuadm(prefix, botName = 'MeuBot', userName = 'Usuário', design = {}) {
+  return renderMenu(prefix, botName, userName, design, [
+    {
+      t: '👮 MEMBROS', i: [
+        'ban @user — remove do grupo',
+        'ban2 @user',
+        'bangeral — remove todos (menos admins), pede confirmação',
+        'inativos [dias] — lista e remove quem não fala',
+        'promover @user · rebaixar @user',
+        'punir @user — painel advertir / silenciar / banir',
+        'mutar @user 30m — silencia por um tempo',
+        'mute @user · desmute @user',
+        'mute2 @user · desmute2 @user',
+        'adv @user · rmadv @user · listadv',
+        'roletaban — sorteia alguém para banir',
+        'bam @user — ban de brincadeira',
+        'setbammsg <texto>',
+        { sub: 'BLOQUEIOS' },
+        'blockuser @user · unblockuser @user',
+        'listblocksgp',
+        'addblacklist @user · delblacklist @user',
+        'listblacklist',
+        'blockcmd <cmd> · unblockcmd <cmd>'
+      ]
+    },
+    {
+      t: '👋 ENTRADA E SAÍDA', i: [
+        'bemvindo — boas-vindas com foto',
+        'bemvindo2 — boas-vindas só texto',
+        'legendabv <texto>',
+        'fotobv · set-fotobv · set-bannerbv · rmfotobv',
+        'bvcard on [tema] — cartão de boas-vindas em imagem',
+        'bvfig — figurinha (com som) para quem entra',
+        'bvbotoes on/off — botões REGRAS e MENU',
+        'verificarnovato on/off — botão "sou humano"',
+        'regrasaceite on/off — novato precisa aceitar as regras',
+        'addregra <texto> · delregra <nº>',
+        'saida — mensagem de saída',
+        'legendasaiu <texto>',
+        'fotosaiu · rmfotosaiu',
+        { sub: 'PEDIDOS PARA ENTRAR' },
+        'solicitacoes',
+        'aprovar · aprovar all',
+        'recusarsolic'
+      ]
+    },
+    {
+      t: '💬 GRUPO', i: [
+        'marcar — marca todos',
+        'hidetag <texto> — marca todos sem aparecer',
+        'del — apaga a mensagem respondida',
+        'limpar — limpa o chat',
+        'nomegp <nome> · descgrupo <texto> · fotogrupo',
+        'linkgp — link do grupo',
+        'grupo a/f — abre ou fecha',
+        'opengp HH:MM · closegp HH:MM (ou off)',
+        'modonoturno 23:00 07:00 — fecha e abre sozinho',
+        'automsg — mensagens automáticas',
+        'limitmessage · dellimitmessage',
+        'banghost 1 — remove quem mandou até 1 mensagem',
+        'setprefix <prefixo>',
+        'fotomenugrupo — foto do menu do grupo',
+        'infoperso'
+      ]
+    },
+    {
+      t: '⏰ AGENDA E EVENTOS', i: [
+        'agendar HH:MM <mensagem>',
+        'agendar todo dia 08:00 <mensagem> — repete',
+        'agendados · desagendar <nº>',
+        'enquete Pergunta | op1 | op2',
+        'votacao 30m Pergunta | a | b',
+        'evento Nome | DD/MM HH:MM',
+        'sorteio — sorteia um membro',
+        'sorteiobotao 10m <prêmio>',
+        'aniversario auto on/off · hora HH:MM',
+        'figdia on/off — figurinha do dia',
+        'rankingsemanal on/off',
+        'resumo · resumo semana',
+        'role.criar · role.alterar · role.excluir'
+      ]
+    },
+    {
+      t: '🔒 PROTEÇÃO', i: [
+        'anticategoria <links|midia|seguranca|todos>',
+        { sub: 'LINKS' },
+        'antilinkgp — links de outros grupos',
+        'antilinkcanal — links de canais',
+        'antilinkhard — qualquer link (remove)',
+        'antilinksoft — qualquer link (apaga)',
+        'antilinkpro on/off — só passam sites liberados',
+        'linkspermitidos add youtube tiktok',
+        { sub: 'MENSAGENS' },
+        'antifig · antifig limite 5',
+        'antiflood · antidoc · antiloc',
+        'antibtn · antistickerplus',
+        'antiporn · antistatus',
+        'antitoxic on/off · config · sensibilidade',
+        'antipalavra on/off/add/del/list',
+        'x9 — avisa quem adicionou/removeu',
+        { sub: 'LIBERADOS DOS ANTIS' },
+        'wladd @user · wl.remove @user · wl.lista'
+      ]
+    },
+    {
+      t: '📊 ATIVIDADE', i: [
+        'atividade · checkativo',
+        'limparrank · resetrank',
+        'mantercontador'
+      ]
+    },
+    {
+      t: '👥 MODERADORES', i: [
+        'addmod @user · delmod @user · listmods',
+        'grantmodcmd @user <cmd>',
+        'revokemodcmd @user <cmd>',
+        'listmodcmds'
+      ]
+    },
+    { t: '🤝 PARCERIAS', i: ['parcerias', 'addparceria @user', 'delparceria @user', 'modoparceria'] },
+    {
+      t: '💬 RESPOSTAS AUTOMÁTICAS', i: [
+        'addautoadm oi/Olá! Tudo bem?',
+        'addautoadmidia',
+        'listautoadm · delautoadm <nº>',
+        'autorespostas · autorepo'
+      ]
+    },
+    {
+      t: '⚡ MODOS DO GRUPO', i: [
+        'modobn — brincadeiras',
+        'modorpg — RPG e economia',
+        'modolite — esconde conteúdo +18',
+        'soadm — só admins usam o bot',
+        'autodl — baixa links sozinho',
+        'autosticker — mídia vira figurinha',
+        'autotranscrever — transcreve áudios',
+        'assistente · assistentevoz on/off',
+        'minmessage · cmdlimit'
+      ]
+    }
+  ]);
 }

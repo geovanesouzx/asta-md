@@ -245,3 +245,48 @@ export const QUIZ_ANIME = [
   { q: 'Em Mob Psycho 100, o que acontece quando o Mob chega a 100%?', o: ['Ele dorme', 'Explode de emoção', 'Perde poderes', 'Vira demônio'], a: 1 },
   { q: 'Em Blue Lock, qual esporte é o foco?', o: ['Basquete', 'Futebol', 'Tênis', 'Boxe'], a: 1 }
 ];
+
+// ===================== AGENDAMENTO REPETIDO =====================
+const DIAS_SEMANA = { domingo: 0, dom: 0, segunda: 1, seg: 1, terca: 2, 'terça': 2, ter: 2, quarta: 3, qua: 3, quinta: 4, qui: 4, sexta: 5, sex: 5, sabado: 6, 'sábado': 6, sab: 6 };
+const NOMES_DIA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+
+/**
+ * Lê o começo do !agendar para repetição:
+ *  "todo dia 08:00 ..."  ·  "toda segunda 08:00 ..."  ·  "dias uteis 08:00 ..."  ·  "fim de semana 10:00 ..."
+ * @returns {{ repeat, hh, mm, rest } | null}
+ */
+export function parseRepeatSchedule(text) {
+  const t = String(text || '').trim();
+  const low = t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const tm = '(\\d{1,2}):(\\d{2})';
+  let m;
+  if ((m = low.match(new RegExp(`^(?:todo dia|todos os dias|diariamente|diario)\\s+(?:as\\s+)?${tm}`)))) return { repeat: { type: 'daily' }, hh: +m[1], mm: +m[2], rest: t.slice(m[0].length).trim() };
+  if ((m = low.match(new RegExp(`^(?:dias? uteis|seg a sex|segunda a sexta)\\s+(?:as\\s+)?${tm}`)))) return { repeat: { type: 'days', days: [1, 2, 3, 4, 5] }, hh: +m[1], mm: +m[2], rest: t.slice(m[0].length).trim() };
+  if ((m = low.match(new RegExp(`^(?:fim de semana|fds|finais de semana)\\s+(?:as\\s+)?${tm}`)))) return { repeat: { type: 'days', days: [0, 6] }, hh: +m[1], mm: +m[2], rest: t.slice(m[0].length).trim() };
+  if ((m = low.match(new RegExp(`^tod[ao]s?\\s+(?:as\\s+|os\\s+)?(domingo|segunda|terca|quarta|quinta|sexta|sabado)s?(?:-feira|\\s+feira)?s?\\s+(?:as\\s+)?${tm}`)))) {
+    return { repeat: { type: 'days', days: [DIAS_SEMANA[m[1]]] }, hh: +m[2], mm: +m[3], rest: t.slice(m[0].length).trim() };
+  }
+  return null;
+}
+
+/** Próximo horário (timestamp) de um agendamento repetido, no horário de São Paulo (UTC-3). */
+export function nextRepeatAt(repeat, hh, mm, after = Date.now()) {
+  const days = repeat?.type === 'daily' ? [0, 1, 2, 3, 4, 5, 6] : (repeat?.days || []);
+  if (!days.length) return null;
+  const sp = new Date(after - 3 * 3600e3);
+  for (let add = 0; add <= 8; add++) {
+    const at = Date.UTC(sp.getUTCFullYear(), sp.getUTCMonth(), sp.getUTCDate() + add, hh + 3, mm);
+    const dow = new Date(at - 3 * 3600e3).getUTCDay();
+    if (at > after + 30_000 && days.includes(dow)) return at;
+  }
+  return null;
+}
+
+export function describeRepeat(repeat) {
+  if (!repeat) return '';
+  if (repeat.type === 'daily') return 'todo dia';
+  const d = [...(repeat.days || [])].sort();
+  if (d.join() === '1,2,3,4,5') return 'de segunda a sexta';
+  if (d.join() === '0,6') return 'todo fim de semana';
+  return 'toda ' + d.map((x) => NOMES_DIA[x]).join(', ');
+}

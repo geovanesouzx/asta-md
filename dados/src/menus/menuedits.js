@@ -1,22 +1,16 @@
-export default async function menuedits(prefix, botName = "MeuBot", userName = "Usuário", {
-    header = `╭┈⊰ 🌸 『 *${botName}* 』\n┊Olá, #user#!\n╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯`,
-    menuTopBorder = "╭┈",
-    bottomBorder = "╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯",
-    menuTitleIcon = "🍧ฺꕸ▸",
-    menuItemIcon = "•.̇𖥨֗💜⭟",
-    separatorIcon = "❁",
-    middleBorder = "┊"
-} = {}) {
-    const formattedHeader = header.replace(/#user#/g, userName);
-    return `${formattedHeader}
+import { renderMenu } from './_render.js';
 
-${menuTopBorder}${separatorIcon} *MENU EDITS*
-${middleBorder}
-${middleBorder}${menuItemIcon}${prefix}jornal
-${middleBorder}${menuItemIcon}${prefix}cinema
-${middleBorder}${menuItemIcon}${prefix}blackwhite
-${middleBorder}${menuItemIcon}${prefix}desfoque
-${middleBorder}${menuItemIcon}${prefix}wojakreaction
-${middleBorder}${menuItemIcon}${prefix}camera
-${bottomBorder}`;
+export default async function menuedits(prefix, botName = 'MeuBot', userName = 'Usuário', design = {}) {
+  return renderMenu(prefix, botName, userName, design, [
+    {
+      t: '🖼️ EDIÇÕES DE IMAGEM', i: [
+        'jornal — foto em capa de jornal',
+        'cinema — foto em tela de cinema',
+        'blackwhite — preto e branco',
+        'desfoque — borra a foto',
+        'wojakreaction — reação wojak',
+        'camera — efeito de câmera'
+      ]
+    }
+  ], { rodape: '💡 Responda uma foto com o comando.' });
 }

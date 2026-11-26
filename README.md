@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.7.6-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.9.3-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -59,13 +59,54 @@
 ## 🆕 Novidades da Última Atualização
 
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.7.6-blue?style=for-the-badge" alt="v10.7.6" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.9.3-blue?style=for-the-badge" alt="v10.9.3" />
 </p>
 
 <details open>
   <summary><strong>✨ Adicionado</strong></summary>
 
 <br>
+
+**🆕 v10.9.3**
+- 😴 **Grupos parados**: se um grupo ficar 5 dias sem mensagens de pessoas (as do bot não contam), o dono recebe no privado os botões 🚪 SAIR · ✅ CONTINUAR · 📌 SEMPRE FICAR. `.gruposinativos` lista tudo e tem "sair de todos" com confirmação · `dias 5` · `auto on/off` · `on/off`
+
+**🆕 v10.9.2**
+- 🔌 **Conexão mais estável**: no erro 403 o bot não apaga mais a sessão (não precisa escanear o QR de novo); ele espera 1, 3, 10, 30 e 60 minutos e continua tentando. No 503 espera pelo menos 20s antes de reconectar (reconectar rápido demais fazia o WhatsApp responder 403). Antes de apagar uma sessão (401), o bot guarda uma cópia em `dados/database/qr-code-backup`
+
+**🆕 v10.9.1**
+- 🔇 **Figurinha sem som**: `.ssoff` (normal), `.scoff` (redonda), `.sqoff` (quadrada), `.scorteoff` (sem tarja), `.sfundooff` (sem fundo), `.sloff <texto>` (legenda), `.s2off` (formato original), `.sefeitooff <efeito>` — também funciona respondendo uma figurinha com som
+- 📋 **Menus reorganizados**: cada menu em seções claras, sem comandos repetidos, com uma explicação curta em cada comando, e só com comandos que existem de verdade (o visual do `.designmenu` continua igual)
+
+**🆕 v10.9.0**
+- 🔐 **Registro no privado** (`.registropv on`): quem não tem registro recebe um aviso e só consegue usar `.registrar` e `.dono`. O `.registrar Nome|idade` mostra os termos com ✅ ACEITO / ❌ RECUSO e manda um código de 4 números numa imagem (captcha). No fim, a pessoa ganha um número de registro e um cartão. Dono: `.registrados`, `.desregistrar`
+- `.inativos [dias]` → lista quem não fala há X dias, com botão para remover que **só admins** confirmam
+- `.regrasaceite on` → o novato recebe as regras e precisa tocar em ✅ LI E ACEITO para poder falar
+- `.antilinkpro on` + `.linkspermitidos add youtube tiktok` → só passam links dos sites liberados (a lista vale também para o antilinkhard e o antilinksoft)
+- `.modonoturno 23:00 07:00` → o grupo fecha e abre sozinho com mensagem de boa noite e de bom dia
+- `.bvcard on [tema]` → cartão de boas-vindas em imagem (foto de perfil, nome e "Membro nº"), 7 temas
+- `.lojinha` (ou `.loja` sem Modo RPG) → títulos, cor do perfil, 🛡️ escudo contra roubo (24h) e ⚡ bônus em dobro de 💰 (1h) · `.meuperfil` → cartão com título e cor · `.titulo`
+- Pedidos de namoro/casamento com botões 💍 ACEITO / 💔 RECUSO · `.casal` mostra há quantos dias o casal está junto · presentes automáticos de mêsversário (+100 💰) e aniversário de casamento (+500 💰)
+- `.torneio criar 8 [prêmio]` → torneio de duelos de magia com chave automática (4, 8 ou 16) e prêmio para o campeão (com Modo RPG ligado: `.torneio magia`)
+- `.forcaanime` → forca de animes e personagens com lista de letras
+- `.quemdisse` → o bot mostra uma frase do grupo e a galera adivinha quem mandou
+- `.pet` → pet virtual (espíritos de Black Clover): alimentar, brincar, treinar, evoluir… e ele foge se for abandonado
+
+**🆕 v10.8.0**
+- `.sefeito lento / rapido / reverso / vaievolta / espelho` → efeitos na figurinha animada, **com o som acompanhando** (`mudo` tira o som)
+- `.svoz grave / esquilo / robo / eco / radio / monstro / reverso` → efeito de voz em figurinha com som, áudio ou vídeo
+- `.trocarsom` → troca o som de uma figurinha (responda a figurinha e o áudio, em qualquer ordem)
+- `.sfala <texto>` → figurinha com o texto escrito e uma voz falando (Vex API ou voz grátis do Google)
+- `.topfig` → as figurinhas mais mandadas do grupo · `.topfig pegar 1` reenvia · `.topfig zerar`
+- **Cache de figurinhas**: a mesma mídia com as mesmas opções não é convertida de novo (fica instantâneo)
+- `.agendar todo dia 08:00 Bom dia!` · `toda segunda` · `dias uteis` · `fim de semana` → mensagem que repete
+- **Parabéns automático** no dia do aniversário (`.aniversario auto on/off` · `.aniversario hora 09:00`)
+- `.antifig limite 5` → antiflood: cada membro pode mandar até 5 figurinhas por minuto (pega as com som também)
+- `.bvfig` → figurinha (com som 🔊) enviada para quem entra no grupo
+- `.duelo @fulano [aposta]` → **duelo de magia Black Clover** com grimório aleatório e botões ATAQUE / MAGIA / DEFESA / CURA, prêmio em 💰 e `.duelo rank` (o duelo de perguntas continua em `.dueloquiz`)
+- `.adivinha` → **qual é o anime?** com imagem borrada que vai clareando, `dica`, `rank` e +50 💰
+- `.permsub @fulano tm` → subdono com permissões escolhidas (ex.: só o `.tm`) · `tudo` · `limpar`
+- **Painel web com controle** (`.painelweb on`): mandar transmissão para todos os grupos, ligar/desligar funções e reiniciar o bot pelo navegador
+- `.bangeral` → remove **todos os membros** do grupo (admins, bot e dono ficam), com botões ✅ CONFIRMAR / ❌ RECUSAR que só admins podem apertar
 
 **🔊 Figurinhas com som (o recurso novo do WhatsApp)**
 - `.s` respondendo um **áudio, nota de voz ou música** → figurinha com som (capa automática com a onda do som)
@@ -162,6 +203,10 @@
 - `.revelar` mandava a foto corrompida
 - Erro `Could not load the "sharp" module` na instalação (a instalação usava `--no-optional`)
 - Avisos falsos `Erro ao ler configurações do grupo ... ENOENT`
+- O configurador (`npm run config`, que roda quando falta o `config.json`) dava `Erro fatal: off is not defined` e nunca funcionava → corrigido, e agora cria um `config.json` completo do ASTA MD
+- Aviso `DeprecationWarning DEP0190` no Windows
+- Fotos e vídeos enviados **juntos (álbum)** eram ignorados pelos comandos de figurinha → agora funcionam
+- Em grupos com **mensagens temporárias**, alguns comandos não achavam a mídia → corrigido
 - O atualizador antigo (`.atualizar`) baixava a Nazuna original e apagava o ASTA MD → refeito, agora atualiza pelo repositório do ASTA MD
 - Aviso `[EXPORTS] Module 'Logos2' not found` no console
 </details>
@@ -206,7 +251,7 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.7.6-blue?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.9.3-blue?style=flat-square) |
 | 🧩 Comandos e atalhos | ![Comandos](https://img.shields.io/badge/+1700-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
@@ -379,7 +424,7 @@ O que **não** muda: a sessão do WhatsApp, os dados dos grupos e usuários (`da
 - `.atualizar forcar` → reinstala a versão do GitHub mesmo sem versão nova
 - Pelo terminal: `npm run update`
 
-> Quem está numa versão **anterior à v10.7.6** precisa atualizar uma vez do jeito manual (baixar o ZIP e extrair por cima, ou `git pull`). Depois disso, o `.atualizar` faz tudo sozinho.
+> Quem está numa versão **anterior à v10.7.4** precisa atualizar uma vez do jeito manual (baixar o ZIP e extrair por cima, ou `git pull`). Depois disso, o `.atualizar` faz tudo sozinho.
 </details>
 
 <details>
@@ -392,6 +437,33 @@ Sim, desde que o WhatsApp seja compatível com multi-dispositivos (aparelhos con
   <summary><strong>🔊 A figurinha com som não toca para algumas pessoas</strong></summary>
 
 O som só aparece para quem já tem o recurso de figurinha com som no WhatsApp (atualize o app). Quem ainda não tem vê uma figurinha comum.
+</details>
+
+<details>
+  <summary><strong>⚡ Figurinhas demorando ou o celular/PC esquentando</strong></summary>
+
+O bot converte várias figurinhas ao mesmo tempo numa fila: no **PC**, metade dos núcleos do processador (2 a 4); no **Termux**, todos os núcleos menos 1. Num lote grande, as figurinhas esperam a vez em vez de dar erro.
+
+Para mudar, coloque no `dados/src/config.json`:
+
+```json
+"ffmpegSimultaneos": 3
+```
+
+- Número **maior** → lotes mais rápidos (esquenta mais)
+- Número **menor** → mais leve para o aparelho
+
+No Termux, deixe o bot com o **wake lock** ativo (ele ativa sozinho) e a bateria do Termux em **Sem restrições**, senão o Android deixa o processador lento com a tela apagada.
+</details>
+
+<details>
+  <summary><strong>🔐 Aparece "Bad MAC" / "Failed to decrypt message" no console</strong></summary>
+
+É normal em bots: a "chave de conversa" com alguma pessoa ficou desatualizada. O WhatsApp pede para reenviar a mensagem e a chave se acerta sozinha.
+
+Se ficar repetindo **sempre com o mesmo número**: desligue o bot e apague, em `dados/database/qr-code`, só os arquivos que começam com `session-NUMERO`. **Nunca** apague o `creds.json` (senão precisa conectar de novo).
+
+⚠️ Se aparecer com muita gente o tempo todo, confira se não tem **duas cópias do bot ligadas** com o mesmo número (no Termux, use `asta-parar` e depois `asta-iniciar`).
 </details>
 
 <details>

@@ -449,6 +449,19 @@ async function clearAuthDir(dirToRemove = AUTH_DIR) {
             return;
         }
 
+        // guarda uma cópia antes de apagar (dados/database/qr-code-backup/AAAA-MM-DD_HH-MM-SS)
+        try {
+            const bkRoot = path.join(path.dirname(normalized), 'qr-code-backup');
+            const stamp = new Date(Date.now() - 3 * 3600e3).toISOString().replace('T', '_').replace(/:/g, '-').slice(0, 19);
+            if (fsSync.existsSync(normalized) && typeof fs.cp === 'function') {
+                await fs.mkdir(bkRoot, { recursive: true });
+                await fs.cp(normalized, path.join(bkRoot, stamp), { recursive: true });
+                const antigos = (await fs.readdir(bkRoot)).sort();
+                for (const velho of antigos.slice(0, Math.max(0, antigos.length - 3))) await fs.rm(path.join(bkRoot, velho), { recursive: true, force: true }).catch(() => { });
+                console.log(`💾 Cópia da sessão guardada em ${path.join(bkRoot, stamp)}`);
+            }
+        } catch (bkErr) { console.log('⚠️ Não consegui copiar a sessão antes de apagar:', bkErr.message); }
+
         if (typeof fs.rm === 'function') {
             await fs.rm(normalized, { recursive: true, force: true });
         } else if (typeof fs.rmdir === 'function') {
@@ -798,6 +811,61 @@ if (groupSettings?.x9 && inf.author && !entradaPorLink) {
                         footer: groupMetadata.subject || '',
                         buttons: [quickReply('📜 REGRAS', '!regras'), quickReply('📋 MENU', '!menu')]
                     }).catch(err => console.log('⚠️ botões de boas-vindas:', err.message));
+                }
+
+                // ===== FIGURINHA (COM SOM) NAS BOAS-VINDAS =====
+                if (groupSettings.bvFig && ficaram.length) {
+                    try {
+                        const baseBv = path.join(__dirname, '..', 'database', 'bvfig', from.replace(/[^0-9a-z@._-]/gi, '_'));
+                        const webpBv = fsSync.readFileSync(`${baseBv}.webp`);
+                        let metaBv = {};
+                        try { metaBv = JSON.parse(fsSync.readFileSync(`${baseBv}.json`, 'utf-8')); } catch { }
+                        if (fsSync.existsSync(`${baseBv}.ogg`)) {
+                            const { sendSoundSticker } = await import('./funcs/utils/soundSticker.js');
+                            await sendSoundSticker(NazunaSock, from, { webp: webpBv, clip: { ogg: fsSync.readFileSync(`${baseBv}.ogg`), seconds: metaBv.seconds || 1, waveform: metaBv.waveform ? Buffer.from(metaBv.waveform, 'base64') : Buffer.alloc(64) } });
+                        } else {
+                            await NazunaSock.sendMessage(from, { sticker: webpBv });
+                        }
+                    } catch (err) { console.log('⚠️ figurinha de boas-vindas:', err.message); }
+                }
+
+                // ===== CARTÃO DE BOAS-VINDAS EM IMAGEM (!bvcard) =====
+                if (groupSettings.bvCard && ficaram.length) {
+                    try {
+                        const PLUS = await import('./funcs/utils/astaPlus.js');
+                        const total = groupMetadata?.participants?.length || ficaram.length;
+                        const lista = ficaram.slice(0, 5);
+                        for (const [i, p] of lista.entries()) {
+                            let foto = null;
+                            try { const u = await NazunaSock.profilePictureUrl(p, 'image'); const r = await fetch(u); foto = Buffer.from(await r.arrayBuffer()); } catch { }
+                            const part = (groupMetadata?.participants || []).find(x => x.id === p || x.lid === p || x.phoneNumber === p);
+                            const pn = String(part?.phoneNumber || (String(p).endsWith('@s.whatsapp.net') ? p : '')).split('@')[0];
+                            const nome = pn ? `+${pn}` : 'Novo membro';
+                            const img = await PLUS.cartaoBoasVindas({ foto, nome, grupo: groupMetadata?.subject || '', numero: Math.max(1, total - (lista.length - 1 - i)), tema: String(groupSettings.bvCard) });
+                            await NazunaSock.sendMessage(from, { image: img, caption: `👋 Bem-vindo(a), @${String(p).split('@')[0]}!\nAgora somos *${Math.max(1, total - (lista.length - 1 - i))}* no grupo *${groupMetadata?.subject || ''}*.`, mentions: [p] });
+                        }
+                    } catch (err) { console.log('⚠️ cartão de boas-vindas:', err.message); }
+                }
+
+                // ===== REGRAS COM ACEITE (!regrasaceite on) =====
+                if (groupSettings.regrasAceite && ficaram.length) {
+                    try {
+                        const PLUS = await import('./funcs/utils/astaPlus.js');
+                        const db = PLUS.readJ('regras-aceite.json');
+                        db[from] = db[from] || {};
+                        for (const p of ficaram) db[from][PLUS.baseNum(p)] = { jid: p, at: Date.now() };
+                        PLUS.writeJ('regras-aceite.json', db);
+                        const regras = Array.isArray(groupSettings.rules) && groupSettings.rules.length
+                            ? groupSettings.rules.map((r, i) => `${i + 1}. ${r}`).join('\n')
+                            : '1. Respeite todos os membros.\n2. Nada de spam, golpes ou conteúdo impróprio.\n3. Siga as orientações dos admins.';
+                        const pref = (() => { try { return JSON.parse(fsSync.readFileSync(path.join(__dirname, 'config.json'), 'utf-8')).prefixo || '!'; } catch { return '!'; } })();
+                        await sendButtons(NazunaSock, from, {
+                            text: `📜 *REGRAS DO GRUPO*\n\n${ficaram.map(p => `@${String(p).split('@')[0]}`).join(', ')}, leia antes de conversar:\n\n${regras}\n\n👇 Toque em *✅ LI E ACEITO* para liberar suas mensagens.\n(Até lá, o que você mandar é apagado.)`,
+                            footer: groupMetadata?.subject || '',
+                            mentions: ficaram,
+                            buttons: [quickReply('✅ LI E ACEITO', `${pref}aceitoregras`)]
+                        }).catch(() => NazunaSock.sendMessage(from, { text: `📜 Leia as regras e digite *aceito* para liberar suas mensagens.\n\n${regras}`, mentions: ficaram }));
+                    } catch (err) { console.log('⚠️ regras com aceite:', err.message); }
                 }
 
                 // ===== VERIFICAÇÃO DE NOVATO (botão "Sou humano") =====
@@ -1380,7 +1448,6 @@ let badSessionAttempts = 0;
 let replacedAttempts = 0;
 let firstOpenDone = false;
 const MAX_RECONNECT_ATTEMPTS = 10;
-const MAX_403_ATTEMPTS = 3;
 const MAX_BAD_SESSION_ATTEMPTS = 6;
 const MAX_REPLACED_ATTEMPTS = 3;
 const RECONNECT_DELAY_BASE = 3000;
@@ -2009,16 +2076,31 @@ async function createBotSocket(authDir) {
                     return;
                 }
 
+                // 403 = o WhatsApp recusou o login. NÃO apaga a sessão (apagar não resolve e obriga
+                // a escanear o QR de novo). Espera cada vez mais e tenta de novo, sem parar.
                 if (reason === 403) {
                     forbidden403Attempts++;
-                    console.log(`❌ Conexão fechada. Código: 403 | ${reasonMessage} (${forbidden403Attempts}/${MAX_403_ATTEMPTS})`);
-                    if (forbidden403Attempts >= MAX_403_ATTEMPTS) {
-                        console.log('❌ O WhatsApp está recusando esta sessão (403). Apagando sessão...');
-                        await clearAuthDir(authDir);
-                        console.log('🗑️ Autenticação removida. Reinicie o bot para gerar um novo QR code.');
-                        process.exit(1);
+                    const esperas403 = [60_000, 3 * 60_000, 10 * 60_000, 30 * 60_000, 60 * 60_000];
+                    const espera403 = esperas403[Math.min(forbidden403Attempts - 1, esperas403.length - 1)] + Math.floor(Math.random() * 15_000);
+                    const quando = espera403 >= 60_000 ? `${Math.round(espera403 / 60_000)} min` : `${Math.round(espera403 / 1000)}s`;
+                    console.log(`❌ Conexão fechada. Código: 403 | ${reasonMessage} (vez ${forbidden403Attempts}) → tentando de novo em ${quando}. A sessão NÃO foi apagada.`);
+                    if (forbidden403Attempts === 3) {
+                        console.log('⚠️ O WhatsApp está recusando a conexão várias vezes seguidas. Isso costuma ser:');
+                        console.log('   • limite temporário do WhatsApp (muitas reconexões ou muitas mensagens em pouco tempo), ou');
+                        console.log('   • restrição no número: abra o WhatsApp no celular do bot e veja se aparece algum aviso.');
+                        console.log('   O bot continua tentando sozinho, com espera cada vez maior.');
                     }
-                    scheduleReconnect(backoffDelay(forbidden403Attempts + 1));
+                    scheduleReconnect(espera403);
+                    return;
+                }
+
+                // 503 = servidor do WhatsApp indisponível/ocupado. Reconectar rápido demais
+                // faz o WhatsApp responder 403, então espera pelo menos 20s.
+                if (reason === DisconnectReason.unavailableService) {
+                    consecutiveCloses++;
+                    const espera503 = Math.min(20_000 * Math.pow(2, Math.max(0, consecutiveCloses - 1)), 5 * 60_000) + Math.floor(Math.random() * 5000);
+                    console.log(`❌ Conexão fechada. Código: 503 | Motivo: ${reasonMessage} (o servidor do WhatsApp está ocupado) → reconectando em ${Math.round(espera503 / 1000)}s (tentativa ${consecutiveCloses})`);
+                    scheduleReconnect(espera503);
                     return;
                 }
 

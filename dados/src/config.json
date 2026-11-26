@@ -24,5 +24,6 @@
   "botoesBotNode": false,
   "repoAtualizacao": "geovanesouzx/asta-md",
   "ramoAtualizacao": "main",
-  "avisoAtualizacao": true
+  "avisoAtualizacao": true,
+  "registroPv": false
 }

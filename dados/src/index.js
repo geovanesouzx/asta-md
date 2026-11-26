@@ -160,10 +160,16 @@ import { getInfo as mediafireGetInfo } from './funcs/utils/mediafire.js';
 import { getInfo as twitterGetInfo } from './funcs/utils/twitter.js';
 import { removeBg, upscale } from './funcs/utils/imagetools.js';
 import { loadRemover, installRemover, removeBgImage, removeBgVideo } from './funcs/utils/bgRemove.js';
+import { VIDEO_FX, VOICE_FX, parseVideoFx, parseVoiceFx, applyVideoEffect, applyVoiceEffect, freeTts } from './funcs/utils/stickerFx.js';
+import { recordSticker, topStickers, topSince, resetTop } from './funcs/utils/topfig.js';
+import { sortearGrimorio, barraVida, resolverAcao, acertou as acertouAnime, animeAleatorio, versoesBorradas } from './funcs/utils/jogosAsta.js';
+import { getSubPerms, setSubPerms, allSubPerms, subPodeUsar, SO_DONO_PRINCIPAL, FAMILIAS as SUB_FAMILIAS } from './funcs/utils/subPerms.js';
+import * as PLUS from './funcs/utils/astaPlus.js';
+const { readJ: plusRead, writeJ: plusWrite, temEscudo, temDobro, comDobro } = PLUS;
 import { prepareClip as prepareSoundClip, makeCover as makeSoundCover, coverFromImage as soundCoverFromImage, sendSoundSticker, describeSoundSticker, parseArgs as parseSoundArgs, parseTime as parseSoundTime, setSoundLimits, SoundStickerError, clipFromAudioMessage, quotedStickerOf } from './funcs/utils/soundSticker.js';
-import { writeExif as writeStickerExif, convertToWebp as convertStickerWebp, trimMedia as trimStickerMedia, captionMedia as captionStickerMedia, stickerToVideo, detectBlackBars, cropBlackBars } from './funcs/utils/sticker.js';
+import { writeExif as writeStickerExif, convertToWebp as convertStickerWebp, trimMedia as trimStickerMedia, captionMedia as captionStickerMedia, stickerToVideo, detectBlackBars, cropBlackBars, renderCaptionPng } from './funcs/utils/sticker.js';
 import { sendButtons, quickReply, listButton, urlButton } from './funcs/utils/buttonMenu.js';
-import { recordMessage as recordGroupMessage, getStats as getGroupStats, parseDuration, formatDuration, baseId, readJson as readJsonX, writeJson as writeJsonX, DB_DIR as X_DB_DIR, makeZip, listFiles, toVoiceNote, ASTA_PATENTS, QUIZ_ANIME } from './funcs/utils/extras.js';
+import { recordMessage as recordGroupMessage, getStats as getGroupStats, parseDuration, formatDuration, baseId, readJson as readJsonX, writeJson as writeJsonX, DB_DIR as X_DB_DIR, makeZip, listFiles, toVoiceNote, ASTA_PATENTS, QUIZ_ANIME, parseRepeatSchedule, nextRepeatAt, describeRepeat } from './funcs/utils/extras.js';
 import { detectMessage as detectAnyMessage, isOnlyText as isOnlyTextMsg, preparePayload as prepareBroadcast, pollPayload as broadcastPoll, parsePollText, broadcastPrepared, sendPrepared as sendPreparedMsg, TYPE_LABELS as BROADCAST_LABELS, saveDetectedItem, pollItem as makePollItem, payloadFromItem, deleteItemFiles } from './funcs/utils/broadcast.js';
 import spotifyModule from './funcs/downloads/spotify.js';
 import captchaIndex, { initCaptchaIndex, addCaptcha, removeCaptcha, getCaptcha, hasPendingCaptcha } from './utils/captchaIndex.js';
@@ -336,6 +342,7 @@ import {
   setMenuLerMais,
   getMenuLerMaisText
 } from './utils/database.js';
+import { loadRelationships as __astaLoadRel, saveEconomy as __astaSaveEconomy } from './utils/database.js';
 import { parseCustomCommandMeta, buildUsageFromParams, parseArgsFromString, escapeRegExp, validateParamValue } from './utils/helpers.js';
 import {
   PACKAGE_JSON_PATH,
@@ -557,33 +564,221 @@ if (!global.__astaErrWrap) {
 }
 
 // ===== ASTA MD: painel web (somente leitura, protegido por token) =====
+// ===================== GRUPOS PARADOS (última mensagem de PESSOA em cada grupo) =====================
+const astaGpAtiv = global.__astaGpAtiv || (global.__astaGpAtiv = { db: null, timer: null });
+function astaGpAtivDb() { if (!astaGpAtiv.db) astaGpAtiv.db = plusRead('grupos-atividade.json', {}); return astaGpAtiv.db; }
+function astaGpAtivSalvar(agora = false) {
+  const gravar = () => { astaGpAtiv.timer = null; try { plusWrite('grupos-atividade.json', astaGpAtivDb()); } catch { } };
+  if (agora) { if (astaGpAtiv.timer) clearTimeout(astaGpAtiv.timer); return gravar(); }
+  if (!astaGpAtiv.timer) astaGpAtiv.timer = setTimeout(gravar, 60_000);
+}
+const ASTA_SO_SISTEMA = new Set(['senderKeyDistributionMessage', 'messageContextInfo', 'protocolMessage']);
+function astaGpAtivMarcar(gid, message) {
+  try {
+    if (!gid?.endsWith('@g.us') || !message) return;
+    if (!Object.keys(message).some(k => !ASTA_SO_SISTEMA.has(k))) return; // só mensagem de sistema
+    const d = astaGpAtivDb();
+    const r = d[gid] || (d[gid] = { desde: Date.now() });
+    r.last = Date.now();
+    delete r.avisado;
+    astaGpAtivSalvar();
+  } catch { }
+}
+const astaDiasParado = (r, agora = Date.now()) => Math.floor((agora - (r?.last || r?.desde || agora)) / 864e5);
+
+// ===================== FORCA DE ANIME e QUEM DISSE (nível do módulo) =====================
+async function astaForcaMostrar(sock, from, prefix, titulo = '') {
+  const j = global.__astaForca?.get(from);
+  if (!j) return;
+  const s = global.__nazunaSock || sock;
+  const usadas = new Set([...j.letras, ...j.erros]);
+  const faltam = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(l => !usadas.has(l));
+  const txt = `${titulo ? titulo + '\n\n' : ''}🎌 *FORCA DE ANIME*\n${PLUS.desenhoForca(j.erros.length)}\n\n*${PLUS.mascarar(j.palavra, j.letras)}*\n\n💡 Dica: ${j.dica}\n❌ Erradas: ${j.erros.map(x => x.toUpperCase()).join(' ') || '—'} (${j.erros.length}/6)\n\n✍️ Digite *uma letra* no chat ou a *resposta inteira* (ou ${prefix}forcaanime chutar <resposta>).\n🏆 Quem completar ganha +40 💰`;
+  clearTimeout(j.timer);
+  j.timer = setTimeout(() => { if (global.__astaForca?.get(from) === j) { global.__astaForca.delete(from); s.sendMessage(from, { text: `⌛ A forca ficou parada e acabou.\nA resposta era: *${j.palavra.toUpperCase()}*` }).catch(() => { }); } }, 3 * 60_000);
+  const secoes = [];
+  for (let i = 0; i < faltam.length; i += 9) secoes.push({ title: `Letras ${faltam[i].toUpperCase()}–${faltam[Math.min(i + 8, faltam.length - 1)].toUpperCase()}`, rows: faltam.slice(i, i + 9).map(l => ({ header: '', title: l.toUpperCase(), description: '', id: `${prefix}forcaanime letra ${l} ${j.id}` })) });
+  try {
+    await sendButtons(s, from, { text: txt, footer: '★彡 ASTA MD 彡★', buttons: [listButton('🔤 ESCOLHER LETRA', secoes), quickReply('🛑 PARAR', `${prefix}forcaanime parar`)] });
+  } catch { await s.sendMessage(from, { text: txt }).catch(() => { }); }
+}
+/** Joga uma letra ou chuta a palavra. Retorna true se a jogada valeu. */
+async function astaForcaJogar(sock, from, sender, chute, prefix, explicito = false) {
+  const j = global.__astaForca?.get(from);
+  if (!j) return false;
+  const s = global.__nazunaSock || sock;
+  const c = PLUS.semAcento(chute).trim().replace(/\s+/g, ' ');
+  if (!c) return false;
+  const nome = `@${String(sender).split('@')[0]}`;
+  const ganhar = async () => {
+    clearTimeout(j.timer); global.__astaForca.delete(from);
+    let premio = 40;
+    try { const econ = loadEconomy(); const u = getEcoUser(econ, sender); premio = comDobro(sender, 40); u.wallet = (u.wallet || 0) + premio; saveEconomy(econ); } catch { }
+    await s.sendMessage(from, { text: `🎉 ${nome} acertou!\n\n✅ *${j.palavra.toUpperCase()}*\n🏆 +${premio} 💰\n\n▶️ ${prefix}forcaanime para jogar de novo`, mentions: [sender] }).catch(() => { });
+  };
+  if (c.length > 1) {
+    if (c === PLUS.semAcento(j.palavra)) { await ganhar(); return true; }
+    if (explicito && c.length >= 3) {
+      j.erros.push('✗');
+      if (j.erros.length >= 6) { clearTimeout(j.timer); global.__astaForca.delete(from); await s.sendMessage(from, { text: `💀 Enforcado!\n${PLUS.desenhoForca(6)}\nA resposta era: *${j.palavra.toUpperCase()}*` }).catch(() => { }); return true; }
+      await astaForcaMostrar(sock, from, prefix, `❌ ${nome} chutou "${chute}" e errou!`);
+      return true;
+    }
+    return false;
+  }
+  if (!/^[a-z0-9]$/.test(c)) return false;
+  if (j.letras.has(c) || j.erros.includes(c)) { await s.sendMessage(from, { text: `🔁 A letra *${c.toUpperCase()}* já foi.` }).catch(() => { }); return true; }
+  if (PLUS.semAcento(j.palavra).includes(c)) {
+    j.letras.add(c);
+    if (PLUS.forcaCompleta(j.palavra, j.letras)) { await ganhar(); return true; }
+    await astaForcaMostrar(sock, from, prefix, `✅ Tem *${c.toUpperCase()}*! (${nome})`);
+  } else {
+    j.erros.push(c);
+    if (j.erros.length >= 6) { clearTimeout(j.timer); global.__astaForca.delete(from); await s.sendMessage(from, { text: `💀 Enforcado!\n${PLUS.desenhoForca(6)}\nA resposta era: *${j.palavra.toUpperCase()}*` }).catch(() => { }); return true; }
+    await astaForcaMostrar(sock, from, prefix, `❌ Não tem *${c.toUpperCase()}*! (${nome})`);
+  }
+  return true;
+}
+// frases do grupo para o "quem disse?" (guarda as 300 últimas, grava a cada 60s)
+const astaQDMem = global.__astaQDMem || (global.__astaQDMem = { g: new Map(), dirty: new Set(), timer: null });
+function astaQDPool(group) {
+  if (!astaQDMem.g.has(group)) astaQDMem.g.set(group, plusRead(`quemdisse/${group.replace(/[^0-9a-z@._-]/gi, '_')}.json`, []));
+  return astaQDMem.g.get(group);
+}
+function astaQDRecord(group, sender, nome, texto) {
+  try {
+    const t = String(texto || '').replace(/\s+/g, ' ').trim();
+    if (t.length < 15 || t.length > 220) return;
+    if (/https?:\/\/|www\.|chat\.whatsapp|@\d{5,}/i.test(t)) return;
+    if ((t.match(/[a-zà-ú]/gi) || []).length < 10) return;
+    const pool = astaQDPool(group);
+    pool.push({ t, j: sender, n: nome || '', at: Date.now() });
+    if (pool.length > 300) pool.splice(0, pool.length - 300);
+    astaQDMem.dirty.add(group);
+    if (!astaQDMem.timer) astaQDMem.timer = setTimeout(() => {
+      astaQDMem.timer = null;
+      for (const g of astaQDMem.dirty) { try { plusWrite(`quemdisse/${g.replace(/[^0-9a-z@._-]/gi, '_')}.json`, astaQDMem.g.get(g) || []); } catch { } }
+      astaQDMem.dirty.clear();
+    }, 60_000);
+  } catch { }
+}
+
 async function startAstaPainel(port, token) {
   if (global.__astaPainel) { try { global.__astaPainel.close(); } catch { } global.__astaPainel = null; }
   if (!port || !token) return null;
   const http = await import('http');
   const esc = (t) => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const server = http.createServer((req, res) => {
+  const lerCfg = () => { try { return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8')); } catch { return {}; } };
+  // chaves que o painel pode ligar/desligar (padrão = valor quando não existe no config)
+  const CHAVES = {
+    manutencao: { nome: '🛠️ Manutenção (só o dono usa)', padrao: false },
+    autoReload: { nome: '♻️ Reinício automático ao mudar arquivos', padrao: true },
+    menuBotoes: { nome: '📋 Menu com botões', padrao: true },
+    avisosDono: { nome: '🔔 Avisos de erro no privado', padrao: false },
+    avisoAtualizacao: { nome: '🆕 Aviso de versão nova', padrao: true },
+    cacheFigurinhas: { nome: '⚡ Cache de figurinhas', padrao: true }
+  };
+  const ler = (cfg, k) => (cfg[k] === undefined ? CHAVES[k].padrao : !!cfg[k]);
+
+  // transmissão de texto pelo painel (em segundo plano)
+  const transmitir = async (texto) => {
+    const sock = global.__nazunaSock;
+    if (!sock) throw new Error('bot desconectado');
+    const excl = (() => { try { const v = JSON.parse(fs.readFileSync(pathz.join(DATABASE_DIR, 'tmExcluidos.json'), 'utf-8')); return Array.isArray(v) ? v : []; } catch { return []; } })();
+    const grupos = Object.keys(await sock.groupFetchAllParticipating()).filter(g => !excl.includes(g));
+    const st = global.__astaPainelTm = { total: grupos.length, done: 0, falhas: 0, stop: false, inicio: Date.now(), texto: texto.slice(0, 60) };
+    (async () => {
+      for (const g of grupos) {
+        if (st.stop) break;
+        try { await (global.__nazunaSock || sock).sendMessage(g, { text: texto }); st.done++; } catch { st.falhas++; }
+        await new Promise(r => setTimeout(r, 2500 + Math.floor(Math.random() * 1500)));
+      }
+      st.fim = Date.now();
+    })().catch(() => { });
+    return grupos.length;
+  };
+
+  const lerCorpo = (req) => new Promise((resolve) => {
+    let b = '';
+    req.on('data', (d) => { b += d; if (b.length > 100_000) req.destroy(); });
+    req.on('end', () => resolve(new URLSearchParams(b)));
+    req.on('error', () => resolve(new URLSearchParams()));
+  });
+
+  const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://x');
       if (url.searchParams.get('t') !== token) { res.writeHead(401, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Acesso negado'); }
+      const volta = (msg) => { res.writeHead(303, { Location: `/?t=${encodeURIComponent(token)}&ok=${encodeURIComponent(msg)}` }); res.end(); };
+
+      // ---------- AÇÕES ----------
+      if (req.method === 'POST' && url.pathname === '/acao') {
+        const f = await lerCorpo(req);
+        const acao = f.get('acao');
+        if (acao === 'tm') {
+          const texto = String(f.get('texto') || '').trim().slice(0, 4000);
+          if (!texto) return volta('Escreva o texto da transmissão.');
+          if (global.__astaPainelTm && !global.__astaPainelTm.fim && !global.__astaPainelTm.stop) return volta('Já tem uma transmissão do painel em andamento.');
+          const n = await transmitir(texto);
+          return volta(`Transmissão iniciada para ${n} grupo(s).`);
+        }
+        if (acao === 'tmparar') { if (global.__astaPainelTm) global.__astaPainelTm.stop = true; return volta('Transmissão parada.'); }
+        if (acao === 'toggle') {
+          const k = f.get('chave');
+          if (!CHAVES[k]) return volta('Opção inválida.');
+          const cfg = lerCfg();
+          cfg[k] = !ler(cfg, k);
+          fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2));
+          return volta(`${CHAVES[k].nome}: ${cfg[k] ? 'LIGADO' : 'DESLIGADO'}`);
+        }
+        if (acao === 'reiniciar') {
+          volta('Reiniciando o bot... atualize a página em uns 20 segundos.');
+          console.log('♻️ Reinício pedido pelo painel web');
+          setTimeout(() => process.exit(0), 1500);
+          return;
+        }
+        return volta('Ação desconhecida.');
+      }
+
+      // ---------- PÁGINA ----------
       const st = global.__astaStats || {};
       const qs = global.__astaQueue?.stats || {};
-      const cfg = (() => { try { return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8')); } catch { return {}; } })();
+      const cfg = lerCfg();
       const div = (() => { try { return loadDonoDivulgacao(); } catch { return {}; } })();
       const dur = (ms) => { if (!ms || ms < 0) return '—'; const s = Math.floor(ms / 1000); return `${Math.floor(s / 86400)}d ${Math.floor((s % 86400) / 3600)}h ${Math.floor((s % 3600) / 60)}min`; };
       const mem = process.memoryUsage();
       const erros = (global.__astaErrors || []).slice(-10).reverse();
       const card = (t, v) => `<div class="c"><div class="t">${t}</div><div class="v">${v}</div></div>`;
       const tm = global.__tmRunning;
-      const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="15"><title>${esc(cfg.nomebot || 'ASTA MD')} — painel</title>
+      const ptm = global.__astaPainelTm;
+      const fc = global.__astaFigCache || { hits: 0, misses: 0 };
+      const ok = url.searchParams.get('ok');
+      const T = esc(token);
+      const toggles = Object.entries(CHAVES).map(([k, d]) => {
+        const on = ler(cfg, k);
+        return `<form method="post" action="/acao?t=${T}"><input type="hidden" name="acao" value="toggle"><input type="hidden" name="chave" value="${k}"><button class="tg ${on ? 'on' : ''}">${esc(d.nome)}<b>${on ? 'LIGADO' : 'DESLIGADO'}</b></button></form>`;
+      }).join('');
+      const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Painel ASTA MD</title>
 <style>body{margin:0;font-family:system-ui,sans-serif;background:#0d0d10;color:#eee}header{padding:20px 16px;background:linear-gradient(90deg,#3a0000,#0d0d10);border-bottom:2px solid #c00}h1{margin:0;font-size:22px}small{color:#aaa}
-.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;padding:16px}.c{background:#17171c;border:1px solid #2a2a33;border-radius:10px;padding:12px}.t{font-size:12px;color:#999}.v{font-size:20px;font-weight:700;margin-top:4px}
-section{padding:0 16px 16px}h2{font-size:15px;color:#f55}pre{white-space:pre-wrap;background:#17171c;border:1px solid #2a2a33;border-radius:8px;padding:10px;font-size:12px;color:#ccc}</style></head><body>
-<header><h1>⚔️ ${esc(cfg.nomebot || 'ASTA MD')}</h1><small>Dono: ${esc(cfg.nomedono || '')} · atualiza a cada 15s</small></header>
-<div class="g">${card('Bot ligado há', dur(Date.now() - (st.startedAt || Date.now())))}${card('Conectado há', dur(st.connectedAt ? Date.now() - st.connectedAt : 0))}${card('Reconexões', st.reconnects || 0)}${card('Mensagens processadas', qs.totalProcessed || 0)}${card('Erros', qs.totalErrors || 0)}${card('Fila agora', global.__astaQueue?.queue?.length ?? 0)}${card('Memória', (mem.rss / 1048576).toFixed(0) + ' MB')}${card('Transmissão', tm ? `${tm.done || 0}/${tm.total}` : 'parada')}${card('Divulgação', div.schedule?.enabled ? esc(div.schedule.time) : 'desligada')}${card('Itens no rodízio', (div.items || []).length)}${card('Grupos da divulgação', (div.groups || []).length)}${card('Manutenção', cfg.manutencao ? 'LIGADA' : 'não')}</div>
-<section><h2>Última queda</h2><pre>${st.lastDisconnect ? esc(new Date(st.lastDisconnect.at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' — código ' + st.lastDisconnect.code + ' ' + (st.lastDisconnect.msg || '')) : 'nenhuma'}</pre>
-<h2>Últimos erros</h2><pre>${erros.length ? erros.map(e => esc(new Date(e.at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + '  ' + e.msg.split('\n')[0])).join('\n') : 'nenhum 🎉'}</pre></section></body></html>`;
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;padding:16px}.c{background:#17171c;border:1px solid #2a2a33;border-radius:10px;padding:12px}.t{font-size:12px;color:#999}.v{font-size:20px;font-weight:700;margin-top:4px}
+section{padding:0 16px 18px}h2{font-size:15px;color:#f55;margin:14px 0 8px}pre{white-space:pre-wrap;background:#17171c;border:1px solid #2a2a33;border-radius:8px;padding:10px;font-size:12px;color:#ccc}
+textarea{width:100%;box-sizing:border-box;min-height:110px;background:#17171c;color:#eee;border:1px solid #333;border-radius:8px;padding:10px;font:inherit}
+button{background:#c00;color:#fff;border:0;border-radius:8px;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer}button.sec{background:#2a2a33}
+.tgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}.tg{width:100%;display:flex;justify-content:space-between;gap:8px;background:#17171c;border:1px solid #333;text-align:left}.tg b{color:#888}.tg.on{border-color:#2e7d32}.tg.on b{color:#4caf50}
+.ok{margin:12px 16px 0;padding:10px 12px;background:#12301a;border:1px solid #2e7d32;border-radius:8px}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}a{color:#f77}</style></head><body>
+<header><h1>⚔️ ${esc(cfg.nomebot || 'ASTA MD')}</h1><small>Dono: ${esc(cfg.nomedono || '')} · <a href="/?t=${T}">🔄 atualizar</a></small></header>
+${ok ? `<div class="ok">✅ ${esc(ok)}</div>` : ''}
+<div class="g">${card('Bot ligado há', dur(Date.now() - (st.startedAt || Date.now())))}${card('Conectado há', dur(st.connectedAt ? Date.now() - st.connectedAt : 0))}${card('Reconexões', st.reconnects || 0)}${card('Mensagens processadas', qs.totalProcessed || 0)}${card('Erros', qs.totalErrors || 0)}${card('Fila agora', global.__astaQueue?.queue?.length ?? 0)}${card('Memória', (mem.rss / 1048576).toFixed(0) + ' MB')}${card('Transmissão (!tm)', tm ? `${tm.done || 0}/${tm.total}` : 'parada')}${card('Transmissão (painel)', ptm ? `${ptm.done}/${ptm.total}${ptm.fim ? ' ✓' : ptm.stop ? ' (parada)' : ''}` : '—')}${card('Cache de figurinhas', `${fc.hits} reaproveitadas`)}${card('Divulgação', div.schedule?.enabled ? esc(div.schedule.time) : 'desligada')}${card('Versão', esc((() => { try { return JSON.parse(fs.readFileSync(pathz.join(__dirname, '..', '..', 'package.json'), 'utf-8')).version; } catch { return '?'; } })()))}</div>
+<section><h2>📢 Transmissão para todos os grupos</h2>
+<form method="post" action="/acao?t=${T}"><input type="hidden" name="acao" value="tm"><textarea name="texto" placeholder="Escreva a mensagem (os grupos excluídos do !tm ficam de fora)"></textarea>
+<div class="row"><button>📢 Enviar para todos os grupos</button></div></form>
+${ptm && !ptm.fim && !ptm.stop ? `<form method="post" action="/acao?t=${T}"><input type="hidden" name="acao" value="tmparar"><div class="row"><button class="sec">⏹️ Parar transmissão (${ptm.done}/${ptm.total})</button></div></form>` : ''}
+<h2>⚙️ Ligar / desligar</h2><div class="tgs">${toggles}</div>
+<h2>♻️ Bot</h2><form method="post" action="/acao?t=${T}" onsubmit="return confirm('Reiniciar o bot agora?')"><input type="hidden" name="acao" value="reiniciar"><button class="sec">♻️ Reiniciar o bot</button></form>
+<h2>Última queda</h2><pre>${st.lastDisconnect ? esc(new Date(st.lastDisconnect.at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + ' — código ' + st.lastDisconnect.code) : 'nenhuma'}</pre>
+<h2>Últimos erros</h2><pre>${erros.length ? erros.map(e => esc(new Date(e.at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + '  ' + e.msg.split('\n')[0])).join('\n') : 'nenhum'}</pre></section>
+</body></html>`;
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
       res.end(html);
     } catch (e) {
       res.writeHead(500); res.end('erro');
@@ -1068,6 +1263,10 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
       info.message = mm;
     }
   } catch { }
+  // ranking de figurinhas do grupo (!topfig)
+  try { if (info?.key?.remoteJid?.endsWith('@g.us') && !info.key.fromMe) recordSticker(info.key.remoteJid, info.key.participant || info.key.participantAlt, info.message); } catch { }
+  // grupo parado: só conta mensagem de pessoa (as do bot não contam)
+  if (info?.key?.remoteJid?.endsWith('@g.us') && !info.key.fromMe) astaGpAtivMarcar(info.key.remoteJid, info.message);
   // Log de início de processamento para debug paralelo
   const msgId = info?.key?.id?.slice(-6) || 'unknown';
   const from = info?.key?.remoteJid || 'unknown';
@@ -1758,7 +1957,7 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
     const ownerBase = String(numerodono);
     const lidOwnerBase = lidowner ? lidowner.split('@')[0] : null;
 
-    const isOwner = senderBase === ownerBase ||
+    let isOwner = senderBase === ownerBase ||
       sender === nmrdn ||
       sender === ownerJid ||
       (lidowner && sender === lidowner) ||
@@ -1767,6 +1966,7 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
       isBotSender;
 
     const isOwnerOrSub = isOwner || isSubOwner;
+    const isDonoPrincipal = isOwner; // o dono de verdade (antes de liberar permissões de subdono)
 
     // Debug: log das verificações de permissão
     debugLog('Verificações de permissão:', {
@@ -2359,6 +2559,10 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
     }
 
     var command = isCmd ? matchedAlias ? matchedAlias.command : normalizar(bodyWithoutPrefix.split(/ +/).shift().trim()).replace(/\s+/g, '') : null;
+    // ===== SUBDONO COM PERMISSÃO: libera só os comandos que o dono escolheu (!permsub) =====
+    if (isCmd && command && !isOwner && isSubOwner) {
+      try { if (subPodeUsar(sender, command)) isOwner = true; } catch { }
+    }
 
     // Recalcular args usando bodyWithoutPrefix para suportar "! comando" (com espaço)
     if (isCmd && !matchedAlias) {
@@ -2367,6 +2571,11 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
       args.push(...newArgs);
       q = newArgs.join(' ');
     }
+
+    // ===== FIGURINHA SEM SOM: !ssoff, !sqoff, !scorteoff... = mesmo comando, sem o áudio =====
+    let astaSemSom = false;
+    const ASTA_SEM_SOM = { ssoff: 's', soff: 's', stickeroff: 'sticker', figoff: 's', scoff: 'sc', sqoff: 'squadrado', squadradooff: 'squadrado', scorteoff: 'scorte', sfundooff: 'sfundo', sbgoff: 'sfundo', sloff: 'sl', s2off: 'sticker2', sticker2off: 'sticker2', sefeitooff: 'sefeito', sfxoff: 'sefeito' };
+    if (isCmd && command && ASTA_SEM_SOM[command]) { astaSemSom = true; command = ASTA_SEM_SOM[command]; }
 
     const isPremium = premiumListaZinha[sender] || premiumListaZinha[from] || isOwner;
 
@@ -2904,6 +3113,63 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
         await reply(`🛠️ *${nomebot} em manutenção*\n\n${config.manutencaoMotivo || 'Estou recebendo melhorias.'}\nVolto já! ⚔️`);
       }
       return;
+    }
+    // ===== REGISTRO OBRIGATÓRIO NO PRIVADO (!registropv on) =====
+    if (!isGroup && !isStatus && config.registroPv && !info.key.fromMe && !isOwnerOrSub && !isBotSender) {
+      const bRG = PLUS.baseNum(sender);
+      const regRG = plusRead('registros.json', { users: {} }).users?.[bRG];
+      if (!regRG) {
+        const livres = ['registrar', 'registro', 'reg', 'dono', 'criador', 'owner', 'meuregistro'];
+        const fluxo = global.__astaRegFlow?.get(bRG);
+        const passa = (isCmd && livres.includes(command)) || (!isCmd && fluxo?.stage === 'codigo');
+        if (!passa) {
+          global.__astaRegAvisos = global.__astaRegAvisos || new Map();
+          if (Date.now() - (global.__astaRegAvisos.get(bRG) || 0) > 10 * 60_000) {
+            global.__astaRegAvisos.set(bRG, Date.now());
+            const txtRG = `👋 Olá${pushname ? `, ${pushname}` : ''}!
+
+🔐 *Você ainda não tem registro.*
+Para usar o ${nomebot} no privado, faça seu registro (leva 1 minuto):
+
+${prefix}registrar Nome|idade
+📌 Exemplo: ${prefix}registrar ${PLUS.limparTexto(pushname, 20) || 'Geovane'}|18
+
+💬 Nos grupos você pode usar normalmente.`;
+            try { await sendButtons(nazu, from, { text: txtRG, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('📝 REGISTRAR', `${prefix}registrar`), quickReply('👑 DONO', `${prefix}dono`)] }); }
+            catch { await reply(txtRG); }
+          }
+          return;
+        }
+      }
+    }
+    // ===== REGRAS COM ACEITE: novato só fala depois de tocar em "LI E ACEITO" =====
+    if (isGroup && groupData.regrasAceite && !info.key.fromMe && !isGroupAdmin && !isOwner) {
+      const dbRA = plusRead('regras-aceite.json');
+      const bRA = PLUS.baseNum(sender);
+      const pRA = dbRA[from]?.[bRA] || (info.key.participantAlt ? dbRA[from]?.[PLUS.baseNum(info.key.participantAlt)] : null);
+      if (pRA) {
+        if (Date.now() - (pRA.at || 0) > 7 * 864e5) { delete dbRA[from][bRA]; plusWrite('regras-aceite.json', dbRA); }
+        else if (!(isCmd && ['aceitoregras', 'aceitarregras', 'liaceito', 'regras'].includes(command))) {
+          if (/^\s*(li e )?aceito( as regras)?\s*[.!]*\s*$/i.test(body || '')) {
+            delete dbRA[from][bRA]; plusWrite('regras-aceite.json', dbRA);
+            await nazu.sendMessage(from, { text: `✅ Obrigado, @${sender.split('@')[0]}! Regras aceitas, agora você pode conversar. 👋`, mentions: [sender] }).catch(() => { });
+            return;
+          }
+          if (isBotAdmin) await nazu.sendMessage(from, { delete: { remoteJid: from, fromMe: false, id: info.key.id, participant: sender } }).catch(() => { });
+          global.__astaRAAvisos = global.__astaRAAvisos || new Map();
+          const kRA = `${from}|${bRA}`;
+          if (Date.now() - (global.__astaRAAvisos.get(kRA) || 0) > 60_000) {
+            global.__astaRAAvisos.set(kRA, Date.now());
+            const txtRA = `📜 @${sender.split('@')[0]}, antes de conversar você precisa *aceitar as regras* do grupo.
+
+Veja: ${prefix}regras
+Depois toque em ✅ LI E ACEITO (ou digite "aceito").`;
+            try { await sendButtons(nazu, from, { text: txtRA, footer: groupName || '', mentions: [sender], buttons: [quickReply('✅ LI E ACEITO', `${prefix}aceitoregras`), quickReply('📜 VER REGRAS', `${prefix}regras`)] }); }
+            catch { await nazu.sendMessage(from, { text: txtRA, mentions: [sender] }).catch(() => { }); }
+          }
+          return;
+        }
+      }
     }
     // ===== REGISTRO DE COMANDOS (dados/database/logs-comandos/AAAA-MM-DD.log, guarda 7 dias) =====
     if (isCmd && command) {
@@ -3545,7 +3811,13 @@ Código: *${roleCode}*`,
       let chA = false;
       for (const ag of agendados) {
         if (ag.done || ag.at > now) continue;
-        ag.done = true; chA = true;
+        chA = true;
+        if (ag.repeat) {
+          const nx = nextRepeatAt(ag.repeat, ag.hh, ag.mm, now);
+          if (nx) ag.at = nx; else ag.done = true;
+          if (now - (ag.lastSent || 0) < 60_000) continue; // segurança contra envio duplo
+          ag.lastSent = now;
+        } else ag.done = true;
         try {
           const payload = await payloadFromItem(sock, ag.item, AGENDADOS_DIR);
           await sendPreparedMsg(sock, ag.group, payload);
@@ -3561,6 +3833,112 @@ Código: *${roleCode}*`,
         }
         writeJsonX(ASTA_FILES.agendados, keep);
       }
+
+      // --- aniversários: parabéns automático no dia ---
+      try {
+        const spN = new Date(now - 3 * 3600e3);
+        const minAgora = spN.getUTCHours() * 60 + spN.getUTCMinutes();
+        const diaKey = `${spN.getUTCFullYear()}-${spN.getUTCMonth() + 1}-${spN.getUTCDate()}`;
+        const stFileB = pathz.join(X_DB_DIR, 'aniversarios-enviados.json');
+        let stB = readJsonX(stFileB, {});
+        if (stB.__dia !== diaKey) stB = { __dia: diaKey };
+        let chB = false;
+        const arqsB = fs.existsSync(GRUPOS_DIR) ? fs.readdirSync(GRUPOS_DIR).filter(f => f.endsWith('_aniversarios.json')) : [];
+        for (const f of arqsB) {
+          const gid = f.replace(/_aniversarios\.json$/, '');
+          if (stB[gid]) continue;
+          let gcfgB = {};
+          try { gcfgB = JSON.parse(fs.readFileSync(pathz.join(GRUPOS_DIR, `${gid}.json`), 'utf-8')); } catch { }
+          if (gcfgB.aniversarioAuto === false) continue;
+          const [hB, mB] = String(gcfgB.aniversarioHora || '08:00').split(':').map(Number);
+          if (minAgora < (hB || 0) * 60 + (mB || 0)) continue;
+          stB[gid] = true; chB = true;
+          const anivs = readJsonX(pathz.join(GRUPOS_DIR, f), {});
+          const hojeB = Object.keys(anivs).filter(j => Number(anivs[j]?.dia) === spN.getUTCDate() && Number(anivs[j]?.mes) === spN.getUTCMonth() + 1);
+          if (!hojeB.length) continue;
+          const frasesB = [
+            'Que esse novo ano venha cheio de conquistas! Desistir não é o seu tipo de magia! ⚔️',
+            'Muita saúde, paz e vitórias! Que o seu grimório ganhe novas magias este ano! 📖✨',
+            'Hoje o dia é todo seu! Aproveite muito e conte com a gente! 🥳',
+            'Parabéns! Que todos os seus sonhos se realizem, um por um! 🌟'
+          ];
+          await sock.sendMessage(gid, {
+            text: `🎂🎉 *FELIZ ANIVERSÁRIO!* 🎉🎂\n\n${hojeB.map(j => `@${j.split('@')[0]}`).join(', ')}\n\n${frasesB[Math.floor(Math.random() * frasesB.length)]}\n\n— ★彡 ASTA MD 彡★`,
+            mentions: hojeB
+          }).catch(() => { });
+        }
+        if (chB) writeJsonX(stFileB, stB);
+      } catch (eB) { console.error('[ANIVERSARIO] erro:', eB?.message || eB); }
+
+      // --- grupos parados: avisa o dono com SAIR / CONTINUAR (a cada 6h) ---
+      try {
+        const cfgGP = loadJsonFile(CONFIG_FILE, {});
+        if (cfgGP.gruposInativos !== false && now - (global.__astaGpCheck || 0) > 6 * 3600e3 && sock?.user) {
+          global.__astaGpCheck = now;
+          const diasGP = Math.max(1, Number(cfgGP.gruposInativosDias) || 5);
+          const prefGP = cfgGP.prefixo || '!';
+          const donoGP = `${String(cfgGP.numerodono || '').replace(/\D/g, '')}@s.whatsapp.net`;
+          const todos = await sock.groupFetchAllParticipating().catch(() => null);
+          if (todos) {
+            const d = astaGpAtivDb();
+            for (const g of Object.keys(todos)) if (!d[g]) d[g] = { desde: now }; // grupo novo na lista: começa a contar agora
+            for (const g of Object.keys(d)) if (!todos[g]) delete d[g];          // o bot já não está mais nele
+            const parados = Object.keys(todos).filter(g => !d[g].manter && astaDiasParado(d[g], now) >= diasGP);
+            const novos = parados.filter(g => !d[g].avisado).slice(0, 10);
+            for (const g of novos) {
+              const meta = todos[g];
+              const dias = astaDiasParado(d[g], now);
+              if (cfgGP.gruposInativosAuto) {
+                await sock.sendMessage(g, { text: `👋 Estou saindo porque este grupo ficou *${dias} dias* sem mensagens.\nPara me chamar de volta, fale com o meu dono: wa.me/${donoGP.split('@')[0]}` }).catch(() => { });
+                await new Promise(r => setTimeout(r, 1500));
+                const saiu = await sock.groupLeave(g).then(() => true).catch(() => false);
+                if (saiu) delete d[g];
+                await sock.sendMessage(donoGP, { text: `🚪 Saí do grupo *${meta?.subject || g}* (${dias} dias parado).${saiu ? '' : '\n⚠️ Não consegui sair, tente pelo ' + prefGP + 'gruposinativos'}` }).catch(() => { });
+              } else {
+                d[g].avisado = now;
+                const txtGP = `😴 *GRUPO PARADO*\n\n📛 ${meta?.subject || g}\n👥 ${meta?.participants?.length || '?'} membros\n⏳ Sem mensagens de ninguém há *${dias} dias*\n(as mensagens do bot não contam)\n\nQuer que eu saia desse grupo?\n\nSem botões: ${prefGP}gruposinativos sair ${g}`;
+                await sendButtons(sock, donoGP, { text: txtGP, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('🚪 SAIR', `${prefGP}gruposinativos sair ${g}`), quickReply('✅ CONTINUAR', `${prefGP}gruposinativos continuar ${g}`), quickReply('📌 SEMPRE FICAR', `${prefGP}gruposinativos manter ${g}`)] })
+                  .catch(() => sock.sendMessage(donoGP, { text: txtGP }).catch(() => { }));
+              }
+              await new Promise(r => setTimeout(r, 2500));
+            }
+            astaGpAtivSalvar(true);
+          }
+        }
+      } catch (eGP) { console.error('[GRUPOS PARADOS]', eGP?.message || eGP); }
+
+      // --- presentes de casamento (mêsversário +100, aniversário +500) ---
+      try {
+        const spC = new Date(now - 3 * 3600e3);
+        const diaC = `${spC.getUTCFullYear()}-${spC.getUTCMonth() + 1}-${spC.getUTCDate()}`;
+        if (spC.getUTCHours() >= 10) {
+          let stC = plusRead('casal-presentes.json', {});
+          if (stC.__dia !== diaC) stC = { __dia: diaC };
+          const relC = __astaLoadRel() || {};
+          const ultimoDiaMes = new Date(Date.UTC(spC.getUTCFullYear(), spC.getUTCMonth() + 1, 0)).getUTCDate();
+          let mudouC = false;
+          for (const [kC, pr] of Object.entries(relC.pairs || {})) {
+            if (pr?.status !== 'casamento' || stC[kC]) continue;
+            const stg = pr.stages?.casamento; const since = Date.parse(stg?.since || '');
+            if (!since || !stg.groupId) continue;
+            const dS = new Date(since - 3 * 3600e3);
+            const meses = (spC.getUTCFullYear() - dS.getUTCFullYear()) * 12 + (spC.getUTCMonth() - dS.getUTCMonth());
+            const bateDia = spC.getUTCDate() === dS.getUTCDate() || (dS.getUTCDate() > ultimoDiaMes && spC.getUTCDate() === ultimoDiaMes);
+            if (meses < 1 || !bateDia) continue;
+            stC[kC] = true; mudouC = true;
+            const anual = meses % 12 === 0;
+            const valorC = anual ? 500 : 100;
+            const [u1, u2] = pr.users || [];
+            if (!u1 || !u2) continue;
+            try { const econ = loadEconomy(); for (const u of [u1, u2]) { const eu = getEcoUser(econ, u); eu.wallet = (eu.wallet || 0) + valorC; } saveEconomy(econ); } catch { }
+            const txtC = anual
+              ? `💍🎂 *FELIZ ANIVERSÁRIO DE CASAMENTO!* 🎂💍\n\n@${u1.split('@')[0]} ❤️ @${u2.split('@')[0]}\n${meses / 12} ano(s) juntos!\n\n🎁 Presente: *+500 💰* para cada um!`
+              : `💕 *FELIZ MÊSVERSÁRIO!* 💕\n\n@${u1.split('@')[0]} ❤️ @${u2.split('@')[0]}\n${meses} mês(es) de casados!\n\n🎁 Presente: *+100 💰* para cada um!`;
+            await sock.sendMessage(stg.groupId, { text: txtC, mentions: [u1, u2] }).catch(() => { });
+          }
+          if (mudouC) plusWrite('casal-presentes.json', stC);
+        }
+      } catch (eC) { console.error('[CASAL] presentes:', eC?.message || eC); }
 
       // --- figurinha do dia ---
       const figdia = readJsonX(ASTA_FILES.figdia, {});
@@ -3681,7 +4059,8 @@ Código: *${roleCode}*`,
             if (type === 'open') {
               try {
                 await liveSock(nazuInstance).groupSettingUpdate(groupId, 'not_announcement');
-                await liveSock(nazuInstance).sendMessage(groupId, { text: '🔓 Grupo aberto automaticamente pelo agendamento diário.' });
+                const notD = data.schedule?.noturno;
+                await liveSock(nazuInstance).sendMessage(groupId, { text: notD ? (notD.dia || `☀️ *Bom dia, magos!*\n\nO grupo está aberto de novo. Bora começar o dia com tudo!\n\n⚔️ Desistir não é o meu tipo de magia!`) : '🔓 Grupo aberto automaticamente pelo agendamento diário.' });
                 console.log(`[Cron] ✅ Grupo ABERTO automaticamente: ${groupId.substring(0, 15)}... às ${normalized}`);
               } catch (e) {
                 console.error(`[Cron Error] open ${groupId}:`, e);
@@ -3689,7 +4068,8 @@ Código: *${roleCode}*`,
             } else {
               try {
                 await liveSock(nazuInstance).groupSettingUpdate(groupId, 'announcement');
-                await liveSock(nazuInstance).sendMessage(groupId, { text: '🔒 Grupo fechado automaticamente pelo agendamento diário.' });
+                const notN = data.schedule?.noturno;
+                await liveSock(nazuInstance).sendMessage(groupId, { text: notN ? (notN.noite || `🌙 *Boa noite, magos!*\n\nO grupo foi fechado para todo mundo descansar.\n🔓 Abre de novo às *${data.schedule.openTime}*.\n\nDurmam bem! 😴`) : '🔒 Grupo fechado automaticamente pelo agendamento diário.' });
                 console.log(`[Cron] ✅ Grupo FECHADO automaticamente: ${groupId.substring(0, 15)}... às ${normalized}`);
               } catch (e) {
                 console.error(`[Cron Error] close ${groupId}:`, e);
@@ -4382,7 +4762,7 @@ Código: *${roleCode}*`,
      */
     const remakeStickerFromQuoted = async (qSt, { circle = false, caption = null, square = true } = {}) => {
       const webpIn = await getFileBuffer(qSt, 'sticker');
-      const audioPack = await stickerAudioPack(qSt);
+      const audioPack = astaSemSom ? null : await stickerAudioPack(qSt);
       const metaIn = await sharp(webpIn, { animated: true }).metadata();
       const animated = (metaIn.pages || 1) > 1;
       const maxS = Math.max(1, Number(config.figVideoSomMaxSeg ?? 30) || 30);
@@ -5199,7 +5579,7 @@ Código: *${roleCode}*`,
         }
       }
     }
-    if (isGroup && isAntiLinkSoft && !isGroupAdmin && !isParceiro && budy2.includes('http') && !isOwner) {
+    if (isGroup && isAntiLinkSoft && !isGroupAdmin && !isParceiro && budy2.includes('http') && !isOwner && !PLUS.todosLinksPermitidos(body, groupData.linksPermitidos)) {
       if (!isUserWhitelisted(sender, 'antilinksoft')) {
         try {
           await nazu.sendMessage(from, {
@@ -5242,8 +5622,31 @@ Código: *${roleCode}*`,
         }
       }
     }
+    // ===== ANTILINK INTELIGENTE: só passam links de sites liberados =====
+    if (isGroup && groupData.antilinkPro && !isGroupAdmin && !isOwner && !isParceiro && !info.key.fromMe && body) {
+      const proibAL = PLUS.linksProibidos(body, groupData.linksPermitidos || []);
+      if (proibAL.length) {
+        try {
+          if (isBotAdmin) await nazu.sendMessage(from, { delete: { remoteJid: from, fromMe: false, id: info.key.id, participant: sender } }).catch(() => { });
+          groupData.antilinkProWarn = groupData.antilinkProWarn || {};
+          const kAL = PLUS.baseNum(sender);
+          const nAL = groupData.antilinkProWarn[kAL] = (groupData.antilinkProWarn[kAL] || 0) + 1;
+          if (nAL >= 3 && isBotAdmin) {
+            delete groupData.antilinkProWarn[kAL];
+            fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2));
+            await nazu.groupParticipantsUpdate(from, [sender], 'remove').catch(() => { });
+            await nazu.sendMessage(from, { text: `🚫 @${sender.split('@')[0]} mandou link proibido 3 vezes e foi removido.`, mentions: [sender] });
+          } else {
+            fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2));
+            const okAL = (groupData.linksPermitidos || []).length ? `\n✅ Liberados: ${groupData.linksPermitidos.slice(0, 8).join(', ')}` : '';
+            await nazu.sendMessage(from, { text: `🔗 @${sender.split('@')[0]}, links de *${proibAL[0]}* não são permitidos aqui. Advertência ${Math.min(nAL, 3)}/3.${okAL}`, mentions: [sender] });
+          }
+        } catch (e) { console.error('[ANTILINKPRO]', e?.message); }
+        return;
+      }
+    }
     // AntiLink Hard - Remove qualquer link compartilhado
-    if (isGroup && groupData.antilinkhard && !isGroupAdmin && !isOwner && !isParceiro) {
+    if (isGroup && groupData.antilinkhard && !isGroupAdmin && !isOwner && !isParceiro && !PLUS.todosLinksPermitidos(body, groupData.linksPermitidos)) {
       const linkRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|\b[a-zA-Z0-9-]+\.(com|net|org|gov|edu|br|io|gg|dev|xyz|app|co|me)(\/[^\s]*)?)/gi;
       const hasLink = linkRegex.test(budy2);
 
@@ -6078,8 +6481,21 @@ Código: *${roleCode}*`,
       }
     }
     //ANTI FIGURINHAS
-    if (isGroup && groupData.antifig && groupData.antifig.enabled && type === "stickerMessage" && !isGroupAdmin && !info.key.fromMe) {
-      if (!isUserWhitelisted(sender, 'antifig')) {
+    if (isGroup && groupData.antifig && groupData.antifig.enabled && (type === "stickerMessage" || type === "audioStickerMessage" || !!info.message?.audioStickerMessage) && !isGroupAdmin && !info.key.fromMe) {
+      // modo LIMITE: até N figurinhas por minuto por pessoa; só o que passar disso é apagado
+      const limFig = Number(groupData.antifig.limite) || 0;
+      let dentroDoLimite = false;
+      if (limFig > 0) {
+        if (!global.__astaFigFlood) global.__astaFigFlood = new Map();
+        const kF = `${from}|${sender}`;
+        const agoraF = Date.now();
+        const tsF = (global.__astaFigFlood.get(kF) || []).filter(t => agoraF - t < 60_000);
+        tsF.push(agoraF);
+        global.__astaFigFlood.set(kF, tsF);
+        if (global.__astaFigFlood.size > 5000) global.__astaFigFlood.clear();
+        dentroDoLimite = tsF.length <= limFig;
+      }
+      if (!dentroDoLimite && !isUserWhitelisted(sender, 'antifig')) {
         try {
           await nazu.sendMessage(from, {
             delete: {
@@ -6098,7 +6514,9 @@ Código: *${roleCode}*`,
           groupData.warnings[sender].lastWarned = new Date().toISOString();
           const warnCount = groupData.warnings[sender].count;
           const warnLimit = groupData.antifig.warnLimit || 3;
-          let warnMessage = `🚫 @${getUserName(sender)}, figurinhas não são permitidas neste grupo! Advertência ${warnCount}/${warnLimit}.`;
+          let warnMessage = limFig > 0
+            ? `🚫 @${getUserName(sender)}, calma! O limite aqui é *${limFig} figurinha(s) por minuto*. Advertência ${warnCount}/${warnLimit}.`
+            : `🚫 @${getUserName(sender)}, figurinhas não são permitidas neste grupo! Advertência ${warnCount}/${warnLimit}.`;
           if (warnCount >= warnLimit && isBotAdmin) {
             warnMessage += `\n⚠️ Você atingiu o limite de advertências e será removido.`;
             await nazu.groupParticipantsUpdate(from, [sender], 'remove');
@@ -6119,6 +6537,62 @@ Código: *${roleCode}*`,
             mentions: [sender]
           });
         }
+      }
+    }
+    // ===== FORCA DE ANIME: letras/respostas digitadas no chat =====
+    if (isGroup && !isCmd && body && global.__astaForca?.has(from) && !info.key.fromMe && body.trim().length <= 40) {
+      try { if (await astaForcaJogar(nazu, from, sender, body, prefix)) return; } catch (e) { console.error('[FORCA] jogada:', e?.message); }
+    }
+    // ===== REGISTRO: código de 4 números digitado no privado =====
+    if (!isGroup && !isCmd && body && global.__astaRegFlow?.get(PLUS.baseNum(sender))?.stage === 'codigo') {
+      const bRC = PLUS.baseNum(sender);
+      const fRC = global.__astaRegFlow.get(bRC);
+      const dig = String(body).replace(/\D/g, '');
+      if (Date.now() - fRC.at > 5 * 60_000) { global.__astaRegFlow.delete(bRC); await reply(`⌛ O código expirou. Comece de novo: ${prefix}registrar ${fRC.nome}|${fRC.idade}`); return; }
+      if (dig.length === 4) {
+        if (dig !== fRC.codigo) {
+          fRC.tent = (fRC.tent || 0) + 1;
+          if (fRC.tent >= 3) { global.__astaRegFlow.delete(bRC); await reply(`❌ Código errado 3 vezes. Comece de novo: ${prefix}registrar ${fRC.nome}|${fRC.idade}`); return; }
+          await reply(`❌ Código errado. Você tem mais ${3 - fRC.tent} tentativa(s).`); return;
+        }
+        global.__astaRegFlow.delete(bRC);
+        const dbRC = plusRead('registros.json', { seq: 0, users: {} });
+        dbRC.users = dbRC.users || {};
+        if (!dbRC.users[bRC]) { dbRC.seq = (dbRC.seq || 0) + 1; dbRC.users[bRC] = { n: dbRC.seq, nome: fRC.nome, idade: fRC.idade, jid: sender, data: Date.now() }; plusWrite('registros.json', dbRC); }
+        const rRC = dbRC.users[bRC];
+        try {
+          const fotoRC = await (async () => { try { const u = await nazu.profilePictureUrl(sender, 'image'); const { data } = await axios.get(u, { responseType: 'arraybuffer', timeout: 15000 }); return Buffer.from(data); } catch { return null; } })();
+          const cardRC = await PLUS.cartaoPerfil({ foto: fotoRC, nome: rRC.nome, titulo: 'Mago registrado', cor: 'vermelho', linhas: [['Registro', `nº ${String(rRC.n).padStart(4, '0')}`], ['Idade', `${rRC.idade} anos`], ['Desde', new Date(rRC.data).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })]], rodape: nomebot });
+          await nazu.sendMessage(from, { image: cardRC, caption: `🎉 *REGISTRO CONCLUÍDO!*
+
+🪪 Registro nº *${String(rRC.n).padStart(4, '0')}*
+👤 ${rRC.nome}
+
+Agora você pode usar o bot à vontade! Comece pelo ${prefix}menu ⚔️` }, { quoted: info });
+        } catch { await reply(`🎉 Registro concluído! Nº ${String(rRC.n).padStart(4, '0')}. Use ${prefix}menu`); }
+        return;
+      }
+    }
+    // ===== QUEM DISSE: guarda frases do grupo =====
+    if (isGroup && !isCmd && body && !info.key.fromMe && !isBotSender) astaQDRecord(from, sender, pushname, body);
+    // ===== ADIVINHA O ANIME: confere as respostas digitadas no chat =====
+    if (isGroup && !isCmd && body && global.__astaAdivinha?.has(from) && !info.key.fromMe) {
+      const jogoAD = global.__astaAdivinha.get(from);
+      if (jogoAD && acertouAnime(body, jogoAD.titulos)) {
+        global.__astaAdivinha.delete(from);
+        jogoAD.timers.forEach(clearTimeout);
+        const segAD = Math.round((Date.now() - jogoAD.start) / 1000);
+        try { const econ = loadEconomy(); const eu = getEcoUser(econ, sender); eu.wallet = (eu.wallet || 0) + 50; saveEconomy(econ); } catch { }
+        try {
+          const fAD = pathz.join(X_DB_DIR, 'adivinha-rank.json');
+          const rkAD = readJsonX(fAD, {}); const kAD = String(sender).split('@')[0];
+          rkAD[from] = rkAD[from] || {}; rkAD[from][kAD] = (rkAD[from][kAD] || 0) + 1; writeJsonX(fAD, rkAD);
+        } catch { }
+        await nazu.sendMessage(from, { image: jogoAD.imgs[3], caption: `🎉 @${String(sender).split('@')[0]} acertou em ${segAD}s!
+✅ *${jogoAD.titulo}*
+🏆 +50 💰
+
+▶️ ${prefix}adivinha para a próxima · 📊 ${prefix}adivinha rank`, mentions: [sender] }, { quoted: info }).catch(() => { });
       }
     }
     if (!isCmd) {
@@ -7230,11 +7704,24 @@ Entre em contato com o dono do bot:
       case 'daily':
       case 'resetrpg':
         {
+          if (['loja', 'comprar', 'buy'].includes(command) && (!isGroup || !groupData.modorpg)) { await astaLoja(command === 'loja' ? '' : 'comprar'); break; }
           if (!isGroup) return reply('⚔️ Os comandos RPG funcionam apenas em grupos.');
           if (!groupData.modorpg) return reply(`⚔️ *Modo RPG desativado!*\n\n🔒 Este recurso está disponível apenas quando o Modo RPG está ativado.\n🔐 *Administradores* podem ativar com: ${prefix}modorpg\n\n💡 Use ${prefix}menurpg para ver todos os comandos!`);
           const econ = loadEconomy();
           const changedEconomy = ensureEconomyDefaults(econ);
           const me = getEcoUser(econ, sender);
+          // ⚡ bônus em dobro (!lojinha): dobra o que entrou na carteira em trabalhar/minerar/pescar...
+          const __ganhoSubs = ['minerar', 'mine', 'trabalhar', 'work', 'pescar', 'fish', 'explorar', 'explore', 'cacar', 'caçar', 'hunt', 'diario', 'daily', 'crime', 'colher', 'coletar', 'harvest', 'coletarpropriedades', 'cprops'];
+          const __dobroAtivo = __ganhoSubs.includes(command) && temDobro(sender);
+          const __w0 = me.wallet || 0, __b0 = me.bank || 0;
+          let __dobroFeito = false;
+          const saveEconomy = (d) => {
+            if (__dobroAtivo && !__dobroFeito && d === econ) {
+              const ganho = ((me.wallet || 0) + (me.bank || 0)) - (__w0 + __b0);
+              if (ganho > 0) { __dobroFeito = true; me.wallet = (me.wallet || 0) + ganho; setTimeout(() => reply(`⚡ *Bônus em dobro!* +${ganho} extra na carteira.`).catch(() => { }), 800); }
+            }
+            return __astaSaveEconomy(d);
+          };
           ensureUserChallenge(me);
           const { mineBonus, workBonus, bankCapacity, fishBonus, exploreBonus, huntBonus, forgeBonus } = applyShopBonuses(me, econ);
           if (changedEconomy) saveEconomy(econ);
@@ -8724,6 +9211,7 @@ Entre em contato com o dono do bot:
           if (sub === 'assaltar' || sub === 'roubar') {
             if (!mentioned) return reply('Marque alguém para assaltar.');
             if (mentioned === sender) return reply('Você não pode assaltar a si mesmo.');
+            if (temEscudo(mentioned)) return reply(`🛡️ @${getUserName(mentioned)} está com um *escudo contra roubo* ativo! Tente outra pessoa.`, { mentions: [mentioned] });
             const cd = me.cooldowns?.rob || 0;
             if (Date.now() < cd) return reply(`⏳ Aguarde ${timeLeft(cd)} para tentar novamente.`);
             const target = getEcoUser(econ, mentioned);
@@ -11864,6 +12352,12 @@ Entre em contato com o dono do bot:
       // Sistema de Torneio
       case 'torneio':
       case 'tournament': {
+        // sem Modo RPG (ou com "magia"): torneio de duelos de magia do ASTA MD
+        if (isGroup && (!groupData.modorpg || ['magia', 'duelo', 'duelos'].includes(String(args[0] || '').toLowerCase()))) {
+          if (groupData.modorpg) args.shift();
+          try { await astaDuelo(true); } catch (e) { console.error('[TORNEIO] Erro:', e); await reply('❌ Erro no torneio.'); }
+          break;
+        }
         if (!isGroup) return reply('⚔️ Este comando funciona apenas em grupos com Modo RPG ativo.');
         if (!groupData.modorpg) return reply(`⚔️ Modo RPG desativado! Use ${prefix}modorpg para ativar.`);
 
@@ -15616,8 +16110,7 @@ Seja específico e recomende opções variadas (populares e menos conhecidas). F
       // ═══════════════════════════════════════════════════════════════
       // ⚔️ DUELO DE QUIZ - Competição de perguntas
       // ═══════════════════════════════════════════════════════════════
-      case 'dueloquiz':
-      case 'duelo': {
+      case 'dueloquiz': {
         if (!isGroup) return reply('⚔️ Este jogo só funciona em grupos!');
 
         // Carregar perguntas do JSON
@@ -16274,6 +16767,21 @@ Seja específico e recomende opções variadas (populares e menos conhecidas). F
         }
 
         const subCmd = args[0]?.toLowerCase();
+
+        // parabéns automático: liga/desliga e horário (admins)
+        if (subCmd === 'auto' || subCmd === 'hora') {
+          if (!isGroupAdmin) return reply('🚫 Só admins podem configurar o parabéns automático.');
+          if (subCmd === 'hora') {
+            const hB = (args[1] || '').match(/^(\d{1,2}):(\d{2})$/);
+            if (!hB || +hB[1] > 23 || +hB[2] > 59) return reply(`💡 Use: ${prefix}aniversario hora 08:00`);
+            groupData.aniversarioHora = `${hB[1].padStart(2, '0')}:${hB[2]}`;
+          } else {
+            const on = /on|ligar|ativar/i.test(args[1] || ''), off = /off|desligar|desativar/i.test(args[1] || '');
+            if (on || off) groupData.aniversarioAuto = on;
+          }
+          fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2));
+          return reply(`🎂 *Parabéns automático:* ${groupData.aniversarioAuto === false ? '*DESLIGADO*' : '*LIGADO*'}\n⏰ Horário: *${groupData.aniversarioHora || '08:00'}*\n\n• ${prefix}aniversario auto on/off\n• ${prefix}aniversario hora 08:00`);
+        }
 
         // Definir aniversário
         if (subCmd === 'definir' || subCmd === 'set') {
@@ -21316,7 +21824,7 @@ Se não definir cores, a API usa padrão automaticamente.`
                   rows: [
                     row('【📥】 DOWNLOADS', 'Baixar vídeo, áudio e música (YouTube, TikTok, Spotify...)', 'menudown'),
                     row('【🛡️】 ADMINISTRAÇÃO', 'Comandos dos ADMs: antilink, bem-vindo, banir...', 'menuadm'),
-                    row('【🎨】 FIGURINHAS', 'Figurinhas, figurinha com som, renomear...', 'menufig'),
+                    row('【🎨】 FIGURINHAS', 'Figurinhas com e sem som, efeitos, renomear...', 'menufig'),
                     row('【🎮】 BRINCADEIRAS', 'Jogos e brincadeiras no grupo', 'menubn'),
                     row('【🖌️】 LOGOS', 'Criar logos com seu nome', 'menulogo'),
                     row('【🎞️】 EDIÇÕES', 'Editar imagens', 'menuedits'),
@@ -21681,7 +22189,7 @@ Se não definir cores, a API usa padrão automaticamente.`
           const capped = await captionStickerMedia(mediaL, !!vidL, q);
           if (vidL) {
             const secsL = Math.max(1, Math.min(maxL, Math.ceil(Number(vidL.seconds) || 8)));
-            try {
+            if (!astaSemSom) try {
               const clipL = await prepareSoundClip(capped, 'mp4', { start: 0, seconds: secsL });
               let webpL = await convertStickerWebp(capped, true, true, secsL);
               webpL = await writeStickerExif(webpL, { packname: `${nomebot}`, author: `${pushname}` });
@@ -21760,11 +22268,13 @@ Se não definir cores, a API usa padrão automaticamente.`
         try {
           if (isGroup && !isGroupAdmin && !isOwner) return reply("Você precisa ser adm 💔");
           if (!isGroup && !isOwner) return reply("No privado, só o dono pode agendar.");
-          const hm = (args[0] || '').match(/^(\d{1,2}):(\d{2})$/);
-          if (!hm) return reply(`⏰ *MENSAGEM AGENDADA*\n\n💡 ${prefix}agendar HH:MM [DD/MM] <texto>\n💡 Envie/responda QUALQUER mensagem com ${prefix}agendar HH:MM [DD/MM]\n\nEx.: ${prefix}agendar 18:30 Reunião em 30 minutos!\nEx.: ${prefix}agendar 09:00 25/12 Feliz Natal 🎄\n\n📋 ${prefix}agendados | ${prefix}desagendar <n>`);
-          let restA = args.slice(1);
+          const repA = parseRepeatSchedule(q);
+          const hm = repA ? [null, String(repA.hh), String(repA.mm)] : (args[0] || '').match(/^(\d{1,2}):(\d{2})$/);
+          if (!hm) return reply(`⏰ *MENSAGEM AGENDADA*\n\n💡 ${prefix}agendar HH:MM [DD/MM] <texto>\n💡 Envie/responda QUALQUER mensagem com ${prefix}agendar HH:MM [DD/MM]\n\n🔁 *Repetir:*\n• ${prefix}agendar todo dia 08:00 Bom dia!\n• ${prefix}agendar toda segunda 07:30 Reunião\n• ${prefix}agendar dias uteis 09:00 ...\n• ${prefix}agendar fim de semana 10:00 ...\n\nEx.: ${prefix}agendar 18:30 Reunião em 30 minutos!\nEx.: ${prefix}agendar 09:00 25/12 Feliz Natal 🎄\n\n📋 ${prefix}agendados | ${prefix}desagendar <n>`);
+          if (repA && (repA.hh > 23 || repA.mm > 59)) return reply('❌ Horário inválido.');
+          let restA = repA ? (repA.rest ? repA.rest.split(/ +/) : []) : args.slice(1);
           let dia = null;
-          const dm = (restA[0] || '').match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
+          const dm = repA ? null : (restA[0] || '').match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
           if (dm) { dia = dm; restA = restA.slice(1); }
           const hojeSP = new Date(Date.now() - 3 * 3600e3); // São Paulo = UTC-3
           let y = hojeSP.getUTCFullYear(), mo = hojeSP.getUTCMonth() + 1, d = hojeSP.getUTCDate();
@@ -21772,7 +22282,8 @@ Se não definir cores, a API usa padrão automaticamente.`
           let at = Date.UTC(y, mo - 1, d, +hm[1] + 3, +hm[2]);
           if (!dia && at <= Date.now()) at += 864e5;
           if (dia && !dia[3] && at <= Date.now()) at = Date.UTC(y + 1, mo - 1, d, +hm[1] + 3, +hm[2]);
-          if (at <= Date.now() + 30_000) return reply('❌ Escolha um horário no futuro.');
+          if (repA) at = nextRepeatAt(repA.repeat, repA.hh, repA.mm);
+          if (!at || at <= Date.now() + 30_000) return reply('❌ Escolha um horário no futuro.');
           const textoA = restA.join(' ').trim();
           const ownA = detectAnyMessage(info.message);
           const quotedA = quotedMessageContent ? detectAnyMessage(quotedMessageContent) : null;
@@ -21783,9 +22294,9 @@ Se não definir cores, a API usa padrão automaticamente.`
           const item = await saveDetectedItem(detA, textoA, pathz.join(X_DB_DIR, 'agendados_itens'));
           const fileA = pathz.join(X_DB_DIR, 'agendados.json');
           const listA = readJsonX(fileA, []);
-          listA.push({ id: item.id, group: from, at, item, by: sender, done: false });
+          listA.push({ id: item.id, group: from, at, item, by: sender, done: false, ...(repA ? { repeat: repA.repeat, hh: repA.hh, mm: repA.mm } : {}) });
           writeJsonX(fileA, listA);
-          await reply(`✅ Agendado para *${new Date(at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}* (${BROADCAST_LABELS[item.type] || item.type}).\n📋 ${prefix}agendados para ver a lista`);
+          await reply(`✅ Agendado${repA ? ` 🔁 *${describeRepeat(repA.repeat)} às ${String(repA.hh).padStart(2, '0')}:${String(repA.mm).padStart(2, '0')}*\n⏭️ Próximo envio:` : ' para'} *${new Date(at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}* (${BROADCAST_LABELS[item.type] || item.type}).\n📋 ${prefix}agendados para ver a lista`);
         } catch (e) {
           console.error('[AGENDAR]', e);
           await reply(`❌ Não consegui agendar: ${e?.message || e}`);
@@ -21796,7 +22307,7 @@ Se não definir cores, a API usa padrão automaticamente.`
         try {
           const listA = readJsonX(pathz.join(X_DB_DIR, 'agendados.json'), []).filter(a => a.group === from && !a.done).sort((a, b) => a.at - b.at);
           if (!listA.length) return reply(`📭 Nenhuma mensagem agendada aqui.\n💡 ${prefix}agendar HH:MM <texto>`);
-          await reply(`⏰ *AGENDADOS NESTE CHAT*\n\n${listA.map((a, i) => `${i + 1}. ${new Date(a.at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} — ${BROADCAST_LABELS[a.item.type] || a.item.type}${a.item.text ? `: ${a.item.text.slice(0, 40)}` : ''}`).join('\n')}\n\n🗑️ ${prefix}desagendar <número>`);
+          await reply(`⏰ *AGENDADOS NESTE CHAT*\n\n${listA.map((a, i) => `${i + 1}. ${new Date(a.at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}${a.repeat ? ` 🔁 ${describeRepeat(a.repeat)}` : ''} — ${BROADCAST_LABELS[a.item.type] || a.item.type}${a.item.text ? `: ${a.item.text.slice(0, 40)}` : ''}`).join('\n')}\n\n🗑️ ${prefix}desagendar <número>`);
         } catch (e) {
           console.error(e);
         }
@@ -22029,7 +22540,7 @@ Se não definir cores, a API usa padrão automaticamente.`
             await startAstaPainel(0, null);
             return reply('✅ Painel web desligado.');
           }
-          if (v !== 'on') return reply(`🖥️ *Painel web:* ${cfgP.painelPorta ? `ligado na porta ${cfgP.painelPorta}` : 'desligado'}\nUma página no navegador com status, conexão, fila, divulgação e últimos erros (só leitura, protegida por senha no link).\n\n💡 ${prefix}painelweb on [porta] — padrão 3000\n💡 ${prefix}painelweb off`);
+          if (v !== 'on') return reply(`🖥️ *Painel web:* ${cfgP.painelPorta ? `ligado na porta ${cfgP.painelPorta}` : 'desligado'}\nUma página no navegador com status, conexão, fila, divulgação e últimos erros e com controle: mandar transmissão para todos os grupos, ligar/desligar funções e reiniciar o bot (protegida por senha no link).\n\n💡 ${prefix}painelweb on [porta] — padrão 3000\n💡 ${prefix}painelweb off`);
           const porta = Math.max(1024, Math.min(65535, parseInt(args[1], 10) || Number(cfgP.painelPorta) || 3000));
           const token = crypto.randomBytes(12).toString('hex');
           await startAstaPainel(porta, token);
@@ -27363,7 +27874,7 @@ break;
               if (!stB && secsB > durB + 0.5) bufB = await trimStickerMedia(bufB, 0, durB);
               const totalB = Math.ceil(durB * fpsB);
               await reply(`⏳ Removendo o fundo de ${totalB} quadros (${Math.round(durB)}s)... pode levar de ${Math.max(1, Math.round(totalB * 1 / 60))} a ${Math.max(2, Math.ceil(totalB * 3 / 60))} min.${secsB > durB + 0.5 ? `\n✂️ Usando só os primeiros ${maxB}s.` : ''}`);
-              const muteB = /mudo|mute|semsom/i.test(q || '');
+              const muteB = astaSemSom || /mudo|mute|semsom/i.test(q || '');
               let clipB = muteB ? null : somB;
               if (!clipB && !muteB && !stB && !vidB?.gifPlayback) clipB = await prepareSoundClip(bufB, 'mp4', { start: 0, seconds: Math.ceil(durB) }).catch(() => null);
               const t0B = Date.now();
@@ -27668,8 +28179,9 @@ break;
           // ===== FIGURINHA COM ÁUDIO: marque um áudio/nota de voz e use o comando =====
           var soundAudioMsg = RSM?.audioMessage;
           var soundMax = setSoundLimits({ maxSeconds: config.figSomMaxSeg ?? 30 });
-          var soundOn = !/mudo|mute|semsom/i.test(q || '');
+          var soundOn = !astaSemSom && !/mudo|mute|semsom/i.test(q || '');
           var vidSoundMax = Math.max(1, Number(config.figVideoSomMaxSeg ?? soundMax) || soundMax);
+          if (soundAudioMsg && astaSemSom) return reply(`🔇 O ${prefix}${command}off é para foto, vídeo e figurinha.\nUm áudio só vira figurinha *com som* — use ${prefix}s respondendo o áudio.`);
           if (soundAudioMsg) {
             try {
               var soundArgs = parseSoundArgs(q);
@@ -27767,7 +28279,7 @@ break;
             return reply(`✂️ *FIGURINHA SEM TARJA PRETA*\n\nMarque um *vídeo*, uma *imagem* ou uma *figurinha* com tarja preta e use ${prefix}${command}\n\n• ${prefix}${command} → corta a tarja e mantém o som 🔊\n• ${prefix}${command} 0:05 10 → escolhe o trecho do vídeo\n• ${prefix}${command} mudo → sem som\n• ${prefix}${command} esticar → preenche o quadrado todo\n• ${prefix}${command} circulo → redonda\n\n💡 Se a mídia não tiver tarja, nada é cortado.`);
           }
           const optC = String(q || '').toLowerCase();
-          const muteC = /mudo|mute|semsom/.test(optC);
+          const muteC = astaSemSom || /mudo|mute|semsom/.test(optC);
           const circleC = /c[ií]rculo|circle|redond/.test(optC);
           const stretchC = /esticar|estica|quadrad|cheio/.test(optC);
           const maxC = Math.max(1, Number(config.figVideoSomMaxSeg ?? config.figSomMaxSeg ?? 30) || 30);
@@ -27841,7 +28353,7 @@ break;
           }
           const optQ = String(q || '').toLowerCase();
           const posQ = /cima|topo/.test(optQ) ? 'cima' : /baixo/.test(optQ) ? 'baixo' : /esquerd/.test(optQ) ? 'esquerda' : /direit/.test(optQ) ? 'direita' : 'centro';
-          const muteQ = /mudo|mute|semsom/.test(optQ);
+          const muteQ = astaSemSom || /mudo|mute|semsom/.test(optQ);
           const maxQ = Math.max(1, Number(config.figVideoSomMaxSeg ?? config.figSomMaxSeg ?? 30) || 30);
           setSoundLimits({ maxSeconds: config.figSomMaxSeg ?? 30 });
           let isVidQ = !!vidQ, bufQ, somQ = null, secsQ = 8;
@@ -27880,6 +28392,1172 @@ break;
           await reply('❌ Não consegui fazer a figurinha quadrada. Tente de novo.');
         }
         break;
+      // helper: acha a mídia (própria ou respondida) para os efeitos
+      async function astaMidiaFx() {
+        const RSM = info.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+        const vo = (m) => m?.viewOnceMessageV2?.message || m?.viewOnceMessage?.message || {};
+        const vid = RSM?.videoMessage || info.message?.videoMessage || vo(RSM).videoMessage || vo(info.message).videoMessage;
+        const img = RSM?.imageMessage || info.message?.imageMessage || vo(RSM).imageMessage || vo(info.message).imageMessage;
+        const aud = RSM?.audioMessage || vo(RSM).audioMessage || RSM?.viewOnceMessageV2Extension?.message?.audioMessage;
+        const st = (!vid && !img && !aud) ? quotedStickerOf(RSM) : null;
+        return { RSM, vid, img, aud, st };
+      }
+      // ===== EFEITOS DE FIGURINHA: !sefeito  !svoz  !trocarsom  !sfala =====
+      case 'sefeito':
+      case 'sefx':
+        try {
+          const fxV = parseVideoFx(q);
+          const listaV = Object.entries(VIDEO_FX).map(([k, v]) => `• ${prefix}${command} ${k} → ${v.nome}`).join('\n');
+          if (!fxV) return reply(`🎬 *EFEITOS NA FIGURINHA* (o som acompanha 🔊)\n\nResponda um *vídeo* ou uma *figurinha animada*:\n${listaV}\n\n• Adicione *mudo* para sair sem som`);
+          const mFx = await astaMidiaFx();
+          const muteFx = astaSemSom || /\bmudo\b|\bmute\b|semsom/i.test(q || '');
+          let bufFx = null, somFx = null, gifFx = false;
+          if (mFx.vid) {
+            bufFx = await getFileBuffer(mFx.vid, 'video'); gifFx = !!mFx.vid.gifPlayback;
+          } else if (mFx.st) {
+            const w = await getFileBuffer(mFx.st, 'sticker');
+            somFx = await stickerAudioPack(mFx.st);
+            const pages = (await sharp(w, { animated: true }).metadata()).pages || 1;
+            if (pages > 1) bufFx = (await stickerToVideo(w, somFx?.ogg || null)).video;
+            else if (fxV === 'espelho') {
+              const flip = await writeStickerExif(await convertStickerWebp(await sharp(w).flop().png().toBuffer(), false, false, 8), { packname: `${nomebot}`, author: `${pushname}` });
+              return somFx && !muteFx ? sendSoundSticker(nazu, from, { webp: flip, clip: somFx, quoted: info }) : nazu.sendMessage(from, { sticker: flip }, { quoted: info });
+            } else return reply('🖼️ Essa figurinha é *parada*. Os efeitos de movimento funcionam em *vídeo* ou *figurinha animada* (o *espelho* funciona em qualquer uma).');
+          } else if (mFx.img && fxV === 'espelho') {
+            const flip = await writeStickerExif(await convertStickerWebp(await sharp(await getFileBuffer(mFx.img, 'image')).flop().png().toBuffer(), false, false, 8), { packname: `${nomebot}`, author: `${pushname}` });
+            return nazu.sendMessage(from, { sticker: flip }, { quoted: info });
+          } else return reply(`🎬 Responda um *vídeo* ou uma *figurinha animada* com ${prefix}${command} ${fxV}`);
+          await reply(`⏳ Aplicando ${VIDEO_FX[fxV].nome}...`);
+          const rFx = await applyVideoEffect(bufFx, fxV, { maxOutput: Math.max(3, Number(config.figFxMaxSeg ?? 15) || 15) });
+          const webpFx = await writeStickerExif(await convertStickerWebp(rFx.video, true, true, rFx.seconds), { packname: `${nomebot}`, author: `${pushname}` });
+          const clipFx = (!muteFx && !gifFx && rFx.hasAudio) ? await prepareSoundClip(rFx.video, 'mp4', { start: 0, seconds: rFx.seconds }).catch(() => null) : null;
+          if (clipFx) await sendSoundSticker(nazu, from, { webp: webpFx, clip: clipFx, quoted: info });
+          else await nazu.sendMessage(from, { sticker: webpFx }, { quoted: info });
+        } catch (e) {
+          if (e instanceof SoundStickerError) return reply(`❌ ${e.message}`);
+          console.error('[SEFEITO] Erro:', e);
+          await reply('❌ Não consegui aplicar o efeito. Tente outro vídeo.');
+        }
+        break;
+
+      case 'svoz':
+      case 'vozfig':
+        try {
+          const fxA = parseVoiceFx(q);
+          const listaA = Object.entries(VOICE_FX).map(([k, v]) => `• ${prefix}${command} ${k} → ${v.nome}`).join('\n');
+          if (!fxA) return reply(`🎙️ *EFEITO DE VOZ NA FIGURINHA*\n\nResponda uma *figurinha com som*, um *áudio* ou um *vídeo com som*:\n${listaA}`);
+          const mA = await astaMidiaFx();
+          const restoA = String(q || '').trim().split(/\s+/).slice(1).join(' ');
+          const exifA = (b) => writeStickerExif(b, { packname: `${nomebot}`, author: `${pushname}` });
+          if (mA.st) {
+            const somA = await stickerAudioPack(mA.st);
+            if (!somA) return reply(`🔇 Essa figurinha não tem som. Use ${prefix}trocarsom para colocar um áudio nela.`);
+            const w = await getFileBuffer(mA.st, 'sticker');
+            const ogg = await applyVoiceEffect(somA.ogg, 'ogg', fxA);
+            const clipA = await prepareSoundClip(ogg, 'ogg', { start: 0, seconds: somA.seconds });
+            return sendSoundSticker(nazu, from, { webp: await exifA(w), clip: clipA, quoted: info });
+          }
+          if (mA.aud) {
+            const ab = await getFileBuffer(mA.aud, 'audio');
+            const ext = /mpeg|mp3/i.test(mA.aud.mimetype || '') ? 'mp3' : /mp4|m4a|aac/i.test(mA.aud.mimetype || '') ? 'm4a' : 'ogg';
+            const ogg = await applyVoiceEffect(ab, ext, fxA);
+            const clipA = await prepareSoundClip(ogg, 'ogg', parseSoundArgs(restoA));
+            return sendSoundSticker(nazu, from, { webp: await exifA(await makeSoundCover(clipA.waveform, Math.floor(Math.random() * 4))), clip: clipA, quoted: info });
+          }
+          if (mA.vid) {
+            let vb = await getFileBuffer(mA.vid, 'video');
+            const maxA = Math.max(1, Number(config.figVideoSomMaxSeg ?? 30) || 30);
+            const vs = Number(mA.vid.seconds) || maxA;
+            const secsA = Math.max(1, Math.min(maxA, vs));
+            if (vs > secsA + 0.5) vb = await trimStickerMedia(vb, 0, secsA);
+            const webpA = await exifA(await convertStickerWebp(vb, true, true, Math.ceil(secsA)));
+            const ogg = await applyVoiceEffect(vb, 'mp4', fxA);
+            const clipA = await prepareSoundClip(ogg, 'ogg', { start: 0, seconds: Math.ceil(secsA) });
+            return sendSoundSticker(nazu, from, { webp: webpA, clip: clipA, quoted: info });
+          }
+          return reply(`🎙️ Responda uma *figurinha com som*, um *áudio* ou um *vídeo* com ${prefix}${command} ${fxA}`);
+        } catch (e) {
+          if (e instanceof SoundStickerError) return reply(`❌ ${e.message}`);
+          console.error('[SVOZ] Erro:', e);
+          await reply('❌ Não consegui aplicar o efeito de voz.');
+        }
+        break;
+
+      case 'trocarsom':
+      case 'trocasom':
+        try {
+          // funciona em 2 passos, em qualquer ordem: responda a FIGURINHA e depois o ÁUDIO (ou o contrário)
+          if (!global.__astaTrocarSom) global.__astaTrocarSom = new Map();
+          const pendT = global.__astaTrocarSom;
+          const keyT = `${from}|${sender}`;
+          const p0 = pendT.get(keyT);
+          if (p0 && Date.now() - p0.at > 3 * 60_000) pendT.delete(keyT);
+          const mT = await astaMidiaFx();
+          const audSrc = mT.aud || (mT.vid && !mT.vid.gifPlayback ? mT.vid : null);
+          const enviarT = async (webp, abuf, ext) => {
+            const clipT = await prepareSoundClip(abuf, ext, parseSoundArgs(q));
+            await sendSoundSticker(nazu, from, { webp: await writeStickerExif(webp, { packname: `${nomebot}`, author: `${pushname}` }), clip: clipT, quoted: info });
+          };
+          if (mT.st) {
+            const w = await getFileBuffer(mT.st, 'sticker');
+            const p = pendT.get(keyT);
+            if (p?.audio) { pendT.delete(keyT); return enviarT(w, p.audio, p.ext); }
+            pendT.set(keyT, { webp: w, at: Date.now() });
+            return reply(`✅ Figurinha guardada!\n🎵 Agora *responda o áudio* (ou vídeo com som) com ${prefix}${command}\n💡 Dá para escolher o trecho: ${prefix}${command} 0:30 8`);
+          }
+          if (audSrc) {
+            const isVidT = audSrc === mT.vid;
+            const ab = await getFileBuffer(audSrc, isVidT ? 'video' : 'audio');
+            const ext = isVidT ? 'mp4' : /mpeg|mp3/i.test(audSrc.mimetype || '') ? 'mp3' : /mp4|m4a|aac/i.test(audSrc.mimetype || '') ? 'm4a' : 'ogg';
+            const p = pendT.get(keyT);
+            if (p?.webp) { pendT.delete(keyT); return enviarT(p.webp, ab, ext); }
+            pendT.set(keyT, { audio: ab, ext, at: Date.now() });
+            return reply(`✅ Áudio guardado!\n🖼️ Agora *responda a figurinha* com ${prefix}${command}`);
+          }
+          return reply(`🔄 *TROCAR O SOM DA FIGURINHA*\n\n1️⃣ Responda a *figurinha* com ${prefix}${command}\n2️⃣ Responda o *áudio* (ou vídeo com som) com ${prefix}${command}\n\n(pode ser em qualquer ordem)\n💡 Trecho do áudio: ${prefix}${command} 0:30 8`);
+        } catch (e) {
+          if (e instanceof SoundStickerError) return reply(`❌ ${e.message}`);
+          console.error('[TROCARSOM] Erro:', e);
+          await reply('❌ Não consegui trocar o som.');
+        }
+        break;
+
+      case 'sfala':
+      case 'falafig':
+        try {
+          const entradaF = String(q || '').trim();
+          if (!entradaF) return reply(`🗣️ *FIGURINHA QUE FALA*\n\n${prefix}${command} <texto> → figurinha com o texto escrito e uma voz falando\n${prefix}${command} <texto> | masculino → escolhe a voz (com a Vex API: masculino, feminino, robo, alien)\n\n📌 Exemplo: ${prefix}${command} bom dia grupo!`);
+          let textoF = entradaF, vozF = 'feminino';
+          const iF = entradaF.lastIndexOf('|');
+          if (iF > 0) { textoF = entradaF.slice(0, iF).trim(); vozF = entradaF.slice(iF + 1).trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '') || 'feminino'; }
+          textoF = textoF.slice(0, 300);
+          // voz: Vex API (se tiver chave) ou voz gratuita do Google
+          let audF = null, extF = 'mp3';
+          if (config.apikey_vex && ['masculino', 'feminino', 'robo', 'alien'].includes(vozF)) {
+            try { const r = await tts.tts(textoF, vozF); if (r?.ok && r.audio) { audF = Buffer.isBuffer(r.audio) ? r.audio : Buffer.from(r.audio); } } catch { }
+          }
+          if (!audF) {
+            try { audF = await freeTts(textoF, 'pt-BR'); } catch (e) { return reply('❌ Não consegui gerar a voz agora. Tente de novo em instantes.'); }
+          }
+          const clipF = await prepareSoundClip(audF, extF, {});
+          // imagem: texto grande no centro (se o aparelho não desenhar texto, usa a capa com a onda do som)
+          let imgF;
+          try {
+            const cores = [['#7c3aed', '#ec4899'], ['#0ea5e9', '#22c55e'], ['#f97316', '#ef4444'], ['#111827', '#374151']];
+            const [c1, c2] = cores[Math.floor(Math.random() * cores.length)];
+            const bg = await sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect x="8" y="8" width="496" height="496" rx="96" fill="url(#g)"/></svg>`)).png().toBuffer();
+            const cap = await renderCaptionPng(textoF.slice(0, 120), 470);
+            const cm = await sharp(cap).metadata();
+            imgF = await sharp(bg).composite([{ input: cap, left: Math.max(0, Math.round((512 - cm.width) / 2)), top: Math.max(0, Math.round((512 - cm.height) / 2)) }]).png().toBuffer();
+            imgF = await convertStickerWebp(imgF, false, false, 8);
+          } catch { imgF = await makeSoundCover(clipF.waveform, Math.floor(Math.random() * 4)); }
+          await sendSoundSticker(nazu, from, { webp: await writeStickerExif(imgF, { packname: `${nomebot}`, author: `${pushname}` }), clip: clipF, quoted: info });
+        } catch (e) {
+          if (e instanceof SoundStickerError) return reply(`❌ ${e.message}`);
+          console.error('[SFALA] Erro:', e);
+          await reply('❌ Não consegui fazer a figurinha que fala.');
+        }
+        break;
+
+      // ===== FIGURINHA (COM SOM) NAS BOAS-VINDAS =====
+      case 'bvfig':
+      case 'figbv':
+        try {
+          if (!isGroup) return reply('❌ Use num grupo.');
+          if (!isGroupAdmin) return reply('🚫 Só admins podem escolher a figurinha de boas-vindas.');
+          const dirBv = pathz.join(X_DB_DIR, 'bvfig');
+          const baseBv = pathz.join(dirBv, from.replace(/[^0-9a-z@._-]/gi, '_'));
+          const subBv = String(args[0] || '').toLowerCase();
+          if (['off', 'desligar', 'remover', 'tirar'].includes(subBv)) {
+            for (const ext of ['webp', 'ogg', 'json']) { try { fs.rmSync(`${baseBv}.${ext}`, { force: true }); } catch { } }
+            groupData.bvFig = false;
+            fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2));
+            return reply('✅ Figurinha de boas-vindas removida.');
+          }
+          const stBv = quotedStickerOf(info.message?.extendedTextMessage?.contextInfo?.quotedMessage);
+          if (!stBv) {
+            const temBv = fs.existsSync(`${baseBv}.webp`) && groupData.bvFig;
+            if (subBv === 'ver' && temBv) {
+              const w = fs.readFileSync(`${baseBv}.webp`);
+              if (fs.existsSync(`${baseBv}.ogg`)) {
+                const meta = JSON.parse(fs.readFileSync(`${baseBv}.json`, 'utf-8'));
+                return sendSoundSticker(nazu, from, { webp: w, clip: { ogg: fs.readFileSync(`${baseBv}.ogg`), seconds: meta.seconds || 1, waveform: meta.waveform ? Buffer.from(meta.waveform, 'base64') : Buffer.alloc(64) }, quoted: info });
+              }
+              return nazu.sendMessage(from, { sticker: w }, { quoted: info });
+            }
+            return reply(`🎉 *FIGURINHA DE BOAS-VINDAS*\n\nStatus: *${temBv ? 'LIGADA' : 'DESLIGADA'}*\n\n• Responda uma figurinha (de preferência *com som* 🔊) com ${prefix}${command}\n• ${prefix}${command} ver → mostra a atual\n• ${prefix}${command} off → remove\n\n💡 Ela é enviada logo depois da mensagem de boas-vindas.`);
+          }
+          fs.mkdirSync(dirBv, { recursive: true });
+          const wBv = await getFileBuffer(stBv, 'sticker');
+          const somBv = await stickerAudioPack(stBv);
+          fs.writeFileSync(`${baseBv}.webp`, wBv);
+          if (somBv) {
+            fs.writeFileSync(`${baseBv}.ogg`, somBv.ogg);
+            fs.writeFileSync(`${baseBv}.json`, JSON.stringify({ seconds: somBv.seconds, waveform: Buffer.from(somBv.waveform || Buffer.alloc(64)).toString('base64') }));
+          } else {
+            try { fs.rmSync(`${baseBv}.ogg`, { force: true }); fs.rmSync(`${baseBv}.json`, { force: true }); } catch { }
+          }
+          groupData.bvFig = true;
+          fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2));
+          await reply(`✅ Figurinha de boas-vindas salva${somBv ? ' *com som* 🔊' : ''}!\nQuem entrar no grupo vai receber ela depois da mensagem de boas-vindas.`);
+        } catch (e) {
+          console.error('[BVFIG] Erro:', e);
+          await reply('❌ Não consegui salvar a figurinha de boas-vindas.');
+        }
+        break;
+
+      // ===== DUELO DE MAGIA (BLACK CLOVER) + TORNEIO =====
+      // (função "içada": é usada pelo !duelo e pelo !torneio)
+      async function astaDuelo(modoTorneio) {
+          if (!isGroup) return reply('⚔️ O duelo só funciona em grupos!');
+          if (!global.__astaDuelos) global.__astaDuelos = new Map();
+          if (!global.__astaTorneios) global.__astaTorneios = new Map();
+          const DU = global.__astaDuelos;
+          const TO = global.__astaTorneios;
+          const sockDU = () => global.__nazunaSock || nazu;
+          const subDU = String(args[0] || '').toLowerCase();
+          const fileRankDU = pathz.join(X_DB_DIR, 'duelos.json');
+          const nomeDU = (j) => `@${String(j).split('@')[0]}`;
+          const pagar = (jid, valor) => { try { const econ = loadEconomy(); const u = getEcoUser(econ, jid); const v = comDobro(jid, valor); u.wallet = (u.wallet || 0) + v; saveEconomy(econ); return v; } catch { return valor; } };
+
+          const enviarTurno = async (g) => {
+            const vez = g.turn, outro = vez === 'a' ? 'b' : 'a';
+            const cab = g.torneio ? `🏟️ *TORNEIO* — ${g.torneio.rotulo}\n` : '';
+            const txt = `${cab}⚔️ *DUELO DE MAGIA* ⚔️\n\n${g.grim.a.e} ${nomeDU(g.a)} — Grimório de *${g.grim.a.nome}* (${'🍀'.repeat(g.grim.a.trevos)})\n❤️ ${barraVida(g.hp.a)}\n\n${g.grim.b.e} ${nomeDU(g.b)} — Grimório de *${g.grim.b.nome}* (${'🍀'.repeat(g.grim.b.trevos)})\n❤️ ${barraVida(g.hp.b)}\n${g.ultimo ? `\n${g.ultimo}\n` : ''}\n👉 Vez de ${nomeDU(g[vez])} (60s)${g.bet ? `\n💰 Aposta: ${g.bet}` : ''}\n\nSe os botões não aparecerem: ${prefix}duelo ataque / magia / defesa / cura`;
+            const mk = (lbl, a) => quickReply(lbl, `${prefix}duelo acao ${g.id} ${a}`);
+            clearTimeout(g.timer);
+            g.timer = setTimeout(() => encerrar(g, outro, `⏰ ${nomeDU(g[vez])} demorou demais e perdeu por W.O.!`).catch(() => { }), 60_000);
+            await sendButtons(sockDU(), g.group, { text: txt, footer: '★彡 ASTA MD 彡★', mentions: [g.a, g.b], buttons: [mk('🗡️ ATAQUE', 'ataque'), mk(`${g.grim[vez].e} MAGIA`, 'magia'), mk('🛡️ DEFESA', 'defesa'), mk(`💚 CURA (${g.curas[vez]})`, 'cura')] })
+              .catch(() => sockDU().sendMessage(g.group, { text: txt, mentions: [g.a, g.b] }));
+          };
+          const novaLuta = (group, a, b, extra = {}) => {
+            const g = { id: Math.random().toString(36).slice(2, 7), group, a, b, bet: 0, stage: 'luta', created: Date.now(), hp: { a: 100, b: 100 }, def: {}, curas: { a: 2, b: 2 }, nome: { a: nomeDU(a), b: nomeDU(b) }, ...extra };
+            g.grim = { a: sortearGrimorio(), b: sortearGrimorio() };
+            g.turn = Math.random() < 0.5 ? 'a' : 'b';
+            g.ultimo = `📖 Os grimórios foram abertos! ${nomeDU(g[g.turn])} começa.`;
+            DU.set(group, g);
+            return g;
+          };
+
+          // ---------- TORNEIO: próxima partida ----------
+          const rotuloRodada = (T) => { const n = T.chave.length * 2; return n === 2 ? 'FINAL' : n === 4 ? 'SEMIFINAL' : n === 8 ? 'QUARTAS DE FINAL' : `OITAVAS (rodada ${T.rodada})`; };
+          const textoChave = (T) => T.chave.map(([x, y], i) => `${i + 1}. ${x ? nomeDU(x) : '—'} ⚔️ ${y ? nomeDU(y) : '(folga)'}${T.resultado[i] ? `  → 🏅 ${nomeDU(T.resultado[i])}` : ''}`).join('\n');
+          const proximaPartida = async (T) => {
+            if (TO.get(T.group) !== T) return;
+            // pula as folgas (quem não tem adversário passa direto)
+            while (T.idx < T.chave.length) {
+              const [x, y] = T.chave[T.idx];
+              if (x && y) break;
+              T.resultado[T.idx] = x || y; T.idx++;
+            }
+            if (T.idx >= T.chave.length) {
+              const venc = T.resultado.filter(Boolean);
+              if (venc.length <= 1) {
+                TO.delete(T.group);
+                const campeao = venc[0];
+                if (!campeao) return sockDU().sendMessage(T.group, { text: '🏟️ Torneio encerrado sem campeão.' }).catch(() => { });
+                const pago = pagar(campeao, T.premio);
+                return sockDU().sendMessage(T.group, { text: `🏆👑 *CAMPEÃO DO TORNEIO!* 👑🏆\n\n${nomeDU(campeao)} venceu todos os duelos!\n💰 Prêmio: *+${pago}*${pago > T.premio ? ' (⚡ bônus em dobro)' : ''}\n\n⚔️ Desistir não é o meu tipo de magia!`, mentions: [campeao] }).catch(() => { });
+              }
+              // nova rodada
+              const emb = venc.sort(() => Math.random() - 0.5);
+              T.chave = []; for (let i = 0; i < emb.length; i += 2) T.chave.push([emb[i], emb[i + 1] || null]);
+              T.resultado = []; T.idx = 0; T.rodada++;
+              await sockDU().sendMessage(T.group, { text: `🏟️ *${rotuloRodada(T)}*\n\n${textoChave(T)}`, mentions: T.chave.flat().filter(Boolean) }).catch(() => { });
+              return setTimeout(() => proximaPartida(T).catch(() => { }), 4000);
+            }
+            if (DU.get(T.group)) return setTimeout(() => proximaPartida(T).catch(() => { }), 15_000);
+            const [x, y] = T.chave[T.idx];
+            const g = novaLuta(T.group, x, y, { torneio: { id: T.id, idx: T.idx, rotulo: `${rotuloRodada(T)} · partida ${T.idx + 1}/${T.chave.length}` } });
+            await sockDU().sendMessage(T.group, { text: `🏟️ *${g.torneio.rotulo}*\n\n${nomeDU(x)} ⚔️ ${nomeDU(y)}\nPreparem os grimórios!`, mentions: [x, y] }).catch(() => { });
+            return enviarTurno(g);
+          };
+
+          const encerrar = async (g, vencedor, motivo) => {
+            if (DU.get(g.group) !== g) return;
+            clearTimeout(g.timer); DU.delete(g.group);
+            const perdedor = vencedor === 'a' ? 'b' : 'a';
+            const rk = readJsonX(fileRankDU, {});
+            const kv = String(g[vencedor]).split('@')[0], kp = String(g[perdedor]).split('@')[0];
+            rk[kv] = { v: (rk[kv]?.v || 0) + 1, d: rk[kv]?.d || 0 }; rk[kp] = { v: rk[kp]?.v || 0, d: (rk[kp]?.d || 0) + 1 };
+            writeJsonX(fileRankDU, rk);
+            if (g.torneio) {
+              const T = TO.get(g.group);
+              if (T && T.id === g.torneio.id) T.resultado[g.torneio.idx] = g[vencedor], T.idx = g.torneio.idx + 1;
+              await sockDU().sendMessage(g.group, { text: `🏅 *${g.torneio.rotulo}*\n\n${motivo ? motivo + '\n\n' : ''}👑 ${nomeDU(g[vencedor])} avança no torneio!`, mentions: [g.a, g.b] }).catch(() => { });
+              if (T && T.id === g.torneio.id) setTimeout(() => proximaPartida(T).catch(() => { }), 5000);
+              return;
+            }
+            let premio = 30;
+            try {
+              const econ = loadEconomy();
+              const ew = getEcoUser(econ, g[vencedor]); const el = getEcoUser(econ, g[perdedor]);
+              if (g.bet) { const tira = Math.min(g.bet, Math.max(0, el.wallet || 0)); el.wallet = (el.wallet || 0) - tira; ew.wallet = (ew.wallet || 0) + tira; premio += tira; }
+              const base30 = comDobro(g[vencedor], 30);
+              premio += base30 - 30;
+              ew.wallet = (ew.wallet || 0) + base30;
+              saveEconomy(econ);
+            } catch { }
+            await sockDU().sendMessage(g.group, { text: `🏆 *FIM DO DUELO!*\n\n${motivo ? motivo + '\n\n' : ''}👑 Vencedor: ${nomeDU(g[vencedor])} (${g.grim[vencedor].e} ${g.grim[vencedor].nome})\n💰 Prêmio: *+${premio}*\n\n⚔️ Desistir não é o meu tipo de magia!\n📊 ${prefix}duelo rank`, mentions: [g.a, g.b] }).catch(() => { });
+          };
+
+          // ================= !torneio =================
+          if (modoTorneio) {
+            const subT = subDU === 'magia' ? String(args[1] || '').toLowerCase() : subDU;
+            const restoT = subDU === 'magia' ? args.slice(2) : args.slice(1);
+            const T0 = TO.get(from);
+            const ehAdmT = isGroupAdmin || isOwner;
+            const cmdT = command === 'torneio' || command === 'tournament' ? `${prefix}torneio magia` : `${prefix}${command}`;
+            if (!subT || subT === 'ajuda') {
+              return reply(`🏟️ *TORNEIO DE DUELOS* (Black Clover)\n\n• ${cmdT} criar 8 [prêmio] → abre as inscrições (4, 8 ou 16 pessoas)\n• ${cmdT} entrar / sair\n• ${cmdT} iniciar → começa antes de lotar (mínimo 3)\n• ${cmdT} chave → mostra a chave\n• ${cmdT} cancelar\n\nAs partidas são duelos de magia normais, uma de cada vez, com botões.\n🏆 O campeão leva o prêmio (padrão: 100 💰 por participante).${T0 ? `\n\n📌 Torneio atual: *${T0.stage === 'inscricao' ? `inscrições ${T0.jog.length}/${T0.vagas}` : rotuloRodada(T0)}*` : ''}`);
+            }
+            if (subT === 'criar' || subT === 'abrir') {
+              if (!ehAdmT) return reply('🚫 Só admins podem criar um torneio.');
+              if (T0) return reply(`⏳ Já tem um torneio neste grupo. ${cmdT} cancelar para encerrar.`);
+              const vagas = [4, 8, 16].includes(parseInt(restoT[0], 10)) ? parseInt(restoT[0], 10) : 8;
+              const premio = Math.max(0, parseInt(restoT[1], 10) || vagas * 100);
+              const T = { id: Math.random().toString(36).slice(2, 7), group: from, by: sender, vagas, premio, jog: [], stage: 'inscricao', created: Date.now(), rodada: 1, chave: [], resultado: [], idx: 0 };
+              TO.set(from, T);
+              const txtT = `🏟️ *TORNEIO DE DUELOS ABERTO!*\n\n👥 Vagas: *${vagas}*\n🏆 Prêmio do campeão: *${premio} 💰*\n\nToque em ⚔️ ENTRAR para participar!\nQuando lotar, começa sozinho.\n\nSem botões: ${cmdT} entrar`;
+              try { await sendButtons(nazu, from, { text: txtT, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('⚔️ ENTRAR', `${cmdT} entrar`), quickReply('🚪 SAIR', `${cmdT} sair`)] }); }
+              catch { await reply(txtT); }
+              return;
+            }
+            if (!T0) return reply(`ℹ️ Não tem torneio aqui. ${ehAdmT ? `Crie com ${cmdT} criar 8` : 'Peça a um admin para criar.'}`);
+            if (subT === 'cancelar' || subT === 'encerrar') {
+              if (!ehAdmT && !idsMatch(sender, T0.by)) return reply('🚫 Só admins podem cancelar o torneio.');
+              TO.delete(from);
+              const gT = DU.get(from); if (gT?.torneio) { clearTimeout(gT.timer); DU.delete(from); }
+              return reply('🛑 Torneio cancelado.');
+            }
+            if (subT === 'chave' || subT === 'bracket') {
+              if (T0.stage === 'inscricao') return reply(`📝 *Inscritos (${T0.jog.length}/${T0.vagas}):*\n${T0.jog.map((j, i) => `${i + 1}. ${nomeDU(j)}`).join('\n') || '(ninguém ainda)'}`, { mentions: T0.jog });
+              return reply(`🏟️ *${rotuloRodada(T0)}*\n\n${textoChave(T0)}`, { mentions: T0.chave.flat().filter(Boolean) });
+            }
+            const comecar = async (T) => {
+              T.stage = 'luta';
+              let n = 4; while (n < T.jog.length) n *= 2;
+              const emb = [...T.jog].sort(() => Math.random() - 0.5);
+              while (emb.length < n) emb.push(null);
+              // espalha as folgas para ninguém pegar duas
+              T.chave = []; for (let i = 0; i < n / 2; i++) T.chave.push([emb[i], emb[n - 1 - i]]);
+              T.resultado = []; T.idx = 0;
+              await sockDU().sendMessage(from, { text: `🏟️ *O TORNEIO COMEÇOU!* (${T.jog.length} magos)\n🏆 Prêmio: ${T.premio} 💰\n\n*${rotuloRodada(T)}*\n${textoChave(T)}`, mentions: T.jog }).catch(() => { });
+              setTimeout(() => proximaPartida(T).catch(() => { }), 4000);
+            };
+            if (subT === 'entrar' || subT === 'participar') {
+              if (T0.stage !== 'inscricao') return reply('⌛ As inscrições já fecharam.');
+              if (T0.jog.some(j => idsMatch(j, sender))) return reply('✅ Você já está inscrito!');
+              if (T0.jog.length >= T0.vagas) return reply('🚫 Torneio lotado.');
+              T0.jog.push(sender);
+              await nazu.sendMessage(from, { text: `⚔️ ${nomeDU(sender)} entrou no torneio! (${T0.jog.length}/${T0.vagas})`, mentions: [sender] });
+              if (T0.jog.length >= T0.vagas) await comecar(T0);
+              return;
+            }
+            if (subT === 'sair') {
+              if (T0.stage !== 'inscricao') return reply('⌛ O torneio já começou. Para desistir de uma partida use ' + `${prefix}duelo desistir`);
+              const i = T0.jog.findIndex(j => idsMatch(j, sender));
+              if (i < 0) return reply('ℹ️ Você não está inscrito.');
+              T0.jog.splice(i, 1);
+              return reply(`🚪 Você saiu do torneio. (${T0.jog.length}/${T0.vagas})`);
+            }
+            if (subT === 'iniciar' || subT === 'comecar' || subT === 'começar') {
+              if (!ehAdmT && !idsMatch(sender, T0.by)) return reply('🚫 Só admins podem iniciar.');
+              if (T0.stage !== 'inscricao') return reply('⚔️ O torneio já está acontecendo.');
+              if (T0.jog.length < 3) return reply('👥 Precisa de pelo menos 3 inscritos.');
+              if (DU.get(from)) return reply('⏳ Espere o duelo que está acontecendo terminar.');
+              return comecar(T0);
+            }
+            return reply(`❓ Use ${cmdT} para ver os comandos do torneio.`);
+          }
+
+          // ---- ranking ----
+          if (subDU === 'rank' || subDU === 'ranking') {
+            const rk = Object.entries(readJsonX(fileRankDU, {})).sort((x, y) => y[1].v - x[1].v || x[1].d - y[1].d).slice(0, 10);
+            if (!rk.length) return reply(`📊 Ninguém duelou ainda. Desafie alguém: ${prefix}duelo @fulano`);
+            const med = ['🥇', '🥈', '🥉'];
+            return reply(`📊 *RANKING DE DUELOS*\n\n${rk.map(([n, r], i) => `${med[i] || `${i + 1}º`} @${n} — ${r.v} vitória(s) / ${r.d} derrota(s)`).join('\n')}`, { mentions: rk.map(([n]) => `${n}@s.whatsapp.net`) });
+          }
+          if (subDU === 'torneio') { args.shift(); return astaDuelo(true); }
+
+          const g0 = DU.get(from);
+          // ---- aceitar / recusar ----
+          if (subDU === 'aceitar' || subDU === 'recusar') {
+            if (!g0 || g0.stage !== 'convite' || (args[1] && args[1] !== g0.id)) return reply('ℹ️ Não tem nenhum desafio de duelo esperando aqui.');
+            if (!idsMatch(sender, g0.b)) return reply(`🚫 Só ${nomeDU(g0.b)} pode ${subDU} esse duelo.`, { mentions: [g0.b] });
+            clearTimeout(g0.timer);
+            if (subDU === 'recusar') { DU.delete(from); return nazu.sendMessage(from, { text: `🏳️ ${nomeDU(g0.b)} recusou o duelo de ${nomeDU(g0.a)}.`, mentions: [g0.a, g0.b] }); }
+            if (g0.bet) {
+              try {
+                const econ = loadEconomy();
+                if ((getEcoUser(econ, g0.a).wallet || 0) < g0.bet || (getEcoUser(econ, g0.b).wallet || 0) < g0.bet) { DU.delete(from); return reply(`💸 Alguém não tem ${g0.bet} 💰 na carteira para a aposta. Duelo cancelado.`); }
+              } catch { }
+            }
+            g0.stage = 'luta';
+            g0.grim = { a: sortearGrimorio(), b: sortearGrimorio() };
+            g0.turn = Math.random() < 0.5 ? 'a' : 'b';
+            g0.ultimo = `📖 Os grimórios foram abertos! ${nomeDU(g0[g0.turn])} começa.`;
+            return enviarTurno(g0);
+          }
+          // ---- ação do turno ----
+          if (subDU === 'acao' || ['ataque', 'magia', 'defesa', 'cura', 'desistir'].includes(subDU)) {
+            if (!g0 || g0.stage !== 'luta') return reply(`ℹ️ Não tem duelo acontecendo aqui. Desafie alguém: ${prefix}duelo @fulano`);
+            const acao = subDU === 'acao' ? String(args[2] || '').toLowerCase() : subDU;
+            if (subDU === 'acao' && args[1] && args[1] !== g0.id) return reply('⌛ Esse botão é de um duelo antigo.');
+            const souA = idsMatch(sender, g0.a), souB = idsMatch(sender, g0.b);
+            if (!souA && !souB) return reply('🚫 Você não está nesse duelo.');
+            if (acao === 'desistir') return encerrar(g0, souA ? 'b' : 'a', `🏳️ ${nomeDU(sender)} desistiu!`);
+            const eu = souA ? 'a' : 'b', ele = souA ? 'b' : 'a';
+            if (g0.turn !== eu) return reply(`⏳ Calma! É a vez de ${nomeDU(g0[g0.turn])}.`, { mentions: [g0[g0.turn]] });
+            const r = resolverAcao(acao, g0, eu, ele);
+            if (r.erro) return reply(r.erro);
+            g0.hp[ele] = Math.max(0, g0.hp[ele] - r.dano);
+            g0.hp[eu] = Math.min(100, g0.hp[eu] + r.cura);
+            g0.ultimo = r.texto;
+            if (g0.hp[ele] <= 0) return encerrar(g0, eu, `${r.texto}\n💀 ${nomeDU(g0[ele])} foi derrotado!`);
+            g0.turn = ele;
+            return enviarTurno(g0);
+          }
+          // ---- desafiar ----
+          const alvoDU = menc_os2;
+          if (!alvoDU) return reply(`⚔️ *DUELO DE MAGIA* (Black Clover)\n\n• ${prefix}duelo @fulano → desafia\n• ${prefix}duelo @fulano 100 → duelo apostando 100 💰\n• ${prefix}duelo rank → ranking\n• ${prefix}duelo torneio → torneio com chave (4, 8 ou 16)\n\nCada um recebe um *grimório* aleatório e, na sua vez, escolhe:\n🗡️ Ataque · ✨ Magia (forte, pode errar) · 🛡️ Defesa · 💚 Cura (2 vezes)\n\n🏆 Quem vence ganha +30 💰 (e a aposta).\n🧠 Duelo de perguntas: ${prefix}dueloquiz`);
+          if (idsMatch(alvoDU, sender)) return reply('🤨 Você não pode duelar com você mesmo.');
+          if (idsMatch(alvoDU, botNumber) || idsMatch(alvoDU, botNumberLid)) return reply('🤖 Eu sou o juiz, não posso duelar!');
+          if (g0 && (g0.stage === 'luta' || Date.now() - g0.created < 60_000)) return reply('⏳ Já tem um duelo acontecendo neste grupo. Espere terminar!');
+          if (TO.get(from)?.stage === 'luta') return reply('🏟️ Tem um torneio acontecendo neste grupo. Espere ele terminar!');
+          const betDU = Math.max(0, parseInt(args.find(x => /^\d+$/.test(x) && x.length < 9) || '0', 10) || 0);
+          if (betDU) {
+            try { if ((getEcoUser(loadEconomy(), sender).wallet || 0) < betDU) return reply(`💸 Você não tem ${betDU} 💰 na carteira.`); } catch { }
+          }
+          const gDU = { id: Math.random().toString(36).slice(2, 7), group: from, a: sender, b: alvoDU, bet: betDU, stage: 'convite', created: Date.now(), hp: { a: 100, b: 100 }, def: {}, curas: { a: 2, b: 2 }, nome: { a: pushname || nomeDU(sender), b: nomeDU(alvoDU) } };
+          gDU.timer = setTimeout(() => { if (DU.get(from) === gDU && gDU.stage === 'convite') { DU.delete(from); sockDU().sendMessage(from, { text: `⌛ ${nomeDU(alvoDU)} não respondeu. Duelo cancelado.`, mentions: [alvoDU] }).catch(() => { }); } }, 60_000);
+          DU.set(from, gDU);
+          const txtDesafio = `⚔️ *DESAFIO DE DUELO!*\n\n${nomeDU(sender)} desafiou ${nomeDU(alvoDU)} para um duelo de magia!${betDU ? `\n💰 Aposta: *${betDU}*` : ''}\n\n${nomeDU(alvoDU)}, você aceita? (60s)\n\nSe os botões não aparecerem: ${prefix}duelo aceitar · ${prefix}duelo recusar`;
+          try { await sendButtons(nazu, from, { text: txtDesafio, footer: '★彡 ASTA MD 彡★', mentions: [sender, alvoDU], buttons: [quickReply('⚔️ ACEITAR', `${prefix}duelo aceitar ${gDU.id}`), quickReply('🏳️ RECUSAR', `${prefix}duelo recusar ${gDU.id}`)] }); }
+          catch { await nazu.sendMessage(from, { text: txtDesafio, mentions: [sender, alvoDU] }, { quoted: info }); }
+      }
+      case 'duelo':
+      case 'duelomagia':
+        try { await astaDuelo(false); } catch (e) {
+          console.error('[DUELO] Erro:', e);
+          await reply('❌ Erro no duelo.');
+        }
+        break;
+      case 'torneiomagia':
+      case 'torneioduelo':
+        try { await astaDuelo(true); } catch (e) {
+          console.error('[TORNEIO] Erro:', e);
+          await reply('❌ Erro no torneio.');
+        }
+        break;
+
+      // ============================================================
+      // ===== ASTA MD v10.9.0: grupo, diversão, loja e registro =====
+      // ============================================================
+      async function astaFotoPerfil(jid) {
+        try {
+          const url = await (global.__nazunaSock || nazu).profilePictureUrl(jid, 'image');
+          if (!url) return null;
+          const { data } = await axios.get(url, { responseType: 'arraybuffer', timeout: 15_000 });
+          return Buffer.from(data);
+        } catch { return null; }
+      }
+      function astaSalvarGrupo() { try { fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2)); optimizer.invalidateGroup?.(from); } catch { } }
+
+      // ---------- LOJINHA (títulos, cores, escudo, bônus em dobro) ----------
+      async function astaLoja(forcado) {
+        const subL = String(forcado || args[0] || '').toLowerCase();
+        const restoL = forcado ? args : args.slice(1);
+        const dbL = plusRead('asta-loja.json');
+        const uL = PLUS.lojaUser(dbL, sender);
+        const econL = loadEconomy();
+        const meL = getEcoUser(econL, sender);
+        const agora = Date.now();
+        const hora = (t) => new Date(t).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        if (!subL || subL === 'ver') {
+          const tits = PLUS.LOJA_TITULOS.map(t => `${uL.titulos.includes(t.id) ? '✅' : '▫️'} *${t.id}.* ${t.nome} — ${t.preco} 💰`).join('\n');
+          const cores = Object.keys(PLUS.LOJA_CORES).map(c => `${uL.cores.includes(c) ? '✅' : '▫️'} ${c}`).join(' · ');
+          const status = [uL.escudoAte > agora ? `🛡️ Escudo até ${hora(uL.escudoAte)}` : '', uL.dobroAte > agora ? `⚡ Dobro até ${hora(uL.dobroAte)}` : ''].filter(Boolean).join('\n');
+          const txtL = `🛍️ *LOJINHA ASTA MD*\n💰 Sua carteira: *${meL.wallet || 0}*\n\n🏷️ *TÍTULOS* (aparecem no seu cartão)\n${tits}\n➜ ${prefix}lojinha comprar titulo 3\n\n🎨 *COR DO PERFIL* — ${PLUS.PRECO_COR} 💰 cada\n${cores}\n➜ ${prefix}lojinha comprar cor roxo\n\n🎁 *ITENS*\n🛡️ Escudo contra roubo (24h) — ${PLUS.LOJA_ITENS.escudo.preco} 💰\n⚡ Bônus em dobro de 💰 (1h) — ${PLUS.LOJA_ITENS.dobro.preco} 💰\n➜ ${prefix}lojinha comprar escudo · ${prefix}lojinha comprar dobro${status ? `\n\n📌 *Ativos:*\n${status}` : ''}\n\n🪪 Seu cartão: ${prefix}meuperfil`;
+          try { await sendButtons(nazu, from, { text: txtL, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('🛡️ ESCUDO 24H', `${prefix}lojinha comprar escudo`), quickReply('⚡ DOBRO 1H', `${prefix}lojinha comprar dobro`), quickReply('🪪 MEU PERFIL', `${prefix}meuperfil`)] }); }
+          catch { await reply(txtL); }
+          return;
+        }
+        if (subL !== 'comprar' && subL !== 'buy') return reply(`🛍️ Use ${prefix}lojinha para ver os itens.`);
+        const tipo = String(restoL[0] || '').toLowerCase();
+        const cobrar = (preco) => { if ((meL.wallet || 0) < preco) return false; meL.wallet -= preco; return true; };
+        const salvar = () => { saveEconomy(econL); plusWrite('asta-loja.json', dbL); };
+        if (tipo === 'titulo' || tipo === 'título') {
+          const t = PLUS.LOJA_TITULOS.find(x => x.id === parseInt(restoL[1], 10));
+          if (!t) return reply(`🏷️ Diga o número do título. Ex: ${prefix}lojinha comprar titulo 3`);
+          if (uL.titulos.includes(t.id)) { uL.titulo = t.id; plusWrite('asta-loja.json', dbL); return reply(`✅ Você já tinha esse título. Agora ele está *equipado*: ${t.nome}`); }
+          if (!cobrar(t.preco)) return reply(`💸 Faltam ${t.preco - (meL.wallet || 0)} 💰 para o título *${t.nome}*.`);
+          uL.titulos.push(t.id); uL.titulo = t.id; salvar();
+          return reply(`🏷️ Título comprado e equipado: *${t.nome}*!\n💰 Carteira: ${meL.wallet}\n\n🪪 Veja no ${prefix}meuperfil · troque com ${prefix}titulo`);
+        }
+        if (tipo === 'cor') {
+          const c = String(restoL[1] || '').toLowerCase();
+          if (!PLUS.LOJA_CORES[c]) return reply(`🎨 Cores: ${Object.keys(PLUS.LOJA_CORES).join(', ')}\nEx: ${prefix}lojinha comprar cor roxo`);
+          if (!uL.cores.includes(c)) { if (!cobrar(PLUS.PRECO_COR)) return reply(`💸 A cor custa ${PLUS.PRECO_COR} 💰.`); uL.cores.push(c); }
+          uL.cor = c; salvar();
+          return reply(`🎨 Cor *${c}* aplicada no seu perfil!\n🪪 ${prefix}meuperfil`);
+        }
+        if (tipo === 'escudo' || tipo === 'dobro') {
+          const it = PLUS.LOJA_ITENS[tipo];
+          if (!cobrar(it.preco)) return reply(`💸 ${it.nome} custa ${it.preco} 💰 e você tem ${meL.wallet || 0}.`);
+          const campo = tipo === 'escudo' ? 'escudoAte' : 'dobroAte';
+          uL[campo] = Math.max(agora, uL[campo] || 0) + it.horas * 3600e3; salvar();
+          return reply(`${it.nome} ativado até *${hora(uL[campo])}*!\n💰 Carteira: ${meL.wallet}${tipo === 'dobro' ? '\n\n⚡ Vale para: trabalhar, minerar, pescar, explorar, caçar, diário, duelos, torneio, forca, quem disse e adivinha.' : '\n\n🛡️ Ninguém consegue te roubar/assaltar enquanto ele estiver ativo.'}`);
+        }
+        return reply(`❓ O que você quer comprar? titulo, cor, escudo ou dobro.\nEx: ${prefix}lojinha comprar escudo`);
+      }
+      case 'lojinha':
+      case 'lojaasta':
+        try { await astaLoja(''); } catch (e) { console.error('[LOJINHA] Erro:', e); await reply('❌ Erro na lojinha.'); }
+        break;
+      case 'titulo':
+      case 'titulos':
+      case 'meutitulo':
+        try {
+          const dbT = plusRead('asta-loja.json'); const uT = PLUS.lojaUser(dbT, sender);
+          const n = String(args[0] || '').toLowerCase();
+          if (n === 'off' || n === 'tirar') { uT.titulo = null; plusWrite('asta-loja.json', dbT); return reply('✅ Título removido do seu perfil.'); }
+          const t = PLUS.LOJA_TITULOS.find(x => x.id === parseInt(n, 10));
+          if (t) {
+            if (!uT.titulos.includes(t.id)) return reply(`🔒 Você ainda não tem esse título. Compre na ${prefix}lojinha`);
+            uT.titulo = t.id; plusWrite('asta-loja.json', dbT); return reply(`🏷️ Título equipado: *${t.nome}*`);
+          }
+          const meus = PLUS.LOJA_TITULOS.filter(x => uT.titulos.includes(x.id));
+          return reply(`🏷️ *SEUS TÍTULOS*\n\n${meus.length ? meus.map(x => `${uT.titulo === x.id ? '👉' : '▫️'} ${x.id}. ${x.nome}`).join('\n') : 'Nenhum ainda.'}\n\n• ${prefix}titulo 3 → equipa\n• ${prefix}titulo off → tira\n🛍️ Mais títulos: ${prefix}lojinha`);
+        } catch (e) { console.error(e); await reply('❌ Erro nos títulos.'); }
+        break;
+      case 'corperfil':
+        try {
+          const dbC = plusRead('asta-loja.json'); const uC = PLUS.lojaUser(dbC, sender);
+          const c = String(args[0] || '').toLowerCase();
+          if (c && uC.cores.includes(c)) { uC.cor = c; plusWrite('asta-loja.json', dbC); return reply(`🎨 Cor *${c}* aplicada!`); }
+          return reply(`🎨 *Suas cores:* ${uC.cores.join(', ') || 'nenhuma'}\n• ${prefix}corperfil roxo → aplica\n🛍️ Comprar: ${prefix}lojinha comprar cor <cor>`);
+        } catch (e) { console.error(e); }
+        break;
+      case 'meuperfil':
+      case 'cartao':
+      case 'cartão':
+        try {
+          const alvoMP = menc_os2 || sender;
+          const bMP = PLUS.baseNum(alvoMP);
+          const uMP = plusRead('asta-loja.json')[bMP] || {};
+          const ecoMP = getEcoUser(loadEconomy(), alvoMP);
+          const petMP = plusRead('pets.json')[bMP];
+          const regMP = plusRead('registros.json', { users: {} }).users?.[bMP];
+          let parMP = null; try { parMP = relationshipManager.getActivePairForUser(alvoMP); } catch { }
+          const nomeMP = regMP?.nome || (alvoMP === sender ? pushname : '') || bMP;
+          const tituloMP = PLUS.LOJA_TITULOS.find(x => x.id === uMP.titulo)?.nome || '';
+          const linhas = [['Carteira', `${ecoMP.wallet || 0}`], ['Banco', `${ecoMP.bank || 0}`]];
+          if (petMP) linhas.push(['Pet', `${petMP.nome} (${PLUS.petEstagio(petMP.xp || 0).nome})`]);
+          if (parMP?.pair?.status) linhas.push([parMP.pair.status === 'casamento' ? 'Casado(a) com' : parMP.pair.status === 'namoro' ? 'Namorando' : 'Ficando com', `+${PLUS.baseNum(parMP.partnerId)}`]);
+          if (regMP) linhas.push(['Registro', `nº ${String(regMP.n).padStart(4, '0')}`]);
+          if ((uMP.escudoAte || 0) > Date.now()) linhas.push(['Escudo', 'ativo']);
+          const imgMP = await PLUS.cartaoPerfil({ foto: await astaFotoPerfil(alvoMP), nome: nomeMP, titulo: tituloMP, cor: uMP.cor || 'vermelho', linhas, rodape: nomebot });
+          await nazu.sendMessage(from, { image: imgMP, caption: `🪪 Perfil de @${bMP}${tituloMP ? `\n🏷️ ${tituloMP}` : ''}\n\n🛍️ Títulos e cores: ${prefix}lojinha`, mentions: [alvoMP] }, { quoted: info });
+        } catch (e) { console.error('[MEUPERFIL] Erro:', e); await reply('❌ Não consegui montar o cartão.'); }
+        break;
+
+      // ---------- INATIVOS ----------
+      case 'inativos':
+      case 'inativo':
+        try {
+          if (!isGroup) return reply('❌ Use num grupo.');
+          const admIN = isOwner || idInArray(sender, groupAdmins);
+          if (!admIN) return reply('🚫 Só admins podem ver e remover os inativos.');
+          if (!global.__astaInativos) global.__astaInativos = new Map();
+          const PIN = global.__astaInativos;
+          const subIN = String(args[0] || '').toLowerCase();
+          if (['cancelar', 'recusar'].includes(subIN)) { PIN.delete(from); return reply('❌ Remoção dos inativos cancelada.'); }
+          if (subIN === 'confirmar') {
+            const p = PIN.get(from);
+            if (!p || Date.now() > p.expires || (args[1] && args[1] !== p.token)) { PIN.delete(from); return reply(`ℹ️ Não tem remoção esperando (ou ela expirou). Use ${prefix}inativos de novo.`); }
+            if (!isBotAdmin) return reply('❌ Eu preciso ser *administrador* para remover.');
+            PIN.delete(from);
+            const metaIN = await nazu.groupMetadata(from).catch(() => groupMetadata);
+            const agoraIds = new Set((metaIN?.participants || []).filter(x => !x.admin).map(x => x.id));
+            const alvos = p.alvos.filter(id => agoraIds.has(id));
+            if (!alvos.length) return reply('ℹ️ Os inativos da lista já saíram do grupo.');
+            await nazu.sendMessage(from, { text: `🧹 Removendo *${alvos.length}* inativo(s)... (confirmado por @${sender.split('@')[0]})`, mentions: [sender] }, { quoted: info });
+            let okIN = 0, flIN = 0;
+            for (let i = 0; i < alvos.length; i += 5) {
+              const lote = alvos.slice(i, i + 5);
+              try { const r = await nazu.groupParticipantsUpdate(from, lote, 'remove'); const res = Array.isArray(r) ? r : []; const o = res.length ? res.filter(x => String(x?.status || '200') === '200').length : lote.length; okIN += o; flIN += lote.length - o; }
+              catch (e) { flIN += lote.length; if (/rate|429/i.test(e?.message || '')) await new Promise(r => setTimeout(r, 8000)); }
+              await new Promise(r => setTimeout(r, 1500 + Math.floor(Math.random() * 800)));
+            }
+            return reply(`✅ *Inativos removidos:* ${okIN}${flIN ? `\n⚠️ Não consegui remover: ${flIN}` : ''}`);
+          }
+          const diasIN = Math.max(1, Math.min(365, parseInt(subIN, 10) || 7));
+          const lim = Date.now() - diasIN * 864e5;
+          const cont = Array.isArray(groupData.contador) ? groupData.contador : [];
+          const ult = new Map(); let desde = Date.now();
+          for (const c of cont) {
+            const b = PLUS.baseNum(c.id); const la = Date.parse(c.lastActivity || '') || 0;
+            if (la > (ult.get(b) || 0)) ult.set(b, la);
+            const fs0 = Date.parse(c.firstSeen || c.lastActivity || '') || Date.now(); if (fs0 < desde) desde = fs0;
+          }
+          const contandoDias = Math.floor((Date.now() - desde) / 864e5);
+          const lista = [];
+          for (const x of (groupMetadata?.participants || [])) {
+            if (x.admin) continue;
+            const alt = extractParticipantId(x);
+            if ([x.id, alt].some(id => idsMatch(id, botNumber) || idsMatch(id, botNumberLid) || idsMatch(id, nmrdn))) continue;
+            const la = Math.max(ult.get(PLUS.baseNum(x.id)) || 0, ult.get(PLUS.baseNum(alt)) || 0, ult.get(PLUS.baseNum(x.phoneNumber)) || 0);
+            if (la) { if (la < lim) lista.push({ id: x.id, la }); }
+            else if (desde < lim) lista.push({ id: x.id, la: 0 });
+          }
+          lista.sort((a, b) => a.la - b.la);
+          if (!lista.length) return reply(`🎉 Ninguém está inativo há mais de *${diasIN} dia(s)*!${contandoDias < diasIN ? `\n\nℹ️ Eu comecei a contar as mensagens deste grupo há ${contandoDias} dia(s), então quem nunca falou só entra na lista depois de ${diasIN} dias.` : ''}`);
+          const tok = Math.random().toString(36).slice(2, 8);
+          PIN.set(from, { token: tok, alvos: lista.map(x => x.id), expires: Date.now() + 3 * 60_000 });
+          const mostra = lista.slice(0, 60);
+          const txtIN = `😴 *INATIVOS* (sem mandar mensagem há ${diasIN}+ dia(s))\n\n${mostra.map((x, i) => `${i + 1}. @${x.id.split('@')[0]} — ${x.la ? `há ${Math.floor((Date.now() - x.la) / 864e5)} dia(s)` : 'nunca falou'}`).join('\n')}${lista.length > mostra.length ? `\n... e mais ${lista.length - mostra.length}` : ''}\n\n👥 Total: *${lista.length}*\n🛡️ Admins, o bot e o dono não entram na lista.\n\n${isBotAdmin ? `👮 Só *admins* podem confirmar a remoção (3 min).\nSem botões: ${prefix}inativos confirmar · ${prefix}inativos cancelar` : '⚠️ Me dê admin para eu poder remover.'}\n💡 Outro prazo: ${prefix}inativos 30`;
+          if (isBotAdmin) {
+            try { await sendButtons(nazu, from, { text: txtIN, footer: '★彡 ASTA MD 彡★', mentions: mostra.map(x => x.id), buttons: [quickReply(`🧹 REMOVER ${lista.length} INATIVOS`, `${prefix}inativos confirmar ${tok}`), quickReply('❌ CANCELAR', `${prefix}inativos cancelar`)] }); return; } catch { }
+          }
+          await nazu.sendMessage(from, { text: txtIN, mentions: mostra.map(x => x.id) }, { quoted: info });
+        } catch (e) { console.error('[INATIVOS] Erro:', e); await reply('❌ Erro ao listar os inativos.'); }
+        break;
+
+      // ---------- REGRAS COM ACEITE ----------
+      case 'regrasaceite':
+      case 'aceiteregras':
+        try {
+          if (!isGroup) return reply('❌ Use num grupo.');
+          if (!isGroupAdmin) return reply('🚫 Só admins.');
+          const vRA = String(args[0] || '').toLowerCase();
+          if (['on', 'ligar', 'ativar'].includes(vRA)) { groupData.regrasAceite = true; astaSalvarGrupo(); return reply(`✅ *Regras com aceite LIGADO!*\n\nQuem entrar a partir de agora recebe as regras com o botão *✅ LI E ACEITO*.\nAté tocar, as mensagens dele são apagadas.\n\n📜 Regras atuais: ${(groupData.rules || []).length || 'nenhuma (vou usar regras padrão)'}\n➕ ${prefix}addregra <texto>${isBotAdmin ? '' : '\n⚠️ Preciso ser admin para apagar as mensagens.'}`); }
+          if (['off', 'desligar', 'desativar'].includes(vRA)) { groupData.regrasAceite = false; astaSalvarGrupo(); const dbR = plusRead('regras-aceite.json'); delete dbR[from]; plusWrite('regras-aceite.json', dbR); return reply('✅ Regras com aceite desligado.'); }
+          const pend = Object.keys(plusRead('regras-aceite.json')[from] || {}).length;
+          return reply(`📜 *REGRAS COM ACEITE:* ${groupData.regrasAceite ? 'LIGADO' : 'DESLIGADO'}\n⏳ Esperando aceitar: ${pend}\n\n• ${prefix}regrasaceite on/off\n• ${prefix}addregra <texto> → adiciona regra\n• ${prefix}regras → mostra as regras`);
+        } catch (e) { console.error(e); await reply('❌ Erro.'); }
+        break;
+      case 'aceitoregras':
+      case 'aceitarregras':
+      case 'liaceito':
+        try {
+          if (!isGroup) return;
+          const dbA = plusRead('regras-aceite.json');
+          const bA = PLUS.baseNum(sender);
+          if (!dbA[from]?.[bA]) return reply('✅ Você já pode conversar normalmente!');
+          delete dbA[from][bA]; plusWrite('regras-aceite.json', dbA);
+          await nazu.sendMessage(from, { text: `✅ Obrigado, @${sender.split('@')[0]}! Regras aceitas, agora você pode conversar. 👋`, mentions: [sender] });
+        } catch (e) { console.error(e); }
+        break;
+
+      // ---------- ANTILINK INTELIGENTE ----------
+      case 'antilinkpro':
+      case 'antilinkinteligente':
+        try {
+          if (!isGroup) return reply('❌ Use num grupo.');
+          if (!isGroupAdmin) return reply('🚫 Só admins.');
+          const vAL = String(args[0] || '').toLowerCase();
+          if (['on', 'ligar', 'ativar'].includes(vAL)) { groupData.antilinkPro = true; astaSalvarGrupo(); }
+          else if (['off', 'desligar', 'desativar'].includes(vAL)) { groupData.antilinkPro = false; astaSalvarGrupo(); }
+          const lst = groupData.linksPermitidos || [];
+          return reply(`🔗 *ANTILINK INTELIGENTE:* ${groupData.antilinkPro ? 'LIGADO' : 'DESLIGADO'}\n\nApaga links de sites que *não* estão liberados (3 advertências = remoção).\n\n✅ *Liberados:* ${lst.length ? lst.join(', ') : 'nenhum (todos os links são apagados)'}\n\n• ${prefix}antilinkpro on/off\n• ${prefix}linkspermitidos add youtube tiktok site.com\n• ${prefix}linkspermitidos rm tiktok\n• ${prefix}linkspermitidos limpar\n\n💡 A lista também vale para o antilinkhard e o antilinksoft.${isBotAdmin ? '' : '\n⚠️ Preciso ser admin para apagar as mensagens.'}`);
+        } catch (e) { console.error(e); await reply('❌ Erro.'); }
+        break;
+      case 'linkspermitidos':
+      case 'sitespermitidos':
+      case 'liberarlink':
+        try {
+          if (!isGroup) return reply('❌ Use num grupo.');
+          if (!isGroupAdmin) return reply('🚫 Só admins.');
+          const subLP = String(args[0] || '').toLowerCase();
+          groupData.linksPermitidos = Array.isArray(groupData.linksPermitidos) ? groupData.linksPermitidos : [];
+          if (['add', 'adicionar', 'liberar', '+'].includes(subLP)) {
+            const novos = args.slice(1).flatMap(PLUS.normalizarDominio);
+            if (!novos.length) return reply(`💡 Ex: ${prefix}linkspermitidos add youtube tiktok meusite.com.br\nAtalhos: ${Object.keys(PLUS.LINK_PRESETS).join(', ')}`);
+            groupData.linksPermitidos = [...new Set([...groupData.linksPermitidos, ...novos])]; astaSalvarGrupo();
+            return reply(`✅ Liberados: ${novos.join(', ')}\n\n📋 Lista: ${groupData.linksPermitidos.join(', ')}${groupData.antilinkPro ? '' : `\n\n💡 Ligue o filtro: ${prefix}antilinkpro on`}`);
+          }
+          if (['rm', 'remover', 'del', 'tirar', '-'].includes(subLP)) {
+            const tira = args.slice(1).flatMap(PLUS.normalizarDominio);
+            groupData.linksPermitidos = groupData.linksPermitidos.filter(d => !tira.includes(d)); astaSalvarGrupo();
+            return reply(`✅ Removidos. 📋 Lista: ${groupData.linksPermitidos.join(', ') || 'vazia'}`);
+          }
+          if (['limpar', 'zerar'].includes(subLP)) { groupData.linksPermitidos = []; astaSalvarGrupo(); return reply('✅ Lista de sites liberados apagada.'); }
+          return reply(`📋 *Sites liberados:* ${groupData.linksPermitidos.join(', ') || 'nenhum'}\n\n• ${prefix}${command} add youtube instagram site.com\n• ${prefix}${command} rm youtube\n• ${prefix}${command} limpar\n🔗 Atalhos: ${Object.keys(PLUS.LINK_PRESETS).join(', ')}`);
+        } catch (e) { console.error(e); await reply('❌ Erro.'); }
+        break;
+
+      // ---------- MODO NOTURNO ----------
+      case 'modonoturno':
+      case 'noturno':
+        try {
+          if (!isGroup) return reply('❌ Use num grupo.');
+          if (!isGroupAdmin) return reply('🚫 Só admins.');
+          const fMN = pathz.join(GRUPOS_DIR, `${from}.json`);
+          const dMN = fs.existsSync(fMN) ? JSON.parse(fs.readFileSync(fMN, 'utf-8')) : {};
+          dMN.schedule = dMN.schedule || {};
+          const vMN = String(args[0] || '').toLowerCase();
+          if (['off', 'desligar', 'desativar'].includes(vMN)) {
+            delete dMN.schedule.noturno; delete dMN.schedule.openTime; delete dMN.schedule.closeTime;
+            writeJsonFile(fMN, dMN);
+            try { unscheduleGroupJob(from, 'open'); unscheduleGroupJob(from, 'close'); } catch { }
+            return reply('✅ Modo noturno desligado (o grupo não abre nem fecha mais sozinho).');
+          }
+          const hMN = String(q || '').match(/(\d{1,2})[:h](\d{2})\s+(\d{1,2})[:h](\d{2})/);
+          if (!hMN) {
+            const n0 = dMN.schedule.noturno;
+            return reply(`🌙 *MODO NOTURNO:* ${n0 ? `LIGADO — fecha ${dMN.schedule.closeTime}, abre ${dMN.schedule.openTime}` : 'DESLIGADO'}\n\nO grupo fecha e abre sozinho todo dia, com mensagem de boa noite e de bom dia.\n\n• ${prefix}modonoturno 23:00 07:00\n• ${prefix}modonoturno 23:00 07:00 | Boa noite, galera! | Bom dia, magos!\n• ${prefix}modonoturno off`);
+          }
+          const [, h1, m1, h2, m2] = hMN.map(Number);
+          if (h1 > 23 || h2 > 23 || m1 > 59 || m2 > 59) return reply('❌ Horário inválido.');
+          const fecha = `${String(h1).padStart(2, '0')}:${String(m1).padStart(2, '0')}`, abre = `${String(h2).padStart(2, '0')}:${String(m2).padStart(2, '0')}`;
+          if (fecha === abre) return reply('❌ O horário de fechar e de abrir precisam ser diferentes.');
+          const partes = String(q).split('|').map(x => x.trim());
+          dMN.schedule.closeTime = fecha; dMN.schedule.openTime = abre;
+          dMN.schedule.noturno = { noite: partes[1] || '', dia: partes[2] || '' };
+          if (dMN.schedule.lastRun) { delete dMN.schedule.lastRun.open; delete dMN.schedule.lastRun.close; }
+          writeJsonFile(fMN, dMN);
+          try { scheduleGroupJob(from, 'close', fecha, nazu); scheduleGroupJob(from, 'open', abre, nazu); } catch (e) { console.error('[MODONOTURNO] agendar:', e); }
+          await reply(`🌙 *Modo noturno ligado!*\n\n🔒 Fecha todo dia às *${fecha}* com "boa noite"\n🔓 Abre todo dia às *${abre}* com "bom dia"\n(horário de São Paulo)${isBotAdmin ? '' : '\n\n⚠️ Preciso ser admin para fechar e abrir o grupo.'}`);
+        } catch (e) { console.error('[MODONOTURNO] Erro:', e); await reply('❌ Erro ao salvar o modo noturno.'); }
+        break;
+
+      // ---------- FORCA DE ANIME ----------
+      case 'forcaanime':
+      case 'forcanime':
+        try {
+          if (!isGroup) return reply('🎌 A forca funciona em grupos.');
+          if (!global.__astaForca) global.__astaForca = new Map();
+          const FO = global.__astaForca;
+          const jogoF = FO.get(from);
+          const subF = String(args[0] || '').toLowerCase();
+          if (subF === 'parar') {
+            if (!jogoF) return reply('ℹ️ Não tem forca acontecendo.');
+            clearTimeout(jogoF.timer); FO.delete(from);
+            return reply(`🛑 Forca parada. A resposta era: *${jogoF.palavra.toUpperCase()}*`);
+          }
+          if (subF === 'letra' || subF === 'chutar') {
+            if (!jogoF || (args[2] && args[2] !== jogoF.id)) return reply(`ℹ️ Não tem forca acontecendo. Comece: ${prefix}forcaanime`);
+            await astaForcaJogar(nazu, from, sender, subF === 'letra' ? String(args[1] || '') : args.slice(1).join(' '), prefix, subF === 'chutar');
+            return;
+          }
+          if (jogoF) return astaForcaMostrar(nazu, from, prefix);
+          const { palavra, dica } = PLUS.sortearForca();
+          FO.set(from, { id: Math.random().toString(36).slice(2, 7), palavra, dica, letras: new Set(), erros: [], by: sender, start: Date.now() });
+          await astaForcaMostrar(nazu, from, prefix, '🎌 *FORCA DE ANIME COMEÇOU!*');
+        } catch (e) { console.error('[FORCA] Erro:', e); await reply('❌ Erro na forca.'); }
+        break;
+
+      // ---------- QUEM DISSE? ----------
+      case 'quemdisse':
+      case 'quemfoi':
+        try {
+          if (!isGroup) return reply('🗣️ Funciona em grupos.');
+          if (!global.__astaQDJogo) global.__astaQDJogo = new Map();
+          const QJ = global.__astaQDJogo;
+          const subQ = String(args[0] || '').toLowerCase();
+          if (subQ === 'r') {
+            const jq = QJ.get(from);
+            if (!jq || jq.id !== args[1]) return reply('⌛ Essa rodada já acabou.');
+            const bQ = PLUS.baseNum(sender);
+            if (jq.tentou.has(bQ)) return reply('🙊 Você já chutou nessa rodada!');
+            jq.tentou.add(bQ);
+            const opc = jq.opcoes[parseInt(args[2], 10)];
+            if (!opc) return;
+            if (opc.j !== jq.autor) return nazu.sendMessage(from, { text: `❌ @${bQ} errou! Não foi ${opc.n}.`, mentions: [sender] });
+            clearTimeout(jq.timer); QJ.delete(from);
+            let premioQ = 40;
+            try { const econ = loadEconomy(); const u = getEcoUser(econ, sender); premioQ = comDobro(sender, 40); u.wallet = (u.wallet || 0) + premioQ; saveEconomy(econ); } catch { }
+            return nazu.sendMessage(from, { text: `🎉 @${bQ} acertou!\n\n🗣️ "${jq.frase}"\n✍️ Quem disse foi @${jq.autor.split('@')[0]}\n🏆 +${premioQ} 💰\n\n▶️ ${prefix}quemdisse para outra`, mentions: [sender, jq.autor] });
+          }
+          if (QJ.get(from)) return reply('⏳ Já tem uma rodada acontecendo! Toque no nome de quem você acha que disse.');
+          const todasQD = astaQDPool(from);
+          const autoresPorFrase = new Map();
+          for (const m of todasQD) { const k = PLUS.semAcento(m.t); if (!autoresPorFrase.has(k)) autoresPorFrase.set(k, new Set()); autoresPorFrase.get(k).add(m.j); }
+          // só frases que UMA pessoa mandou (senão teria mais de uma resposta certa)
+          const pool = todasQD.filter(m => Date.now() - m.at > 2 * 60_000 && autoresPorFrase.get(PLUS.semAcento(m.t)).size === 1);
+          const autores = [...new Map(pool.map(m => [m.j, m.n])).entries()];
+          if (pool.length < 5 || autores.length < 3) return reply('🗣️ Ainda não tenho mensagens suficientes deste grupo. Conversem mais um pouco e tentem de novo! (preciso de frases de pelo menos 3 pessoas)');
+          const esc = pool[Math.floor(Math.random() * pool.length)];
+          const outros = autores.filter(([j]) => j !== esc.j).sort(() => Math.random() - 0.5).slice(0, 3);
+          const opcoes = [[esc.j, esc.n], ...outros].map(([j, n]) => ({ j, n: PLUS.limparTexto(n, 20) || `+${PLUS.baseNum(j)}` })).sort(() => Math.random() - 0.5);
+          const jq = { id: Math.random().toString(36).slice(2, 7), autor: esc.j, frase: esc.t, opcoes, tentou: new Set() };
+          QJ.set(from, jq);
+          jq.timer = setTimeout(() => { if (QJ.get(from) === jq) { QJ.delete(from); (global.__nazunaSock || nazu).sendMessage(from, { text: `⌛ Ninguém acertou!\n\n🗣️ "${jq.frase}"\n✍️ Foi @${jq.autor.split('@')[0]}`, mentions: [jq.autor] }).catch(() => { }); } }, 45_000);
+          const txtQ = `🗣️ *QUEM DISSE?*\n\n"${esc.t}"\n\n${opcoes.map((o, i) => `${'ABCD'[i]}) ${o.n}`).join('\n')}\n\n⏳ 45 segundos · cada um tem 1 chute · 🏆 +40 💰`;
+          try { await sendButtons(nazu, from, { text: txtQ, footer: '★彡 ASTA MD 彡★', buttons: opcoes.map((o, i) => quickReply(`${'ABCD'[i]}) ${o.n}`.slice(0, 24), `${prefix}quemdisse r ${jq.id} ${i}`)) }); }
+          catch { await reply(txtQ + `\n\nSem botões: ${prefix}quemdisse r ${jq.id} <0-3>`); }
+        } catch (e) { console.error('[QUEMDISSE] Erro:', e); await reply('❌ Erro no quem disse.'); }
+        break;
+
+      // ---------- PET VIRTUAL ----------
+      case 'pet':
+      case 'meupet':
+        try {
+          const dbP = plusRead('pets.json');
+          const bP = PLUS.baseNum(sender);
+          let pet = dbP[bP];
+          const subP = String(args[0] || '').toLowerCase();
+          const salvarP = () => plusWrite('pets.json', dbP);
+          if (pet) {
+            const t = PLUS.petTick(pet);
+            if (t.fugiu) { delete dbP[bP]; salvarP(); return reply(`💨 *${pet.nome}* fugiu... 😢\nEle ficou mais de um dia com fome e triste, sem ninguém cuidar.\n\n🥚 Adote outro: ${prefix}pet adotar <nome>`); }
+          }
+          if (subP === 'rank' || subP === 'ranking') {
+            const rk = Object.entries(dbP).sort((a, b) => (b[1].xp || 0) - (a[1].xp || 0)).slice(0, 10);
+            if (!rk.length) return reply('🐾 Ninguém tem pet ainda.');
+            return reply(`🐾 *RANKING DE PETS*\n\n${rk.map(([n, p], i) => `${['🥇', '🥈', '🥉'][i] || `${i + 1}º`} ${p.e} *${p.nome}* (${PLUS.petEstagio(p.xp || 0).nome}) — ${p.xp || 0} XP · @${n}`).join('\n')}`, { mentions: rk.map(([n, p]) => p.jid || `${n}@s.whatsapp.net`) });
+          }
+          if (subP === 'adotar') {
+            if (pet) return reply(`🐾 Você já tem o *${pet.nome}*! Cuide bem dele.`);
+            const esp = PLUS.PET_ESPECIES[Math.floor(Math.random() * PLUS.PET_ESPECIES.length)];
+            const nomeP = PLUS.limparTexto(args.slice(1).join(' '), 20) || esp.nome;
+            pet = dbP[bP] = { jid: sender, especie: esp.id, e: esp.e, elem: esp.elem, nome: nomeP, xp: 0, fome: 80, feliz: 80, energia: 100, tick: Date.now(), nasceu: Date.now(), cd: {} };
+            salvarP();
+            return reply(`🥚✨ O ovo chocou!\n\n${esp.e} Você adotou um espírito de *${esp.elem}*: *${nomeP}* (${esp.nome})\n\nCuide dele: ${prefix}pet alimentar · ${prefix}pet brincar · ${prefix}pet treinar\n⚠️ Se ele ficar mais de um dia com fome e triste, ele *foge*!`);
+          }
+          if (!pet) {
+            const txtA = `🐾 *PET VIRTUAL* (espíritos de Black Clover)\n\nVocê ainda não tem um pet.\n🥚 ${prefix}pet adotar <nome>\n\nEle pode ser: ${PLUS.PET_ESPECIES.map(e => `${e.e} ${e.nome}`).join(', ')}.\nAlimente, brinque e treine para ele evoluir: Filhote → Jovem → Adulto → Espírito Lendário.`;
+            try { await sendButtons(nazu, from, { text: txtA, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('🥚 ADOTAR', `${prefix}pet adotar`)] }); } catch { await reply(txtA); }
+            return;
+          }
+          const est0 = PLUS.petEstagio(pet.xp || 0).nome;
+          const cdOk = (k, min) => { const f = (pet.cd?.[k] || 0) + min * 60_000 - Date.now(); return f <= 0 ? 0 : Math.ceil(f / 60_000); };
+          let acaoTxt = '';
+          if (subP === 'alimentar' || subP === 'comer') {
+            const w = cdOk('comer', 15); if (w) return reply(`🍖 ${pet.nome} ainda está cheio. Volte em ${w} min.`);
+            const econ = loadEconomy(); const u = getEcoUser(econ, sender);
+            if ((u.wallet || 0) < 20) return reply('💸 A comida custa 20 💰.');
+            u.wallet -= 20; saveEconomy(econ);
+            pet.fome = Math.min(100, pet.fome + 35); pet.xp = (pet.xp || 0) + 10; pet.cd.comer = Date.now();
+            acaoTxt = `🍖 ${pet.nome} comeu tudo! (+35 fome, +10 XP, -20 💰)`;
+          } else if (subP === 'brincar') {
+            const w = cdOk('brincar', 10); if (w) return reply(`🎾 ${pet.nome} está cansado de brincar. Volte em ${w} min.`);
+            if (pet.energia < 15) return reply(`😴 ${pet.nome} está sem energia. Deixe ele descansar.`);
+            pet.feliz = Math.min(100, pet.feliz + 30); pet.energia -= 15; pet.xp = (pet.xp || 0) + 15; pet.cd.brincar = Date.now();
+            acaoTxt = `🎾 Vocês brincaram muito! (+30 felicidade, +15 XP)`;
+          } else if (subP === 'treinar') {
+            const w = cdOk('treinar', 30); if (w) return reply(`💪 ${pet.nome} ainda está se recuperando. Volte em ${w} min.`);
+            if (pet.energia < 30) return reply(`😴 ${pet.nome} precisa de pelo menos 30% de energia.`);
+            if (pet.fome < 20) return reply(`🍖 ${pet.nome} está com fome demais para treinar.`);
+            const ganho = 25 + Math.floor(Math.random() * 16);
+            pet.energia -= 30; pet.fome = Math.max(0, pet.fome - 10); pet.xp = (pet.xp || 0) + ganho; pet.cd.treinar = Date.now();
+            acaoTxt = `💪 Treino de magia ${pet.e}! (+${ganho} XP)`;
+          } else if (subP === 'nome') {
+            const n = PLUS.limparTexto(args.slice(1).join(' '), 20); if (!n) return reply(`✏️ Ex: ${prefix}pet nome Nero`);
+            pet.nome = n; acaoTxt = `✏️ Agora ele se chama *${n}*!`;
+          } else if (subP === 'soltar' || subP === 'abandonar') {
+            if (args[1] !== 'confirmar') return reply(`⚠️ Tem certeza? ${pet.nome} vai embora para sempre.\nConfirme: ${prefix}pet soltar confirmar`);
+            delete dbP[bP]; salvarP(); return reply(`🕊️ Você soltou ${pet.nome}. Ele voltou para a natureza.`);
+          }
+          salvarP();
+          const est = PLUS.petEstagio(pet.xp || 0); const prox = PLUS.proximoEstagio(pet.xp || 0);
+          const evo = est.nome !== est0 ? `\n\n🎉✨ *${pet.nome} EVOLUIU para ${est.nome}!* ✨🎉` : '';
+          const humor = pet.fome < 25 ? '😫 com fome' : pet.feliz < 25 ? '😢 triste' : pet.energia < 20 ? '😴 cansado' : '😄 feliz';
+          const txtP = `${acaoTxt ? acaoTxt + evo + '\n\n' : ''}${pet.e} *${pet.nome}* — ${PLUS.PET_ESPECIES.find(e => e.id === pet.especie)?.nome || ''} de ${pet.elem}\n🌟 ${est.nome} · ${pet.xp || 0} XP${prox ? ` (faltam ${prox.xp - (pet.xp || 0)} para ${prox.nome})` : ' (nível máximo!)'}\n💭 Está ${humor}\n\n🍖 Fome      ${PLUS.barra(pet.fome)}\n💖 Felicidade ${PLUS.barra(pet.feliz)}\n⚡ Energia    ${PLUS.barra(pet.energia)}\n\n${prefix}pet alimentar (20 💰) · brincar · treinar · nome · rank`;
+          try { await sendButtons(nazu, from, { text: txtP, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('🍖 ALIMENTAR', `${prefix}pet alimentar`), quickReply('🎾 BRINCAR', `${prefix}pet brincar`), quickReply('💪 TREINAR', `${prefix}pet treinar`)] }); }
+          catch { await reply(txtP); }
+        } catch (e) { console.error('[PET] Erro:', e); await reply('❌ Erro no pet.'); }
+        break;
+
+      // ---------- CARTÃO DE BOAS-VINDAS ----------
+      case 'bvcard':
+      case 'cartaobv':
+      case 'bvimagem':
+        try {
+          if (!isGroup) return reply('❌ Use num grupo.');
+          if (!isGroupAdmin) return reply('🚫 Só admins.');
+          const vBC = String(args[0] || '').toLowerCase();
+          const temas = Object.entries(PLUS.TEMAS_BV).map(([k, t]) => `• ${k} — ${t.nome}`).join('\n');
+          if (['off', 'desligar'].includes(vBC)) { groupData.bvCard = false; astaSalvarGrupo(); return reply('✅ Cartão de boas-vindas desligado.'); }
+          if (['on', 'ligar', 'tema'].includes(vBC)) {
+            const tema = String(args[1] || groupData.bvCard || 'asta').toLowerCase();
+            if (!PLUS.TEMAS_BV[tema]) return reply(`🎨 Temas:\n${temas}`);
+            groupData.bvCard = tema; astaSalvarGrupo();
+            await reply(`✅ Cartão de boas-vindas *ligado* (tema *${tema}*)! Veja como fica:`);
+          } else if (vBC !== 'teste' && vBC !== 'ver') {
+            return reply(`🖼️ *CARTÃO DE BOAS-VINDAS:* ${groupData.bvCard ? `LIGADO (tema ${groupData.bvCard})` : 'DESLIGADO'}\n\nQuem entrar recebe um cartão com a foto de perfil, o nome e o número do membro.\n\n• ${prefix}bvcard on [tema]\n• ${prefix}bvcard tema roxo\n• ${prefix}bvcard teste\n• ${prefix}bvcard off\n\n🎨 Temas:\n${temas}\n\n💡 Pode usar junto com o ${prefix}bemvindo ou sozinho.`);
+          }
+          const img = await PLUS.cartaoBoasVindas({ foto: await astaFotoPerfil(sender), nome: pushname || sender.split('@')[0], grupo: groupName, numero: groupMetadata?.participants?.length || 1, tema: String(groupData.bvCard || args[1] || 'asta') });
+          await nazu.sendMessage(from, { image: img, caption: `👋 Bem-vindo(a), @${sender.split('@')[0]}! (prévia)`, mentions: [sender] }, { quoted: info });
+        } catch (e) { console.error('[BVCARD] Erro:', e); await reply('❌ Erro no cartão de boas-vindas.'); }
+        break;
+
+      // ---------- REGISTRO NO PRIVADO ----------
+      case 'registrar':
+      case 'registro':
+      case 'reg':
+        try {
+          const dbR = plusRead('registros.json', { seq: 0, users: {} });
+          const bR = PLUS.baseNum(sender);
+          if (!global.__astaRegFlow) global.__astaRegFlow = new Map();
+          const FL = global.__astaRegFlow;
+          const ja = dbR.users?.[bR];
+          const subR = String(args[0] || '').toLowerCase();
+          if (ja) return reply(`✅ Você já é registrado!\n\n🪪 Registro nº *${String(ja.n).padStart(4, '0')}*\n👤 ${ja.nome}\n📅 Desde ${new Date(ja.data).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}\n\nSeu cartão: ${prefix}meuperfil`);
+          if (isGroup) return reply(`📩 O registro é feito no meu *privado*: wa.me/${String(botNumber).split('@')[0]}?text=${encodeURIComponent(prefix + 'registrar')}`);
+          if (subR === 'recuso' || subR === 'cancelar') { FL.delete(bR); return reply('❌ Registro cancelado. Sem registro não dá para usar o bot no privado.\nQuando quiser: ' + `${prefix}registrar Nome|idade`); }
+          if (subR === 'aceito' || subR === 'aceitar') {
+            const f = FL.get(bR);
+            if (!f || f.stage !== 'termos') return reply(`ℹ️ Comece com: ${prefix}registrar Nome|idade`);
+            f.stage = 'codigo'; f.codigo = String(1000 + Math.floor(Math.random() * 9000)); f.tent = 0; f.at = Date.now();
+            return nazu.sendMessage(from, { image: await PLUS.captchaImagem(f.codigo), caption: `🔐 *Último passo!*\n\nDigite aqui no chat os *4 números* da imagem.\n⏳ Vale por 5 minutos · 3 tentativas` }, { quoted: info });
+          }
+          const entR = String(q || '').trim();
+          if (!entR) {
+            return reply(`📝 *REGISTRO — ${nomebot}*\n\nPara usar o bot no privado, faça seu registro:\n\n${prefix}registrar Nome|idade\n\n📌 Exemplo: ${prefix}registrar ${PLUS.limparTexto(pushname, 20) || 'Geovane'}|18`);
+          }
+          const [nomeR0, idadeR0] = entR.split('|').map(x => (x || '').trim());
+          const nomeR = PLUS.limparTexto(nomeR0, 30);
+          if (nomeR.length < 2 || /https?:|www\.|\.com/i.test(nomeR)) return reply('❌ Nome inválido. Use de 2 a 30 letras.');
+          const idadeR = parseInt(idadeR0, 10);
+          if (!idadeR0) return reply(`🎂 Faltou a idade!\nEx: ${prefix}registrar ${nomeR}|18`);
+          if (!idadeR || idadeR < 10 || idadeR > 100) return reply('❌ Idade inválida (de 10 a 100).');
+          FL.set(bR, { nome: nomeR, idade: idadeR, stage: 'termos', at: Date.now() });
+          const termos = config.registroTermos || `1. Não use o bot para spam, golpes ou conteúdo ilegal.\n2. Não tente travar ou derrubar o bot.\n3. O dono pode remover seu registro se você quebrar as regras.\n4. Seus dados (nome e idade) ficam só aqui no bot.`;
+          const txtR = `📜 *TERMOS DE USO — ${nomebot}*\n\n👤 Nome: *${nomeR}*\n🎂 Idade: *${idadeR}*\n\n${termos}\n\nVocê aceita?\n\nSem botões: ${prefix}registrar aceito · ${prefix}registrar recuso`;
+          try { await sendButtons(nazu, from, { text: txtR, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('✅ ACEITO', `${prefix}registrar aceito`), quickReply('❌ RECUSO', `${prefix}registrar recuso`)] }); }
+          catch { await reply(txtR); }
+        } catch (e) { console.error('[REGISTRO] Erro:', e); await reply('❌ Erro no registro.'); }
+        break;
+      case 'meuregistro':
+        try {
+          const r = plusRead('registros.json', { users: {} }).users?.[PLUS.baseNum(sender)];
+          if (!r) return reply(`📝 Você ainda não tem registro. ${prefix}registrar Nome|idade (no meu privado)`);
+          return reply(`🪪 *SEU REGISTRO*\n\nNº *${String(r.n).padStart(4, '0')}*\n👤 ${r.nome}\n🎂 ${r.idade} anos\n📅 ${new Date(r.data).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}\n\n🪪 Cartão: ${prefix}meuperfil`);
+        } catch (e) { console.error(e); }
+        break;
+      case 'registropv':
+        try {
+          if (!isOwner) return reply('🚫 Só o dono.');
+          const v = String(args[0] || '').toLowerCase();
+          const cfgR = loadJsonFile(CONFIG_FILE, {});
+          if (['on', 'ligar', 'off', 'desligar'].includes(v)) { cfgR.registroPv = ['on', 'ligar'].includes(v); fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfgR, null, 2)); }
+          const tot = Object.keys(plusRead('registros.json', { users: {} }).users || {}).length;
+          return reply(`🔐 *REGISTRO NO PRIVADO:* ${cfgR.registroPv ? 'LIGADO' : 'DESLIGADO'}\n👥 Registrados: ${tot}\n\nLigado: quem não tem registro só consegue usar ${prefix}registrar e ${prefix}dono no privado.\n(Grupos, dono e subdonos não precisam de registro.)\n\n• ${prefix}registropv on/off\n• ${prefix}registrados [busca]\n• ${prefix}desregistrar @fulano ou número`);
+        } catch (e) { console.error(e); }
+        break;
+      case 'registrados':
+        try {
+          if (!isOwnerOrSub) return reply('🚫 Só o dono.');
+          const us = Object.entries(plusRead('registros.json', { users: {} }).users || {}).sort((a, b) => b[1].n - a[1].n);
+          const busca = PLUS.semAcento(q || '').trim();
+          const fil = busca ? us.filter(([n, r]) => n.includes(busca) || PLUS.semAcento(r.nome).includes(busca)) : us;
+          if (!fil.length) return reply(busca ? '🔎 Ninguém encontrado.' : '📭 Ninguém registrado ainda.');
+          return reply(`🪪 *REGISTRADOS* (${fil.length}${busca ? ` de ${us.length}` : ''})\n\n${fil.slice(0, 40).map(([n, r]) => `#${String(r.n).padStart(4, '0')} · ${r.nome} (${r.idade}) · +${n}`).join('\n')}${fil.length > 40 ? `\n... e mais ${fil.length - 40}` : ''}`);
+        } catch (e) { console.error(e); }
+        break;
+      case 'desregistrar':
+        try {
+          if (!isOwner) return reply('🚫 Só o dono.');
+          const alvo = PLUS.baseNum(menc_os2 || String(args[0] || '').replace(/\D/g, ''));
+          if (!alvo) return reply(`💡 ${prefix}desregistrar @fulano  ou  ${prefix}desregistrar 5575999999999`);
+          const dbD = plusRead('registros.json', { seq: 0, users: {} });
+          const achado = dbD.users[alvo] ? alvo : Object.keys(dbD.users).find(k => dbD.users[k].jid && PLUS.baseNum(dbD.users[k].jid) === alvo);
+          if (!achado) return reply('ℹ️ Esse número não tem registro.');
+          const r = dbD.users[achado]; delete dbD.users[achado]; plusWrite('registros.json', dbD);
+          return reply(`🗑️ Registro nº ${String(r.n).padStart(4, '0')} (${r.nome}) apagado.`);
+        } catch (e) { console.error(e); }
+        break;
+
+      // ---------- GRUPOS PARADOS (o bot sai com a sua confirmação) ----------
+      case 'gruposinativos':
+      case 'gpinativos':
+      case 'gruposparados':
+        try {
+          if (!isOwner) return reply('🚫 Só o dono.');
+          const cfgGI = loadJsonFile(CONFIG_FILE, {});
+          const diasGI = Math.max(1, Number(cfgGI.gruposInativosDias) || 5);
+          const d = astaGpAtivDb();
+          const subGI = String(args[0] || '').toLowerCase();
+          const todos = await nazu.groupFetchAllParticipating().catch(() => ({}));
+          const agora = Date.now();
+          for (const g of Object.keys(todos)) if (!d[g]) d[g] = { desde: agora };
+          const nomeG = (g) => todos[g]?.subject || g;
+          const parados = Object.keys(todos).filter(g => !d[g].manter && astaDiasParado(d[g], agora) >= diasGI).sort((a, b) => astaDiasParado(d[b], agora) - astaDiasParado(d[a], agora));
+          const alvoGI = (x) => { const v = String(x || ''); if (v.endsWith('@g.us')) return v; const n = parseInt(v, 10); return n > 0 ? parados[n - 1] : null; };
+          const salvarCfg = () => fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfgGI, null, 2));
+          const sair = async (g) => {
+            await nazu.sendMessage(g, { text: `👋 Estou saindo porque este grupo ficou *${astaDiasParado(d[g], agora)} dias* sem mensagens.\nPara me chamar de volta, fale com o meu dono: wa.me/${String(numerodono).replace(/\D/g, '')}` }).catch(() => { });
+            await new Promise(r => setTimeout(r, 1200));
+            const ok = await nazu.groupLeave(g).then(() => true).catch(() => false);
+            if (ok) delete d[g];
+            return ok;
+          };
+
+          if (['on', 'off'].includes(subGI)) { cfgGI.gruposInativos = subGI === 'on'; salvarCfg(); return reply(`✅ Aviso de grupos parados ${subGI === 'on' ? 'LIGADO' : 'DESLIGADO'}.`); }
+          if (subGI === 'dias') {
+            const n = parseInt(args[1], 10);
+            if (!(n >= 1 && n <= 90)) return reply(`💡 ${prefix}${command} dias 5  (de 1 a 90)`);
+            cfgGI.gruposInativosDias = n; salvarCfg(); return reply(`✅ Agora um grupo conta como parado depois de *${n} dia(s)* sem mensagens.`);
+          }
+          if (subGI === 'auto') {
+            const v = String(args[1] || '').toLowerCase();
+            if (!['on', 'off'].includes(v)) return reply(`💡 ${prefix}${command} auto on → o bot sai sozinho, sem perguntar\n${prefix}${command} auto off → pergunta antes (padrão)`);
+            cfgGI.gruposInativosAuto = v === 'on'; salvarCfg();
+            return reply(v === 'on' ? `⚠️ Saída automática LIGADA: grupos com ${diasGI}+ dias parados serão deixados sem perguntar (você recebe um aviso depois).` : '✅ Saída automática desligada: eu pergunto antes de sair.');
+          }
+          if (['sair', 'continuar', 'manter', 'desmanter'].includes(subGI)) {
+            const g = alvoGI(args[1]);
+            if (!g || !todos[g]) return reply('ℹ️ Não estou mais nesse grupo (ou o número está errado). Veja a lista: ' + `${prefix}${command}`);
+            if (subGI === 'sair') {
+              const ok = await sair(g); astaGpAtivSalvar(true);
+              return reply(ok ? `🚪 Saí do grupo *${nomeG(g)}*.` : `❌ Não consegui sair de *${nomeG(g)}*.`);
+            }
+            if (subGI === 'continuar') { d[g].last = agora; delete d[g].avisado; astaGpAtivSalvar(true); return reply(`✅ Vou continuar em *${nomeG(g)}*.\nSe ficar mais ${diasGI} dias sem mensagens, eu pergunto de novo.`); }
+            if (subGI === 'manter') { d[g].manter = true; delete d[g].avisado; astaGpAtivSalvar(true); return reply(`📌 *${nomeG(g)}* nunca vai ser contado como parado.\nPara desfazer: ${prefix}${command} desmanter ${g}`); }
+            delete d[g].manter; astaGpAtivSalvar(true); return reply(`✅ *${nomeG(g)}* volta a ser verificado.`);
+          }
+          if (subGI === 'todos') {
+            if (!parados.length) return reply('🎉 Nenhum grupo parado.');
+            global.__astaGpSairTodos = { token: Math.random().toString(36).slice(2, 8), grupos: parados, exp: agora + 3 * 60_000 };
+            const t = global.__astaGpSairTodos;
+            const txtT = `⚠️ *SAIR DE ${parados.length} GRUPO(S) PARADO(S)?*\n\n${parados.slice(0, 30).map((g, i) => `${i + 1}. ${nomeG(g)} — ${astaDiasParado(d[g], agora)} dias`).join('\n')}\n\nVale por 3 minutos.\nSem botões: ${prefix}${command} confirmar ${t.token}`;
+            try { await sendButtons(nazu, from, { text: txtT, footer: '★彡 ASTA MD 彡★', buttons: [quickReply(`🚪 CONFIRMAR (${parados.length})`, `${prefix}${command} confirmar ${t.token}`), quickReply('❌ CANCELAR', `${prefix}${command} cancelar`)] }); } catch { await reply(txtT); }
+            return;
+          }
+          if (subGI === 'cancelar') { global.__astaGpSairTodos = null; return reply('❌ Cancelado. Não saí de nenhum grupo.'); }
+          if (subGI === 'confirmar') {
+            const t = global.__astaGpSairTodos;
+            if (!t || t.token !== args[1] || agora > t.exp) return reply(`⌛ Essa confirmação expirou. Use ${prefix}${command} todos de novo.`);
+            global.__astaGpSairTodos = null;
+            await reply(`🚪 Saindo de ${t.grupos.length} grupo(s)... (uns segundos entre cada um)`);
+            let ok = 0;
+            for (const g of t.grupos) { if (todos[g] && await sair(g)) ok++; await new Promise(r => setTimeout(r, 2500 + Math.floor(Math.random() * 1500))); }
+            astaGpAtivSalvar(true);
+            return reply(`✅ Saí de ${ok} de ${t.grupos.length} grupo(s).`);
+          }
+
+          // lista
+          astaGpAtivSalvar(true);
+          const cab = `😴 *GRUPOS PARADOS* (${diasGI}+ dias sem mensagens de pessoas)\n⚙️ Aviso: ${cfgGI.gruposInativos === false ? 'desligado' : 'ligado'} · Saída automática: ${cfgGI.gruposInativosAuto ? 'LIGADA' : 'desligada'}\n📊 Estou em ${Object.keys(todos).length} grupo(s)`;
+          const ajuda = `• ${prefix}${command} sair 1 · continuar 1 · manter 1\n• ${prefix}${command} todos → sai de todos (pede confirmação)\n• ${prefix}${command} dias 5 · auto on/off · on/off`;
+          if (!parados.length) return reply(`${cab}\n\n🎉 Nenhum grupo parado agora.\n\nℹ️ Eu conto a partir da última mensagem de alguém no grupo (ou de quando esta função foi instalada).\n\n${ajuda}`);
+          const linhas = parados.slice(0, 40).map((g, i) => `*${i + 1}.* ${nomeG(g)}\n    👥 ${todos[g]?.participants?.length || '?'} · ⏳ ${astaDiasParado(d[g], agora)} dias${d[g].last ? '' : ' (sem mensagem desde a instalação)'}`);
+          const txtL = `${cab}\n\n${linhas.join('\n')}${parados.length > 40 ? `\n... e mais ${parados.length - 40}` : ''}\n\n${ajuda}`;
+          const rows = (acao, emoji) => parados.slice(0, 10).map((g, i) => ({ header: '', title: `${emoji} ${i + 1}. ${String(nomeG(g)).slice(0, 20)}`, description: `${astaDiasParado(d[g], agora)} dias parado`, id: `${prefix}${command} ${acao} ${g}` }));
+          try {
+            await sendButtons(nazu, from, { text: txtL, footer: '★彡 ASTA MD 彡★', buttons: [listButton('📋 ESCOLHER GRUPO', [{ title: '🚪 Sair do grupo', rows: rows('sair', '🚪') }, { title: '✅ Continuar no grupo', rows: rows('continuar', '✅') }]), ...(parados.length > 1 ? [quickReply(`🚪 SAIR DE TODOS (${parados.length})`, `${prefix}${command} todos`)] : [])] });
+          } catch { await reply(txtL); }
+        } catch (e) { console.error('[GRUPOS PARADOS] Erro:', e); await reply('❌ Erro ao ver os grupos parados.'); }
+        break;
+
+      // ===== ADIVINHE O ANIME (imagem borrada que vai clareando) =====
+      case 'adivinha':
+      case 'adivinhe':
+      case 'qualanime':
+        try {
+          if (!isGroup) return reply('🎌 O adivinha funciona em grupos.');
+          if (!global.__astaAdivinha) global.__astaAdivinha = new Map();
+          const AD = global.__astaAdivinha;
+          const subAD = String(args[0] || '').toLowerCase();
+          const fileAD = pathz.join(X_DB_DIR, 'adivinha-rank.json');
+          if (subAD === 'rank' || subAD === 'ranking') {
+            const rk = Object.entries(readJsonX(fileAD, {})[from] || {}).sort((x, y) => y[1] - x[1]).slice(0, 10);
+            if (!rk.length) return reply(`🎌 Ninguém pontuou ainda. Comece: ${prefix}adivinha`);
+            const med = ['🥇', '🥈', '🥉'];
+            return reply(`🎌 *RANKING — QUAL É O ANIME?*\n\n${rk.map(([n, p], i) => `${med[i] || `${i + 1}º`} @${n} — ${p} ponto(s)`).join('\n')}`, { mentions: rk.map(([n]) => `${n}@s.whatsapp.net`) });
+          }
+          const jogo = AD.get(from);
+          if (subAD === 'parar') {
+            if (!jogo) return reply('ℹ️ Não tem rodada acontecendo.');
+            if (!isGroupAdmin && !idsMatch(sender, jogo.by)) return reply('🚫 Só admins ou quem começou podem parar.');
+            jogo.timers.forEach(clearTimeout); AD.delete(from);
+            return nazu.sendMessage(from, { image: jogo.imgs[3], caption: `🛑 Rodada parada. Era: *${jogo.titulo}*` }, { quoted: info });
+          }
+          if (subAD === 'dica') {
+            if (!jogo) return reply('ℹ️ Não tem rodada acontecendo.');
+            const t = jogo.titulo;
+            return reply(`💡 *Dica:* começa com *${t[0].toUpperCase()}*, tem ${t.replace(/[^\p{L}\p{N}]/gu, '').length} letras${jogo.ano ? ` e é de *${jogo.ano}*` : ''}.`);
+          }
+          if (jogo) return reply('⏳ Já tem uma rodada acontecendo! Responda no chat qual é o anime.');
+          await reply('🎌 Sorteando um anime...');
+          let an;
+          try { an = await animeAleatorio(); } catch (e) { return reply('❌ Não consegui buscar um anime agora (site do MyAnimeList fora do ar?). Tente de novo daqui a pouco.'); }
+          const imgs = await versoesBorradas(an.imagem);
+          const sockAD = () => global.__nazunaSock || nazu;
+          const r0 = { titulo: an.titulo, titulos: an.titulos, ano: an.ano, imgs, by: sender, timers: [], start: Date.now() };
+          AD.set(from, r0);
+          await nazu.sendMessage(from, { image: imgs[0], caption: `🎌 *QUAL É O ANIME?*\n\nResponda o nome no chat! A imagem vai clareando...\n⏳ 60 segundos · 🏆 +50 💰\n\n💡 ${prefix}adivinha dica · 🛑 ${prefix}adivinha parar` });
+          r0.timers.push(setTimeout(() => { if (AD.get(from) === r0) sockAD().sendMessage(from, { image: imgs[1], caption: '🔍 Ficou mais fácil... (40s)' }).catch(() => { }); }, 20_000));
+          r0.timers.push(setTimeout(() => { if (AD.get(from) === r0) sockAD().sendMessage(from, { image: imgs[2], caption: '👀 Última chance! (20s)' }).catch(() => { }); }, 40_000));
+          r0.timers.push(setTimeout(() => { if (AD.get(from) === r0) { AD.delete(from); sockAD().sendMessage(from, { image: imgs[3], caption: `⌛ Ninguém acertou!\nEra: *${an.titulo}*\n\n▶️ ${prefix}adivinha para jogar de novo` }).catch(() => { }); } }, 60_000));
+        } catch (e) {
+          console.error('[ADIVINHA] Erro:', e);
+          await reply('❌ Erro no adivinha.');
+        }
+        break;
+
+      // ===== PERMISSÕES DE SUBDONOS =====
+      case 'permsub':
+      case 'permissoes':
+      case 'permsubdono':
+        try {
+          if (!isDonoPrincipal || isSubOwner) return reply('🚫 Só o *dono principal* pode mudar as permissões dos subdonos.');
+          const alvoPS = menc_os2;
+          const listaFam = Object.keys(SUB_FAMILIAS).join(', ');
+          if (!alvoPS) {
+            const todas = Object.entries(allSubPerms());
+            return reply(`🔑 *PERMISSÕES DE SUBDONOS*\n\n${todas.length ? todas.map(([n, p]) => `• @${n}: ${p.includes('*') ? '*TUDO*' : p.join(', ')}`).join('\n') : 'Nenhum subdono com permissão ainda.'}\n\n📌 *Como usar:*\n• ${prefix}permsub @fulano tm → só o !tm (e tmparar, tmcanal...)\n• ${prefix}permsub @fulano tm divdono agendar\n• ${prefix}permsub @fulano tudo → todos os comandos de dono\n• ${prefix}permsub @fulano limpar\n\n🧩 Grupos de comandos: ${listaFam}\n🔒 Sempre só do dono: ${SO_DONO_PRINCIPAL.slice(0, 8).join(', ')}...\n\n💡 Primeiro adicione o subdono: ${prefix}addsubdono @fulano`, { mentions: todas.map(([n]) => `${n}@lid`) });
+          }
+          const ehSub = (() => { try { return isSubdono(alvoPS); } catch { return false; } })();
+          if (!ehSub) return reply(`⚠️ @${alvoPS.split('@')[0]} ainda não é subdono.\nAdicione antes: ${prefix}addsubdono @${alvoPS.split('@')[0]}`, { mentions: [alvoPS] });
+          const pedidas = args.filter(x => !/^@/.test(x) && !/^\d{8,}$/.test(x)).map(x => normalizar(x).replace(/^[!./#]/, '')).filter(Boolean);
+          let novas;
+          if (!pedidas.length) novas = getSubPerms(alvoPS);
+          else if (pedidas.some(x => ['limpar', 'nenhuma', 'remover', 'tirar', 'zerar'].includes(x))) novas = setSubPerms(alvoPS, []);
+          else if (pedidas.some(x => ['tudo', 'todos', 'todas', 'all', '*'].includes(x))) novas = setSubPerms(alvoPS, ['*']);
+          else {
+            const bloq = pedidas.filter(x => SO_DONO_PRINCIPAL.includes(x));
+            novas = setSubPerms(alvoPS, [...getSubPerms(alvoPS).filter(x => x !== '*'), ...pedidas.filter(x => !SO_DONO_PRINCIPAL.includes(x))]);
+            if (bloq.length) await reply(`🔒 Não dá para liberar: ${bloq.join(', ')} (só o dono principal).`);
+          }
+          await reply(`🔑 *Permissões de @${alvoPS.split('@')[0]}:*\n${novas.length ? (novas.includes('*') ? '✅ *TUDO* (menos os comandos só do dono principal)' : novas.map(x => `✅ ${prefix}${x}${SUB_FAMILIAS[x] ? ' (e os comandos ligados)' : ''}`).join('\n')) : '❌ Nenhuma (só os privilégios básicos de subdono)'}`, { mentions: [alvoPS] });
+        } catch (e) {
+          console.error('[PERMSUB] Erro:', e);
+          await reply('❌ Erro ao mudar as permissões.');
+        }
+        break;
+
+      case 'topfig':
+      case 'topfigs':
+      case 'rankingfig':
+        try {
+          if (!isGroup) return reply('❌ O ranking de figurinhas é por grupo. Use num grupo.');
+          const subTF = String(args[0] || '').toLowerCase();
+          if (['zerar', 'resetar', 'limpar'].includes(subTF)) {
+            if (!isGroupAdmin) return reply('🚫 Só admins podem zerar o ranking.');
+            resetTop(from);
+            return reply('🧹 Ranking de figurinhas zerado! A contagem começa agora.');
+          }
+          const lista = topStickers(from, 10);
+          if (['pegar', 'ver', 'mandar'].includes(subTF)) {
+            const nTF = parseInt(args[1], 10);
+            const it = lista.find(x => x.pos === nTF);
+            if (!it?.msg) return reply(`❌ Não achei a ${nTF || '?'}ª figurinha. Veja o ranking com ${prefix}topfig`);
+            const stTF = it.msg.stickerMessage || it.msg.audioStickerMessage?.message?.stickerMessage;
+            try {
+              const w = await getFileBuffer(stTF, 'sticker');
+              const som = await stickerAudioPack(stTF);
+              if (som) await sendSoundSticker(nazu, from, { webp: w, clip: som, quoted: info });
+              else await nazu.sendMessage(from, { sticker: w }, { quoted: info });
+            } catch { return reply('⌛ Essa figurinha é antiga e o WhatsApp não guarda mais o arquivo. Ela volta a funcionar quando alguém mandar ela de novo.'); }
+            return;
+          }
+          if (!lista.length) return reply(`🏆 Ainda não tem figurinhas no ranking deste grupo.\nAs figurinhas mandadas a partir de agora vão sendo contadas.`);
+          const medalhas = ['🥇', '🥈', '🥉'];
+          const desde = new Date(topSince(from)).toLocaleDateString('pt-BR');
+          const linhasTF = lista.map(x => `${medalhas[x.pos - 1] || `*${x.pos}º*`} ${x.n}x · ${x.pessoas} pessoa(s)${x.som ? ' · 🔊' : ''}`);
+          const txtTF = `🏆 *TOP FIGURINHAS DO GRUPO*\n📅 Desde ${desde}\n\n${linhasTF.join('\n')}\n\n👉 ${prefix}topfig pegar <número> → o bot manda a figurinha${isGroupAdmin ? `\n🧹 ${prefix}topfig zerar` : ''}`;
+          const btTF = lista.slice(0, 3).map(x => quickReply(`${medalhas[x.pos - 1]} VER ${x.pos}º`, `${prefix}topfig pegar ${x.pos}`));
+          try { await sendButtons(nazu, from, { text: txtTF, footer: '★彡 ASTA MD 彡★', buttons: btTF }); }
+          catch { await reply(txtTF); }
+        } catch (e) {
+          console.error('[TOPFIG] Erro:', e);
+          await reply('❌ Erro ao montar o ranking de figurinhas.');
+        }
+        break;
+
       case 'ssom':
       case 'figsom':
       case 'stickersom':
@@ -28032,7 +29710,7 @@ break;
             s2Dur = Math.max(1, Math.min(s2Max, vS2 || s2Max));
             if (vS2 > s2Dur + 0.5) buffer = await trimStickerMedia(buffer, 0, s2Dur);
             // vídeo com som -> figurinha com som (formato original, sem cortar em quadrado)
-            if (!/mudo|mute|semsom/i.test(q || '') && !boij.gifPlayback) {
+            if (!astaSemSom && !/mudo|mute|semsom/i.test(q || '') && !boij.gifPlayback) {
               try {
                 setSoundLimits({ maxSeconds: config.figSomMaxSeg ?? 30 });
                 const clipS2 = await prepareSoundClip(buffer, 'mp4', { start: 0, seconds: Math.ceil(s2Dur) });
@@ -28412,6 +30090,81 @@ break;
         }
         break;
       case 'banir':
+      // ===== BAN GERAL: remove TODOS os membros que não são admin (confirmação só por admins) =====
+      case 'bangeral':
+      case 'banirtodos':
+      case 'limpargrupo':
+        try {
+          if (!isGroup) return reply('❌ Este comando só funciona em grupos.');
+          if (!global.__astaBanGeral) global.__astaBanGeral = new Map();
+          const pendBG = global.__astaBanGeral;
+          const isRealAdminBG = isOwner || idInArray(sender, groupAdmins);
+          const subBG = String(args[0] || '').toLowerCase();
+          const tokBG = String(args[1] || '').trim();
+          const pend = pendBG.get(from);
+          if (pend && Date.now() > pend.expires) pendBG.delete(from);
+
+          // ---- RECUSAR ----
+          if (['recusar', 'cancelar', 'nao', 'não'].includes(subBG)) {
+            if (!isRealAdminBG) return reply('🚫 Só os *administradores* podem recusar o ban geral.');
+            const p0 = pendBG.get(from);
+            if (!p0 || (tokBG && tokBG !== p0.token)) return reply('ℹ️ Não tem nenhum ban geral esperando confirmação.');
+            pendBG.delete(from);
+            return nazu.sendMessage(from, { text: `❌ *Ban geral RECUSADO* por @${sender.split('@')[0]}.\nNinguém foi removido.`, mentions: [sender] }, { quoted: info });
+          }
+
+          // ---- CONFIRMAR ----
+          if (['confirmar', 'sim', 'confirma'].includes(subBG)) {
+            if (!isRealAdminBG) return reply('🚫 Só os *administradores* podem confirmar o ban geral.');
+            const p0 = pendBG.get(from);
+            if (!p0 || (tokBG && tokBG !== p0.token)) return reply(`ℹ️ Não tem nenhum ban geral esperando confirmação (ou ele expirou). Use ${prefix}bangeral de novo.`);
+            if (!isBotAdmin) return reply('❌ Eu preciso ser *administrador* do grupo para remover os membros.');
+            pendBG.delete(from);
+            // recalcula na hora (alguém pode ter virado admin ou saído)
+            const metaBG = await nazu.groupMetadata(from).catch(() => groupMetadata);
+            const adminsNow = (metaBG?.participants || []).filter(x => x.admin).map(extractParticipantId).filter(Boolean);
+            const alvos = (metaBG?.participants || [])
+              .filter(x => !x.admin)
+              .map(x => ({ id: x.id, alt: extractParticipantId(x) }))
+              .filter(x => x.id && !idsMatch(x.id, botNumber) && !idsMatch(x.alt, botNumber) && !idsMatch(x.id, botNumberLid) && !idsMatch(x.alt, botNumberLid)
+                && !idsMatch(x.id, nmrdn) && !idsMatch(x.alt, nmrdn) && !idInArray(x.alt, adminsNow));
+            if (!alvos.length) return reply('ℹ️ Não sobrou ninguém para remover (só tem admins).');
+            await nazu.sendMessage(from, { text: `⚔️ *Ban geral CONFIRMADO* por @${sender.split('@')[0]}.\n🚪 Removendo *${alvos.length}* membro(s)... (em lotes, para o WhatsApp não bloquear)`, mentions: [sender] }, { quoted: info });
+            let okBG = 0, falhaBG = 0;
+            for (let i = 0; i < alvos.length; i += 5) {
+              const lote = alvos.slice(i, i + 5).map(x => x.id);
+              try {
+                const r = await nazu.groupParticipantsUpdate(from, lote, 'remove');
+                const res = Array.isArray(r) ? r : [];
+                const okLote = res.length ? res.filter(x => String(x?.status || '200') === '200').length : lote.length;
+                okBG += okLote; falhaBG += lote.length - okLote;
+              } catch (e) {
+                falhaBG += lote.length;
+                if (/rate|429|forbidden|not-authorized/i.test(e?.message || '')) { await new Promise(r => setTimeout(r, 8000)); }
+              }
+              await new Promise(r => setTimeout(r, 1500 + Math.floor(Math.random() * 800)));
+            }
+            return nazu.sendMessage(from, { text: `✅ *Ban geral concluído!*\n\n🚪 Removidos: *${okBG}*${falhaBG ? `\n⚠️ Não consegui remover: *${falhaBG}*` : ''}\n🛡️ Admins, o bot e o dono continuam no grupo.` }, { quoted: info });
+          }
+
+          // ---- PEDIDO ----
+          if (!isRealAdminBG) return reply('🚫 Só os *administradores* podem usar o ban geral.');
+          if (!isBotAdmin) return reply('❌ Eu preciso ser *administrador* do grupo para remover os membros.');
+          const alvosPrev = (groupMetadata?.participants || []).filter(x => !x.admin)
+            .map(x => ({ id: x.id, alt: extractParticipantId(x) }))
+            .filter(x => x.id && !idsMatch(x.id, botNumber) && !idsMatch(x.alt, botNumber) && !idsMatch(x.id, botNumberLid) && !idsMatch(x.alt, botNumberLid) && !idsMatch(x.id, nmrdn) && !idsMatch(x.alt, nmrdn));
+          if (!alvosPrev.length) return reply('ℹ️ Não tem ninguém para remover: todos os membros são admins.');
+          const token = Math.random().toString(36).slice(2, 8);
+          pendBG.set(from, { token, by: sender, expires: Date.now() + 2 * 60_000 });
+          const txtBG = `⚠️ *BAN GERAL*\n\n@${sender.split('@')[0]} pediu para *remover TODOS os ${alvosPrev.length} membros* que não são admin.\n\n🛡️ Ficam: admins, o bot e o dono do bot.\n👮 *Só administradores* podem confirmar ou recusar.\n⏳ Expira em 2 minutos.\n\nSe os botões não aparecerem: ${prefix}bangeral confirmar  ·  ${prefix}bangeral recusar`;
+          try {
+            await sendButtons(nazu, from, { text: txtBG, footer: '★彡 ASTA MD 彡★', mentions: [sender], buttons: [quickReply('✅ CONFIRMAR', `${prefix}bangeral confirmar ${token}`), quickReply('❌ RECUSAR', `${prefix}bangeral recusar ${token}`)] });
+          } catch { await nazu.sendMessage(from, { text: txtBG, mentions: [sender] }, { quoted: info }); }
+        } catch (e) {
+          console.error('[BANGERAL] Erro:', e);
+          await reply('❌ Erro no ban geral. Ninguém foi removido além dos já informados.');
+        }
+        break;
       case 'ban':
       case 'b':
       case 'kick':
@@ -31276,11 +33029,27 @@ Exemplos:
           if (!isGroupAdmin) return reply("Apenas administradores podem gerenciar o antifig.");
 
           groupData.antifig = groupData.antifig || {};
+          const subAF = String(args[0] || '').toLowerCase();
+          if (subAF === 'limite' || subAF === 'limit') {
+            const vAF = String(args[1] || '').toLowerCase();
+            if (['off', 'desligar', '0', 'nao', 'não'].includes(vAF)) {
+              delete groupData.antifig.limite;
+              fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2));
+              return reply(`✅ Limite removido. O antifig está *${groupData.antifig.enabled ? 'ligado (bloqueia todas as figurinhas)' : 'desligado'}*.`);
+            }
+            const nAF = parseInt(vAF, 10);
+            if (!nAF || nAF < 1 || nAF > 60) return reply(`💡 Use: ${prefix}antifig limite 5  (figurinhas por minuto por pessoa)\n💡 ${prefix}antifig limite off  (tira o limite)`);
+            groupData.antifig.enabled = true;
+            groupData.antifig.limite = nAF;
+            fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2));
+            return reply(`✅ *Antiflood de figurinhas ligado!*\n\n🖼️ Cada membro pode mandar até *${nAF} figurinha(s) por minuto*.\n🚫 O que passar disso é apagado, com advertência (${groupData.antifig.warnLimit || 3} = remoção).\n🛡️ Admins são livres.\n\n• ${prefix}antifig limite off → tira o limite\n• ${prefix}antifig → liga/desliga`);
+          }
 
           groupData.antifig.enabled = !groupData.antifig.enabled;
           fs.writeFileSync(groupFile, JSON.stringify(groupData, null, 2));
           const status = groupData.antifig.enabled ? "ativado" : "desativado";
-          await reply(`✅ Antifig ${status}! Figurinhas ${groupData.antifig.enabled ? "serão apagadas e o remetente receberá advertências" : "agora são permitidas"}.`);
+          const limTxt = groupData.antifig.limite ? ` (limite de ${groupData.antifig.limite}/min por pessoa)` : '';
+          await reply(`✅ Antifig ${status}${groupData.antifig.enabled ? limTxt : ''}! Figurinhas ${groupData.antifig.enabled ? (groupData.antifig.limite ? `acima de ${groupData.antifig.limite} por minuto serão apagadas` : "serão apagadas e o remetente receberá advertências") : "agora são permitidas"}.\n\n💡 Para só limitar: ${prefix}antifig limite 5`);
         } catch (e) {
           console.error('Erro no comando antifig:', e);
           await reply("Ocorreu um erro ao gerenciar o antifig 💔");
@@ -33697,10 +35466,12 @@ ${tempo.includes('nunca') ? '😂 Brincadeira! Nunca desista dos seus sonhos!' :
           }
           break;
         }
-        await nazu.sendMessage(from, {
-          text: requestResult.message,
-          mentions: requestResult.mentions || [sender, menc_os2]
-        });
+        // botões de resposta (o clique manda "sim" ou "não", que o sistema de relacionamento já entende)
+        try {
+          await sendButtons(nazu, from, { text: `${requestResult.message}\n\n👇 Só @${String(menc_os2).split('@')[0]} pode responder`, footer: '★彡 ASTA MD 彡★', mentions: requestResult.mentions || [sender, menc_os2], buttons: [quickReply('💍 ACEITO', 'sim'), quickReply('💔 RECUSO', 'não')] });
+        } catch {
+          await nazu.sendMessage(from, { text: requestResult.message, mentions: requestResult.mentions || [sender, menc_os2] });
+        }
         break;
       }
       case 'namoro':
@@ -33733,10 +35504,12 @@ ${tempo.includes('nunca') ? '😂 Brincadeira! Nunca desista dos seus sonhos!' :
           }
           break;
         }
-        await nazu.sendMessage(from, {
-          text: requestResult.message,
-          mentions: requestResult.mentions || [sender, menc_os2]
-        });
+        // botões de resposta (o clique manda "sim" ou "não", que o sistema de relacionamento já entende)
+        try {
+          await sendButtons(nazu, from, { text: `${requestResult.message}\n\n👇 Só @${String(menc_os2).split('@')[0]} pode responder`, footer: '★彡 ASTA MD 彡★', mentions: requestResult.mentions || [sender, menc_os2], buttons: [quickReply('💍 ACEITO', 'sim'), quickReply('💔 RECUSO', 'não')] });
+        } catch {
+          await nazu.sendMessage(from, { text: requestResult.message, mentions: requestResult.mentions || [sender, menc_os2] });
+        }
         break;
       }
       case 'casamento':
@@ -33769,10 +35542,12 @@ ${tempo.includes('nunca') ? '😂 Brincadeira! Nunca desista dos seus sonhos!' :
           }
           break;
         }
-        await nazu.sendMessage(from, {
-          text: requestResult.message,
-          mentions: requestResult.mentions || [sender, menc_os2]
-        });
+        // botões de resposta (o clique manda "sim" ou "não", que o sistema de relacionamento já entende)
+        try {
+          await sendButtons(nazu, from, { text: `${requestResult.message}\n\n👇 Só @${String(menc_os2).split('@')[0]} pode responder`, footer: '★彡 ASTA MD 彡★', mentions: requestResult.mentions || [sender, menc_os2], buttons: [quickReply('💍 ACEITO', 'sim'), quickReply('💔 RECUSO', 'não')] });
+        } catch {
+          await nazu.sendMessage(from, { text: requestResult.message, mentions: requestResult.mentions || [sender, menc_os2] });
+        }
         break;
       }
       case 'relacionamento': {
@@ -34000,6 +35775,22 @@ ${tempo.includes('nunca') ? '😂 Brincadeira! Nunca desista dos seus sonhos!' :
       case 'casal':
         try {
           if (!isGroup) return reply("╭━━━⊱ 💔 *ERRO* 💔 ⊱━━━╮\n│\n│ ❌ Este comando só funciona\n│    em grupos!\n│\n╰━━━━━━━━━━━━━━━━━━━━╯");
+          // quem está num relacionamento vê o próprio casal (dias juntos, aniversário e presente)
+          const parCS = (!menc_os2 && !/^(sortear|aleatorio|aleatório)$/i.test(String(args[0] || ''))) ? (() => { try { return relationshipManager.getActivePairForUser(sender); } catch { return null; } })() : null;
+          if (parCS?.pair?.status) {
+            const stCS = parCS.pair.status;
+            const sinceCS = Date.parse(parCS.pair.stages?.[stCS]?.since || '') || Date.now();
+            const diasCS = Math.floor((Date.now() - sinceCS) / 864e5);
+            const dS = new Date(sinceCS - 3 * 3600e3), hoje = new Date(Date.now() - 3 * 3600e3);
+            let prox = Date.UTC(hoje.getUTCFullYear(), dS.getUTCMonth(), dS.getUTCDate());
+            if (prox <= Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), hoje.getUTCDate()) - 1) prox = Date.UTC(hoje.getUTCFullYear() + 1, dS.getUTCMonth(), dS.getUTCDate());
+            const faltam = Math.round((prox - Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), hoje.getUTCDate())) / 864e5);
+            const anos = Math.floor(diasCS / 365);
+            const rotCS = stCS === 'casamento' ? '💍 Casados' : stCS === 'namoro' ? '💕 Namorando' : '😘 Ficando';
+            const pres = stCS === 'casamento' ? `\n\n🎁 *Presentes:* todo mês no dia ${dS.getUTCDate()} os dois ganham *100 💰*, e no aniversário de casamento *500 💰*!` : `\n\n💡 Casando (${prefix}casar) vocês ganham presentes todo mês.`;
+            await reply(`╭━━━⊱ 💞 *NOSSO CASAL* 💞 ⊱━━━╮\n│\n│ @${getUserName(sender)} ❤️ @${getUserName(parCS.partnerId)}\n│\n│ ${rotCS} há *${diasCS} dia(s)*${anos ? ` (${anos} ano(s))` : ''}\n│ 📅 Desde ${new Date(sinceCS).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}\n│ 🎂 Próximo aniversário: ${faltam === 0 ? '*HOJE!* 🎉' : `em ${faltam} dia(s)`}\n│\n╰━━━━━━━━━━━━━━━━━━━━━━╯${pres}\n\n🎲 Casal aleatório do grupo: ${prefix}casal sortear`, { mentions: [sender, parCS.partnerId] });
+            break;
+          }
           if (!isModoBn) return reply('❌ O modo brincadeira não está ativo nesse grupo.');
           if (AllgroupMembers.length < 2) return reply('❌ Preciso de pelo menos 2 membros no grupo!');
           let path = buildGroupFilePath(from);
