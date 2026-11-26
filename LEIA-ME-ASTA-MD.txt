@@ -636,9 +636,7 @@ v10.12.0 — BARRA DE PROGRESSO
 - A barra sobe sozinha até 90% enquanto o bot trabalha e completa quando a mídia é enviada.
 - !barraprogresso on/off (dono)
 
-v10.12.1 — NOVO REPOSITÓRIO DA NAZUNA + CONTADOR ANIMADO
+v10.12.1 — NOVO REPOSITÓRIO DA NAZUNA
 ==================================================
 - Todos os links da Nazuna agora apontam para https://github.com/DevTokyo2/nazuna
   (README, créditos, config.json, comando de créditos do bot e package.json).
-- O contador de visitas do README agora é animado (tema "cat-girls-yay" do Moe-Counter).
-  A contagem continua a mesma (o nome do contador não mudou).

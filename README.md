@@ -77,7 +77,6 @@
   - `.barraprogresso on/off`
 - 📋 Aba **[Todos os Comandos](#-todos-os-comandos)** aqui no README
 - 🔗 Links da Nazuna atualizados para o novo repositório: [DevTokyo2/nazuna](https://github.com/DevTokyo2/nazuna)
-- 👀 Contador de visitas animado
 </details>
 <!-- NOVIDADES:FIM -->
 
@@ -114,7 +113,7 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 </div>
 
 <p align="center">
-  <img src="https://count.getloli.com/@asta-md?name=asta-md&theme=cat-girls-yay&padding=8&offset=0&align=top&scale=2&pixelated=1&darkmode=1" alt="Visitas" />
+  <img src="https://count.getloli.com/@asta-md?name=asta-md&theme=booru-lewd&padding=8&offset=0&align=top&scale=2&pixelated=1&darkmode=1" alt="Visitas" />
   <br/>
   <sub>Total de visitas ao repositório</sub>
 </p>
