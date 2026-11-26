@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="dados/midias/readme/banner.gif" width="100%" alt="ASTA MD"/>
+  <img src="dados/midias/readme/banner.webp" width="100%" alt="ASTA MD"/>
 </p>
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Press+Start+2P&size=15&duration=2600&pause=800&color=FF2A2A&center=true&vCenter=true&width=700&height=50&lines=%E2%9A%94%EF%B8%8F+DESISTIR+N%C3%83O+%C3%89+O+MEU+TIPO+DE+MAGIA!;%E2%96%B6+MAIS+DE+1000+COMANDOS+DESBLOQUEADOS;%F0%9F%94%8A+FIGURINHAS+COM+SOM+%2B+BOT%C3%95ES+NO+IPHONE;%F0%9F%8E%AE+JOGOS%2C+RPG+E+APOSTAS+NO+GRUPO;%F0%9F%93%A5+BAIXA+DE+TIKTOK%2C+YOUTUBE%2C+INSTA..." alt="ASTA MD"/>
+  <img src="https://readme-typing-svg.demolab.com?font=Bangers&size=30&duration=2600&pause=800&color=FF2A2A&center=true&vCenter=true&width=720&height=60&lines=%E2%9A%94%EF%B8%8F+DESISTIR+N%C3%83O+%C3%89+O+MEU+TIPO+DE+MAGIA!;%E2%96%B6+MAIS+DE+1000+COMANDOS+DESBLOQUEADOS;%F0%9F%94%8A+FIGURINHAS+COM+SOM+%2B+BOT%C3%95ES+NO+IPHONE;%F0%9F%8E%AE+JOGOS%2C+RPG+E+APOSTAS+NO+GRUPO;%F0%9F%93%A5+BAIXA+DE+TIKTOK%2C+YOUTUBE%2C+INSTA..." alt="ASTA MD"/>
 </p>
 
 <p align="center">
@@ -22,10 +22,10 @@
   </b>
 </p>
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="novidades"></a>
-<h2 align="center"><img src="dados/midias/readme/t-novidades.gif" height="58" alt="Novidades"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-novidades.webp" height="72" alt="Novidades"/></h2>
 
 <!-- NOVIDADES:INICIO (esta seção mostra só a versão mais nova; o histórico completo fica no LEIA-ME-ASTA-MD.txt) -->
 <p align="center">
@@ -48,10 +48,10 @@
 
 <p align="center"><sub>📜 O histórico de todas as versões fica no <code>LEIA-ME-ASTA-MD.txt</code></sub></p>
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="sobre"></a>
-<h2 align="center"><img src="dados/midias/readme/t-sobre.gif" height="58" alt="Sobre o bot"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-sobre.webp" height="72" alt="Sobre o bot"/></h2>
 
 **★彡 ASTA MD 彡★** é um bot de WhatsApp **gratuito e open source** com o tema do **Asta (Black Clover ⚔️)**, mantido por **★彡 GEOVANE MD 彡★**.
 
@@ -68,10 +68,10 @@ Ele nasceu da **[Nazuna](https://github.com/DevTokyo2/nazuna)** (Hiudy & DevToky
 
 > ⚔️ *"Desistir não é o meu tipo de magia!"* — Asta
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="numeros"></a>
-<h2 align="center"><img src="dados/midias/readme/t-numeros.gif" height="58" alt="Números"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-numeros.webp" height="72" alt="Números"/></h2>
 
 <div align="center">
 
@@ -87,10 +87,10 @@ Ele nasceu da **[Nazuna](https://github.com/DevTokyo2/nazuna)** (Hiudy & DevToky
   <sub>👀 Visitantes do repositório</sub>
 </p>
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="comandos"></a>
-<h2 align="center"><img src="dados/midias/readme/t-comandos.gif" height="58" alt="Comandos"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-comandos.webp" height="72" alt="Comandos"/></h2>
 
 <p align="center">
   <img src="https://img.shields.io/badge/TOTAL-1016_COMANDOS-brightgreen?style=for-the-badge" alt="1016 comandos" />
@@ -219,10 +219,10 @@ Ele nasceu da **[Nazuna](https://github.com/DevTokyo2/nazuna)** (Hiudy & DevToky
 </details>
 
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="instalar"></a>
-<h2 align="center"><img src="dados/midias/readme/t-instalar.gif" height="58" alt="Instalação"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-instalar.webp" height="72" alt="Instalação"/></h2>
 
 > 🎮 **3 passos:** cole o comando do seu sistema ➜ conecte com **QR Code** ou **código de pareamento** ➜ mande `.menu` no WhatsApp.
 >
@@ -377,10 +377,10 @@ brew install node git ffmpeg && (test -d asta-md || git clone --depth 1 https://
 </details>
 
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="faq"></a>
-<h2 align="center"><img src="dados/midias/readme/t-faq.gif" height="58" alt="Dúvidas"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-faq.webp" height="72" alt="Dúvidas"/></h2>
 
 <details>
   <summary><strong>💰 É pago?</strong></summary>
@@ -508,10 +508,10 @@ Pode, mas não damos suporte. O bot já vem integrado com a Vex API para facilit
 Abra uma Issue ou um Pull Request neste repositório, ou fale com o dono pelo [WhatsApp](https://wa.me/5575920016995).
 </details>
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="api"></a>
-<h2 align="center"><img src="dados/midias/readme/t-api.gif" height="58" alt="API Vex"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-api.webp" height="72" alt="API Vex"/></h2>
 
 O bot funciona muito bem sem a API, mas com a **Vex API** você libera mais downloads, edição de imagem, música e muito mais:
 
@@ -538,10 +538,10 @@ O bot funciona muito bem sem a API, mas com a **Vex API** você libera mais down
 
 > Acesse [vexapi.com.br/plans](https://vexapi.com.br/plans) e escolha o plano ideal. O `.baixar` **não** gasta a API.
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="creditos"></a>
-<h2 align="center"><img src="dados/midias/readme/t-creditos.gif" height="58" alt="Créditos"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-creditos.webp" height="72" alt="Créditos"/></h2>
 
 <div align="center">
 
@@ -561,10 +561,10 @@ O bot funciona muito bem sem a API, mas com a **Vex API** você libera mais down
   </a>
 </p>
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <a id="termos"></a>
-<h2 align="center"><img src="dados/midias/readme/t-termos.gif" height="58" alt="Termos"/></h2>
+<h2 align="center"><img src="dados/midias/readme/t-termos.webp" height="72" alt="Termos"/></h2>
 
 > Ao utilizar o ASTA MD, você concorda com os termos abaixo.
 
@@ -592,7 +592,7 @@ Não nos responsabilizamos caso seu número seja **banido do WhatsApp**. O Whats
 
 </details>
 
-<p align="center"><img src="dados/midias/readme/linha.gif" width="100%" alt=""/></p>
+<p align="center"><img src="dados/midias/readme/linha.webp" width="100%" alt=""/></p>
 
 <p align="center">
   <b>⭐ Curtiu? Deixa uma estrela — é o XP que faz o projeto subir de nível!</b><br/>
