@@ -594,3 +594,29 @@ v10.10.1 — FORMATOS B + F EM TODOS OS MENUS (APARECERAM NO IPHONE)
   numa lista clássica (!menu categorias).
 - !formatobotoes AUTO (padrão) | A (formato de antes) | B | C | D | E | F
 - Recomendado: rode !testebotoes num Android também, para confirmar que B e F aparecem nele.
+
+v10.11.0 — MENUS LIMPOS + AJUDA AUTOMÁTICA
+==================================================
+MENUS
+- Todos os menus mostram só o nome dos comandos (ex.: .ban  .tm  .sefeito), sem explicações nem exemplos.
+
+AJUDA AUTOMÁTICA
+- Comando que precisa de informação, mandado SEM NADA (sem texto, sem marcar ninguém, sem responder
+  mensagem e sem mídia) -> o bot responde:
+    📖 .ban
+    🎯 Pra que serve: Remove a pessoa do grupo
+    ✍️ Como usar: .ban @user
+    👤 marque a pessoa ou responda uma mensagem dela
+- Usando direto (.ban @fulano, .tts bom dia, respondendo uma mensagem, mandando mídia) -> roda normal, sem aviso.
+- Os comandos que já têm explicação própria completa (.tm, .tmm, .duelo, .play, .divdono, .agendar...)
+  mostram a explicação deles, que é mais detalhada.
+- Comandos que funcionam sozinhos (.ping, .menu, .perfil...) rodam normal.
+- Para desligar: "ajudaAutomatica": false no config.json
+
+v10.11.1 — ABA "TODOS OS COMANDOS" NO README DO GITHUB
+==================================================
+- O README do GitHub ganhou a aba "📋 Todos os Comandos" (também no Sumário): o total de comandos,
+  uma tabela por categoria e a lista completa de cada categoria (abre ao tocar).
+  Total: 900 comandos (1841 contando os atalhos).
+- Saiu do bot a tela de "todos os comandos" (!todoscmd e a opção na LISTA do menu),
+  porque ela era para ficar no GitHub.

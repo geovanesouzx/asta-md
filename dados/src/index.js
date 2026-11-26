@@ -564,46 +564,59 @@ if (!global.__astaErrWrap) {
 }
 
 // ===== ASTA MD: painel web (somente leitura, protegido por token) =====
-// ===================== TODOS OS COMANDOS (tela com a lista completa) =====================
-async function astaTodosComandos() {
-  if (global.__astaTodosCmd) return global.__astaTodosCmd;
-  const fonte = fs.readFileSync(pathz.join(__dirname, 'index.js'), 'utf-8');
-  const existentes = new Set([...fonte.matchAll(/case '([^']+)':/g)].map(m => m[1].toLowerCase()));
-  const categorias = [
-    ['🎨 FIGURINHAS', 'menufig.js'], ['📥 DOWNLOADS', 'menudown.js'], ['🎮 JOGOS E BRINCADEIRAS', 'menubn.js'],
-    ['👥 MEMBROS', 'menumemb.js'], ['🧰 FERRAMENTAS', 'ferramentas.js'], ['🎚️ ÁUDIO E VÍDEO', 'alteradores.js'],
-    ['🎞️ EDIÇÕES', 'menuedits.js'], ['🖌️ LOGOS', 'menulogo.js'], ['🗡️ RPG E ECONOMIA', 'menurpg.js'],
-    ['🛡️ ADMINISTRAÇÃO', 'menuadm.js'], ['👑 DONO', 'menudono.js']
-  ];
-  const vistos = new Set();
-  const lista = [];
-  const placeholder = (w) => !w || /^[<\[@(]/.test(w) || /^\d/.test(w) || w.includes('/') || w.includes('|');
-  for (const [nome, arq] of categorias) {
-    let texto = '';
+// ===================== AJUDA AUTOMÁTICA: comando mandado "sem nada" mostra pra que serve e como usar =====================
+async function astaAjudaComandos() {
+  if (global.__astaAjuda) return global.__astaAjuda;
+  const fonte = fs.readFileSync(pathz.join(__dirname, 'index.js'), 'utf-8').split('\n');
+  // comandos que JÁ têm explicação própria completa (vários exemplos com prefixo logo no começo)
+  const ajudaPropria = new Set();
+  for (let i = 0; i < fonte.length; i++) {
+    if (!/^\s*case '([^']+)':/.test(fonte[i])) continue;
+    let j = i; const rotulos = [];
+    while (j < fonte.length && /^\s*case '([^']+)':/.test(fonte[j])) { rotulos.push(fonte[j].match(/case '([^']+)':/)[1]); j++; }
+    const bloco = fonte.slice(j, j + 60).join('\n');
+    if ((bloco.match(/\$\{(?:prefix|groupPrefix|gp|tmCmd|cmdT)\}/g) || []).length >= 3) rotulos.forEach(r => ajudaPropria.add(r));
+    i = j - 1;
+  }
+  const itens = [];
+  const menus = ['menufig.js', 'menudown.js', 'menubn.js', 'menumemb.js', 'ferramentas.js', 'alteradores.js', 'menuedits.js', 'menulogo.js', 'menurpg.js', 'menuadm.js', 'menudono.js'];
+  for (const arq of menus) {
     try {
       const m = await import(`./menus/${arq}`);
-      texto = arq === 'menubn.js' ? await m.default('§', 'B', 'U', false, {}) : await m.default('§', 'B', 'U', {});
-    } catch { continue; }
-    const cmds = [];
-    const add = (w) => { w = String(w || '').toLowerCase().replace(/[^a-z0-9çãõéáíú.\-]/g, ''); if (!w || vistos.has(w)) return; const raiz = w.split('.')[0]; if (!existentes.has(w) && !existentes.has(raiz)) return; vistos.add(w); cmds.push(w); };
-    for (const linha of texto.split('\n')) {
-      if (!linha.includes('§')) continue;
-      const blocos = linha.split('§').slice(1);
-      if (blocos.length > 1) { for (const b of blocos) add(b.trim().split(/\s+/)[0]); continue; } // linha com vários comandos
-      const item = blocos[0].split(' — ')[0];
-      const partes = item.split(' · ');
-      const p0 = partes[0].trim().split(/\s+/);
-      add(p0[0]);
-      const modoSub = p0.length > 1 && !placeholder(p0[1]); // "uno criar · entrar" = opções do mesmo comando
-      for (const pt of partes.slice(1)) {
-        const w = pt.trim().split(/\s+/)[0];
-        if (!modoSub || w.startsWith(p0[0])) add(w);
-      }
-    }
-    if (cmds.length) lista.push({ nome, cmds });
+      const design = { __colherAjuda: itens };
+      if (arq === 'menubn.js') await m.default('.', 'B', 'U', false, design); else await m.default('.', 'B', 'U', design);
+    } catch { }
   }
-  global.__astaTodosCmd = { lista, total: vistos.size, nomes: existentes.size };
-  return global.__astaTodosCmd;
+  const ehArg = (w) => !w || /^[<\[@(]/.test(w) || /^\d/.test(w) || w.includes('/') || w.includes('|');
+  const precisa = (seg) => /<[^>]+>|@user/.test(seg.replace(/\[[^\]]*\]/g, ''));
+  const mapa = new Map(), semArg = new Set();
+  for (const { cat, item } of itens) {
+    const [parte, desc = ''] = item.split(' — ');
+    const segs = parte.split(' · ').map(x => x.trim());
+    const p0 = segs[0].split(/\s+/);
+    if (p0.length > 1 && (!ehArg(p0[1]) || p0[1].includes('/'))) { semArg.add(p0[0]); continue; } // comando com opções: funciona sozinho
+    for (const sg of segs) {
+      const w = sg.split(/\s+/)[0];
+      if (!w || ehArg(w)) continue;
+      if (!precisa(sg)) { semArg.add(w); continue; }
+      if (!mapa.has(w)) mapa.set(w, { uso: sg, desc, cat: String(cat).replace(/^[^\p{L}]+/u, '') });
+    }
+  }
+  for (const w of [...mapa.keys()]) if (semArg.has(w) || ajudaPropria.has(w)) mapa.delete(w);
+  global.__astaAjuda = mapa;
+  return mapa;
+}
+const ASTA_AJUDA_DESC = {"sloff": "faz figurinha com legenda, sem o som","sefeitooff": "aplica um efeito na figurinha, sem o som","ttp": "transforma um texto em figurinha","attp": "transforma um texto em figurinha animada","qc": "cria uma figurinha de citação com o seu texto","play2": "baixa o áudio de uma música (outra fonte)","spotify": "baixa uma música do Spotify","soundcloud": "baixa uma música do SoundCloud","letra": "mostra a letra de uma música","playvid": "baixa o vídeo do YouTube","tiktok": "baixa vídeo do TikTok","instagram": "baixa post ou reels do Instagram","igstory": "baixa os stories de um perfil do Instagram","facebook": "baixa vídeo do Facebook","twitter": "baixa vídeo do Twitter/X","kwai": "baixa vídeo do Kwai","pinterest": "busca imagens no Pinterest","gdrive": "baixa um arquivo do Google Drive","mediafire": "baixa um arquivo do MediaFire","batalhanaval": "desafia alguém para uma batalha naval","dueloquiz": "desafia alguém para um duelo de perguntas","digitar": "desafia alguém para ver quem digita mais rápido","brincadeira": "pede alguém em \"brincadeira\" (relacionamento)","namorar": "pede alguém em namoro","casar": "pede alguém em casamento","shipo": "mostra a compatibilidade com alguém","trair": "trai o seu par com alguém (brincadeira)","afk": "avisa que você está ausente; quem te marcar recebe o motivo","denunciar": "denuncia um membro para os admins","tts": "transforma texto em áudio falado","hora": "mostra a hora de uma cidade","qrcode": "cria um QR Code com o texto ou link","encurtalink": "encurta um link","gerarnick": "cria nicks estilizados com o seu nome","horoscopo": "mostra o horóscopo do dia do signo","cortarvideo": "corta um trecho do vídeo","velocidade": "muda a velocidade do áudio","sell": "vende as suas ações (RPG)","dados": "aposta nos dados (RPG)","crash": "aposta no crash (RPG)","roleta": "aposta na roleta (RPG)","blackjack": "joga blackjack apostando (RPG)","corrida": "aposta numa corrida de cavalos (RPG)","duelrpg": "desafia alguém para um duelo do RPG","dismantle": "desmonta um item e ganha materiais (RPG)","adotaruser": "adota alguém na sua família (RPG)","vote": "vota em alguém (RPG)","adotar": "adota um pet do RPG","train": "treina o seu pet do RPG","evolve": "evolui o seu pet do RPG","rpgresetplayer": "zera o RPG de um jogador","ban": "remove a pessoa do grupo","ban2": "remove a pessoa do grupo (sem aviso)","promover": "deixa a pessoa admin do grupo","rebaixar": "tira o admin da pessoa","mutar": "silencia a pessoa por um tempo (as mensagens dela são apagadas)","mute": "silencia a pessoa (as mensagens dela são apagadas)","desmute": "tira o silêncio da pessoa","mute2": "silencia a pessoa (modo 2)","desmute2": "tira o silêncio da pessoa (modo 2)","adv": "dá uma advertência (3 = remoção)","rmadv": "tira uma advertência da pessoa","blockuser": "bloqueia a pessoa de usar o bot neste grupo","unblockuser": "desbloqueia a pessoa no bot","addblacklist": "coloca a pessoa na lista negra (é removida se entrar)","delblacklist": "tira a pessoa da lista negra","blockcmd": "bloqueia um comando neste grupo","unblockcmd": "desbloqueia um comando neste grupo","legendabv": "muda o texto de boas-vindas","legendasaiu": "muda o texto de saída","hidetag": "marca todo mundo sem aparecer @","nomegp": "muda o nome do grupo","descgrupo": "muda a descrição do grupo","setprefix": "muda o prefixo do bot neste grupo","anticategoria": "liga vários antis de uma vez (links, mídia, segurança ou todos)","wl.remove": "tira a pessoa da lista de liberados dos antis","addmod": "deixa a pessoa moderadora do bot no grupo","addparceria": "adiciona um parceiro (pode mandar link do grupo dele)","delautoadm": "apaga uma resposta automática","addsubdono": "adiciona um subdono do bot","delsubdono": "remove um subdono do bot","addpremium": "dá premium para a pessoa","delpremium": "tira o premium da pessoa"};
+function astaTextoAjuda(prefix, cmd, a) {
+  const dicas = [];
+  if (/@user/.test(a.uso)) dicas.push('👤 marque a pessoa ou responda uma mensagem dela');
+  if (/<(texto|mensagem|nome|busca|pergunta|motivo|conta|cidade|signo|site)[^>]*>/i.test(a.uso)) dicas.push('✏️ escreva logo depois do comando');
+  if (/<(link|nome ou link|link ou nome|link ou música)[^>]*>/i.test(a.uso)) dicas.push('🔗 mande o link ou o nome junto do comando');
+  if (/<(valor|qtd|nº|n°|id|dias|preço|cmd)[^>]*>/i.test(a.uso)) dicas.push('🔢 coloque o valor depois do comando');
+  if (/<(início|fim)>/i.test(a.uso)) dicas.push('⏱️ responda o vídeo/áudio e diga o tempo (ex.: 0:10 0:25)');
+  const d0 = ASTA_AJUDA_DESC[cmd] || a.desc;
+  const pra = d0 ? d0.charAt(0).toUpperCase() + d0.slice(1) : `Comando de ${a.cat.toLowerCase()}`;
+  return `📖 *${prefix}${cmd}*\n\n🎯 *Pra que serve:* ${pra}\n\n✍️ *Como usar:*\n${prefix}${a.uso}${dicas.length ? `\n\n${dicas.join('\n')}` : ''}`;
 }
 
 // ===================== GRUPOS PARADOS (última mensagem de PESSOA em cada grupo) =====================
@@ -7077,6 +7090,19 @@ Entre em contato com o dono do bot:
     
 
 
+
+    // ===== AJUDA AUTOMÁTICA: comando que precisa de informação, mandado sem nada =====
+    if (isCmd && command && config.ajudaAutomatica !== false) {
+      try {
+        const semNada = !String(q || '').trim() && !menc_os2 && !quotedMessageContent &&
+          !['imageMessage', 'videoMessage', 'audioMessage', 'documentMessage', 'stickerMessage', 'documentWithCaptionMessage', 'audioStickerMessage', 'locationMessage', 'contactMessage', 'pollCreationMessage', 'pollCreationMessageV3'].some(k => info.message?.[k]) &&
+          !info.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+        if (semNada) {
+          const ajudaC = (await astaAjudaComandos()).get(command);
+          if (ajudaC) { await reply(astaTextoAjuda(prefix, command, ajudaC)); return; }
+        }
+      } catch (eAj) { console.error('[AJUDA]', eAj?.message || eAj); }
+    }
 
     switch (command) {
 
@@ -21883,7 +21909,7 @@ Se não definir cores, a API usa padrão automaticamente.`
                 {
                   title: 'PRINCIPAL',
                   highlight_label: '⚔️',
-                  rows: [row('【⚔️】 MENU COMPLETO 【⚔️】', 'Todos os comandos do menu principal', 'menu texto'), row('【📜】 TODOS OS COMANDOS', 'Lista com todos os comandos do bot e o total', 'todoscmd')]
+                  rows: [row('【⚔️】 MENU COMPLETO 【⚔️】', 'Todos os comandos do menu principal', 'menu texto')]
                 },
                 {
                   title: 'CATEGORIAS',
@@ -29529,24 +29555,6 @@ break;
             await sendButtons(nazu, from, { text: txtL, footer: '★彡 ASTA MD 彡★', buttons: [listButton('📋 ESCOLHER GRUPO', [{ title: '🚪 Sair do grupo', rows: rows('sair', '🚪') }, { title: '✅ Continuar no grupo', rows: rows('continuar', '✅') }]), ...(parados.length > 1 ? [quickReply(`🚪 SAIR DE TODOS (${parados.length})`, `${prefix}${command} todos`)] : [])] });
           } catch { await reply(txtL); }
         } catch (e) { console.error('[GRUPOS PARADOS] Erro:', e); await reply('❌ Erro ao ver os grupos parados.'); }
-        break;
-
-      // ---------- TODOS OS COMANDOS ----------
-      case 'todoscmd':
-      case 'todoscomandos':
-      case 'allcmd':
-      case 'listacmd':
-        try {
-          const tc = await astaTodosComandos();
-          const blocos = tc.lista.map(c => {
-            const linhas = [];
-            for (let i = 0; i < c.cmds.length; i += 4) linhas.push(c.cmds.slice(i, i + 4).map(x => `${prefix}${x}`).join('  '));
-            return `*${c.nome}* (${c.cmds.length})\n${linhas.join('\n')}`;
-          });
-          const txtTC = `📜 *TODOS OS COMANDOS — ${nomebot}*\n\n🔢 *${tc.total} comandos*\n➕ Contando os atalhos (ex.: ${prefix}b = ${prefix}ban), são ${tc.nomes} nomes de comando.\n\n${blocos.join('\n\n')}\n\n💡 Para ver o que cada um faz, abra o menu da categoria (${prefix}menu).`;
-          try { await sendButtons(nazu, from, { text: txtTC, footer: `© ${nomebot}`, buttons: [quickReply('⬅️ VOLTAR AO MENU', `${prefix}menu`)], quoted: info }); }
-          catch { await reply(txtTC); }
-        } catch (e) { console.error('[TODOSCMD] Erro:', e); await reply('❌ Erro ao montar a lista de comandos.'); }
         break;
 
       // ---------- TESTE DE BOTÕES: descobre qual formato chega no celular de cada pessoa ----------

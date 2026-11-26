@@ -14,8 +14,7 @@ export default async function menu(prefix, botName = 'MeuBot', userName = 'Usuá
         'menulogos — logos com seu nome',
         'menurpg — RPG e economia',
         'menuvip — comandos VIP',
-        'topcmd — comandos mais usados',
-        'todoscmd — TODOS os comandos e o total'
+        'topcmd — comandos mais usados'
       ]
     },
     { t: '🛡️ ADMINISTRAÇÃO', i: ['menuadm — comandos dos admins do grupo', 'menudono — comandos do dono do bot'] }

@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.10.1-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.11.1-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -42,6 +42,7 @@
 - [🆕 Novidades da Última Atualização](#-novidades-da-última-atualização)
 - [⚔️ Sobre o ASTA MD](#️-sobre-o-asta-md)
 - [📊 O Legado em Números](#-o-legado-em-números)
+- [📋 Todos os Comandos](#-todos-os-comandos)
 - [📥 Instalação](#-instalação)
   - [📱 Termux (Android)](#-termux-android)
   - [🪟 Windows](#-windows)
@@ -60,18 +61,16 @@
 
 <!-- NOVIDADES:INICIO (esta seção mostra só a versão mais nova; o histórico completo fica no LEIA-ME-ASTA-MD.txt) -->
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.10.1-blue?style=for-the-badge" alt="v10.10.1" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.11.1-blue?style=for-the-badge" alt="v10.11.1" />
 </p>
 
 <details open>
-  <summary><strong>🛠️ Corrigido</strong></summary>
+  <summary><strong>✨ Adicionado</strong></summary>
 
 <br>
 
-- 🍎 **Botões no iPhone**: todos os menus e mensagens com botões agora usam os formatos que apareceram no iPhone no `.testebotoes`:
-  - **B** (botões sem campos vazios + `messageSecret`) para mensagens com até 3 botões — com imagem, link etc.
-  - **F** (lista clássica) para listas e mensagens com mais de 3 opções (categorias do menu, forca, ações do duelo, quem disse...)
-- 📋 No `.menu`, o botão **LISTA** abre as categorias numa lista clássica (`.menu categorias`)
+- 📋 **Nova aba no README: [Todos os Comandos](#-todos-os-comandos)** — a lista completa por categoria e o total (900 comandos)
+- 📖 **Ajuda automática**: quem manda um comando que precisa de informação **sem nada** (sem texto, sem marcar, sem responder mensagem e sem mídia) recebe *pra que serve* e *como usar*. Usando direto (`.tm tal coisa`), roda normal. Os comandos que já têm explicação própria (como `.tm`, `.duelo`, `.play`) continuam com a deles
 </details>
 
 <details open>
@@ -79,8 +78,8 @@
 
 <br>
 
-- `.formatobotoes AUTO` — novo padrão (B + F); `.formatobotoes A` volta ao formato de antes
-- `.testebotoes <número>` — testa os formatos num celular e mostra quais chegaram
+- 📋 **Menus limpos**: agora mostram só o nome dos comandos, sem textos e sem exemplos (a explicação aparece quando o comando é usado sem nada)
+- 🍎 Botões no formato que aparece no iPhone (B + F), com `.testebotoes` e `.formatobotoes`
 </details>
 <!-- NOVIDADES:FIM -->
 
@@ -104,8 +103,8 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.10.1-blue?style=flat-square) |
-| 🧩 Comandos e atalhos | ![Comandos](https://img.shields.io/badge/+1700-brightgreen?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.11.1-blue?style=flat-square) |
+| 🧩 Comandos | ![Comandos](https://img.shields.io/badge/900_comandos_(1841_com_atalhos)-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
 | 📝 Commits | ![Commits](https://img.shields.io/github/commit-activity/t/geovanesouzx/asta-md?style=flat-square&color=purple) |
@@ -121,6 +120,136 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
   <br/>
   <sub>Total de visitas ao repositório</sub>
 </p>
+
+---
+
+## 📋 Todos os Comandos
+
+<p align="center">
+  <img src="https://img.shields.io/badge/TOTAL-900_COMANDOS-brightgreen?style=for-the-badge" alt="900 comandos" />
+  <img src="https://img.shields.io/badge/COM_ATALHOS-1841-blue?style=for-the-badge" alt="1841 com atalhos" />
+</p>
+
+> 🔢 O ASTA MD tem **900 comandos** — ou **1.841** contando os atalhos (ex.: `.b` = `.ban`).
+> O prefixo padrão é `.` (no seu bot pode ser outro). Mandando um comando sem nada, o bot explica pra que serve e como usar.
+
+<div align="center">
+
+| Categoria | Comandos |
+|-----------|:--------:|
+| 🎨 Figurinhas | 38 |
+| 📥 Downloads | 15 |
+| 🎮 Jogos e Brincadeiras | 300 |
+| 👥 Membros | 34 |
+| 🧰 Ferramentas | 22 |
+| 🎚️ Áudio e Vídeo | 45 |
+| 🎞️ Edições | 6 |
+| 🖌️ Logos | 38 |
+| 🗡️ RPG e Economia | 123 |
+| 🛡️ Administração | 128 |
+| 👑 Dono | 151 |
+| **TOTAL** | **900** |
+
+</div>
+
+<details>
+  <summary><strong>🎨 Figurinhas (38)</strong></summary>
+
+<br>
+
+`.s` · `.sc` · `.squadrado` · `.scorte` · `.sfundo` · `.sl` · `.ssom` · `.sticker2` · `.ssoff` · `.scoff` · `.sqoff` · `.scorteoff` · `.sfundooff` · `.sloff` · `.s2off` · `.sefeitooff` · `.revelar` · `.somfig` · `.sefeito` · `.svoz` · `.trocarsom` · `.sfala` · `.emojimix` · `.ttp` · `.attp` · `.brat` · `.bratvid` · `.qc` · `.rgtake` · `.take` · `.rename` · `.toimg` · `.tovideo` · `.pack` · `.topfig` · `.figurinhas` · `.figualeatoria` · `.soundinfo`
+
+</details>
+
+<details>
+  <summary><strong>📥 Downloads (15)</strong></summary>
+
+<br>
+
+`.play` · `.play2` · `.spotify` · `.soundcloud` · `.letra` · `.playvid` · `.tiktok` · `.instagram` · `.igstory` · `.facebook` · `.twitter` · `.kwai` · `.pinterest` · `.gdrive` · `.mediafire`
+
+</details>
+
+<details>
+  <summary><strong>🎮 Jogos e Brincadeiras (300)</strong></summary>
+
+<br>
+
+`.duelo` · `.torneio` · `.adivinha` · `.forcaanime` · `.quemdisse` · `.quizanime` · `.quizrank` · `.pet` · `.lojinha` · `.meuperfil` · `.jogodavelha` · `.connect4` · `.uno` · `.batalhanaval` · `.dueloquiz` · `.digitar` · `.forca` · `.wordle` · `.anagrama` · `.stop` · `.memoria` · `.quiz` · `.cacapalavras` · `.eununca` · `.vab` · `.chance` · `.quando` · `.sorte` · `.sn` · `.ppt` · `.suicidio` · `.brincadeira` · `.namorar` · `.casar` · `.casal` · `.shipo` · `.relacionamento` · `.casais` · `.terminar` · `.trair` · `.historicotraicao` · `.conselho` · `.conselhobiblico` · `.cantada` · `.piada` · `.charada` · `.motivacional` · `.elogio` · `.reflexao` · `.fato` · `.abraco` · `.beijo` · `.cafune` · `.tapa` · `.soco` · `.chute` · `.morder` · `.lamber` · `.tomate` · `.explodir` · `.matar` · `.beijob` · `.tapar` · `.sexo` · `.surubao` · `.goza` · `.mamar` · `.gay` · `.burro` · `.inteligente` · `.otaku` · `.fiel` · `.infiel` · `.corno` · `.gado` · `.gostoso` · `.feio` · `.rico` · `.pobre` · `.pirocudo` · `.nazista` · `.ladrao` · `.safado` · `.vesgo` · `.bebado` · `.machista` · `.homofobico` · `.racista` · `.chato` · `.sortudo` · `.azarado` · `.forte` · `.fraco` · `.pegador` · `.otario` · `.macho` · `.bobo` · `.nerd` · `.preguicoso` · `.trabalhador` · `.brabo` · `.lindo` · `.malandro` · `.simpatico` · `.engracado` · `.charmoso` · `.misterioso` · `.carinhoso` · `.humilde` · `.desumilde` · `.ciumento` · `.corajoso` · `.covarde` · `.esperto` · `.talarico` · `.chorao` · `.brincalhao` · `.bolsonarista` · `.petista` · `.comunista` · `.lulista` · `.traidor` · `.bandido` · `.cachorro` · `.vagabundo` · `.pilantra` · `.mito` · `.padrao` · `.comedia` · `.psicopata` · `.fortao` · `.global` · `.independente` · `.infantil` · `.inseguro` · `.introvertido` · `.irresponsavel` · `.lider` · `.liberal` · `.local` · `.maduro` · `.magrelo` · `.moderno` · `.nervoso` · `.offline` · `.online` · `.otimista` · `.patriotico` · `.pessimista` · `.pratico` · `.programador` · `.rainha` · `.realista` · `.religioso` · `.responsavel` · `.romantico` · `.rural` · `.saudavel` · `.seguidor` · `.serio` · `.social` · `.solitario` · `.sonhador` · `.supersticioso` · `.tecnologico` · `.tradicional` · `.urbano` · `.viajante` · `.visionario` · `.zueiro` · `.billionario` · `.gamer` · `.poderoso` · `.vencedor` · `.senhor` · `.lesbica` · `.burra` · `.corna` · `.gostosa` · `.feia` · `.rica` · `.bucetuda` · `.ladra` · `.safada` · `.vesga` · `.bebada` · `.homofobica` · `.chata` · `.sortuda` · `.azarada` · `.fraca` · `.pegadora` · `.otaria` · `.boba` · `.preguicosa` · `.trabalhadora` · `.braba` · `.linda` · `.malandra` · `.simpatica` · `.engracada` · `.charmosa` · `.misteriosa` · `.carinhosa` · `.ciumenta` · `.corajosa` · `.esperta` · `.talarica` · `.chorona` · `.brincalhona` · `.traidora` · `.bandida` · `.cachorra` · `.vagabunda` · `.ateia` · `.aventureira` · `.bagunceira` · `.calma` · `.caseira` · `.cetica` · `.confiante` · `.conservadora` · `.cosmopolita` · `.criativa` · `.dependente` · `.digital` · `.dorminhoca` · `.doente` · `.economica` · `.estudiosa` · `.extrovertida` · `.fofoqueira` · `.fortona` · `.gastadora` · `.insegura` · `.introvertida` · `.madura` · `.magrela` · `.moderna` · `.nervosa` · `.patriotica` · `.pratica` · `.programadora` · `.religiosa` · `.romantica` · `.sedentaria` · `.seguidora` · `.seria` · `.solitaria` · `.sonhadora` · `.supersticiosa` · `.tecnologica` · `.urbana` · `.vencedora` · `.visionaria` · `.zueira` · `.bilionaria` · `.poderosa` · `.senhora` · `.rankgay` · `.rankburro` · `.rankinteligente` · `.rankotaku` · `.rankfiel` · `.rankinfiel` · `.rankcorno` · `.rankgado` · `.rankgostoso` · `.rankrico` · `.rankpobre` · `.rankforte` · `.rankpegador` · `.rankmacho` · `.ranknerd` · `.ranktrabalhador` · `.rankbrabo` · `.ranklindo` · `.rankmalandro` · `.rankengracado` · `.rankcharmoso` · `.rankvisionario` · `.rankpoderoso` · `.rankvencedor` · `.ranklesbica` · `.rankburra` · `.rankcorna` · `.rankgada` · `.rankgostosa` · `.rankrica` · `.rankpegadora` · `.ranktrabalhadora` · `.rankbraba` · `.ranklinda` · `.rankmalandra` · `.rankengracada` · `.rankcharmosa` · `.rankvisionaria` · `.rankpoderosa` · `.rankvencedora` · `.modobn`
+
+</details>
+
+<details>
+  <summary><strong>👥 Membros (34)</strong></summary>
+
+<br>
+
+`.perfil` · `.meustatus` · `.registrar` · `.meuregistro` · `.afk` · `.voltei` · `.mention` · `.ping` · `.statusbot` · `.statusgp` · `.regras` · `.resumo` · `.resumir` · `.agendados` · `.aniversario` · `.cargos` · `.zipbot` · `.gitbot` · `.rankativo` · `.rankinativo` · `.totalcmd` · `.topcmd` · `.conquistas` · `.caixa` · `.presente` · `.inv` · `.rep` · `.toprep` · `.denunciar` · `.denuncias` · `.roles` · `.role.vou` · `.role.nvou` · `.role.confirmados`
+
+</details>
+
+<details>
+  <summary><strong>🧰 Ferramentas (22)</strong></summary>
+
+<br>
+
+`.tradutor` · `.tts` · `.transcrever` · `.calc` · `.hora` · `.clima` · `.qrcode` · `.lerqr` · `.ssweb` · `.encurtalink` · `.upload` · `.verificar` · `.removebg` · `.gerarnick` · `.nota` · `.notas` · `.lembrete` · `.meuslembretes` · `.apagalembrete` · `.horoscopo` · `.signos` · `.estatisticas`
+
+</details>
+
+<details>
+  <summary><strong>🎚️ Áudio e Vídeo (45)</strong></summary>
+
+<br>
+
+`.cortarvideo` · `.tomp3` · `.videorapido` · `.videolento` · `.videoreverso` · `.videoloop` · `.videomudo` · `.pretoebranco` · `.sepia` · `.espelhar` · `.rotacionar` · `.rmbg` · `.upscale` · `.cortaraudio` · `.velocidade` · `.normalizar` · `.vozmenino` · `.vozmulher` · `.vozhomem` · `.vozcrianca` · `.vozgrave` · `.vozrapida` · `.vozlenta` · `.vozeco` · `.vozcaverna` · `.bass` · `.bass2` · `.bass3` · `.bassbn` · `.grave` · `.aumentarvolume` · `.equalizar` · `.overdrive` · `.pitch` · `.lowpass` · `.audiorapido` · `.audiolento` · `.audioreverso` · `.reverb` · `.eco` · `.chorus` · `.phaser` · `.flanger` · `.tremolo` · `.vibrato`
+
+</details>
+
+<details>
+  <summary><strong>🎞️ Edições (6)</strong></summary>
+
+<br>
+
+`.jornal` · `.cinema` · `.blackwhite` · `.desfoque` · `.wojakreaction` · `.camera`
+
+</details>
+
+<details>
+  <summary><strong>🖌️ Logos (38)</strong></summary>
+
+<br>
+
+`.amongus` · `.royal` · `.mascotemetal` · `.firework` · `.summerbeach` · `.cloudsky` · `.techstyle` · `.watercolor` · `.ligatures` · `.graffitistyle` · `.frozen` · `.colorful` · `.balloon` · `.multicolor` · `.metal` · `.doubleexposure` · `.mascoteneon` · `.eraser` · `.america` · `.snow` · `.sunset` · `.halloween` · `.blood` · `.hallobat` · `.cemiterio` · `.ffavatar` · `.vintage3d` · `.hollywood` · `.glitch` · `.galaxy` · `.glossy` · `.dragonfire` · `.pubgavatar` · `.comics` · `.pornhub` · `.avengers` · `.marvel` · `.deadpool`
+
+</details>
+
+<details>
+  <summary><strong>🗡️ RPG e Economia (123)</strong></summary>
+
+<br>
+
+`.perfilrpg` · `.carteira` · `.equipamentos` · `.missoes` · `.toprpg` · `.rankglobal` · `.ranklvl` · `.meustats` · `.evoluir` · `.prestige` · `.streak` · `.reivindicar` · `.speedup` · `.boost` · `.diario` · `.dep` · `.sacar` · `.pix` · `.doar` · `.loja` · `.comprar` · `.vender` · `.vagas` · `.emprego` · `.demitir` · `.habilidades` · `.desafiosemanal` · `.desafiomensal` · `.investir` · `.sell` · `.propriedades` · `.cprop` · `.cprops` · `.tributos` · `.work` · `.mine` · `.fish` · `.caçar` · `.coletar` · `.colher` · `.explore` · `.plantar` · `.plantacao` · `.sementes` · `.cook` · `.receitas` · `.ingredientes` · `.eat` · `.vendercomida` · `.dados` · `.coinflip` · `.crash` · `.slots` · `.apostar` · `.roleta` · `.blackjack` · `.corrida` · `.loteria` · `.leilao` · `.topriqueza` · `.duelrpg` · `.arena` · `.assaltar` · `.crime` · `.guerra` · `.desafio` · `.masmorra` · `.bossrpg` · `.eventos` · `.dungeon` · `.class` · `.forge` · `.enchant` · `.dismantle` · `.reparar` · `.materiais` · `.precos` · `.casa` · `.auction` · `.mercado` · `.listar` · `.cmerc` · `.meusan` · `.cancelar` · `.divorciar` · `.abracarrpg` · `.beijarrpg` · `.baterrpg` · `.proteger` · `.familia` · `.arvore` · `.adotaruser` · `.deserdar` · `.vote` · `.criarcla` · `.cla` · `.convidar` · `.expulsar` · `.aceitarconvite` · `.recusarconvite` · `.rmconvite` · `.sair` · `.pets` · `.adotar` · `.feed` · `.train` · `.evolve` · `.petbattle` · `.petbet` · `.renamepet` · `.equippet` · `.unequippet` · `.lojapremium` · `.comprarpremium` · `.rpgadd` · `.rpgremove` · `.rpgsetlevel` · `.rpgadditem` · `.rpgremoveitem` · `.rpgresetplayer` · `.rpgresetglobal` · `.rpgstats` · `.modorpg`
+
+</details>
+
+<details>
+  <summary><strong>🛡️ Administração (128)</strong></summary>
+
+<br>
+
+`.ban` · `.ban2` · `.bangeral` · `.inativos` · `.promover` · `.rebaixar` · `.punir` · `.mutar` · `.mute` · `.desmute` · `.mute2` · `.desmute2` · `.adv` · `.rmadv` · `.listadv` · `.roletaban` · `.bam` · `.setbammsg` · `.blockuser` · `.unblockuser` · `.listblocksgp` · `.addblacklist` · `.delblacklist` · `.listblacklist` · `.blockcmd` · `.unblockcmd` · `.bemvindo` · `.bemvindo2` · `.legendabv` · `.fotobv` · `.set-fotobv` · `.set-bannerbv` · `.rmfotobv` · `.bvcard` · `.bvfig` · `.bvbotoes` · `.verificarnovato` · `.regrasaceite` · `.addregra` · `.delregra` · `.saida` · `.legendasaiu` · `.fotosaiu` · `.rmfotosaiu` · `.solicitacoes` · `.aprovar` · `.recusarsolic` · `.marcar` · `.hidetag` · `.del` · `.limpar` · `.nomegp` · `.descgrupo` · `.fotogrupo` · `.linkgp` · `.grupo` · `.opengp` · `.modonoturno` · `.automsg` · `.limitmessage` · `.dellimitmessage` · `.banghost` · `.setprefix` · `.fotomenugrupo` · `.infoperso` · `.agendar` · `.desagendar` · `.enquete` · `.votacao` · `.evento` · `.sorteio` · `.sorteiobotao` · `.figdia` · `.rankingsemanal` · `.role.criar` · `.role.alterar` · `.role.excluir` · `.anticategoria` · `.antilinkgp` · `.antilinkcanal` · `.antilinkhard` · `.antilinksoft` · `.antilinkpro` · `.linkspermitidos` · `.antifig` · `.antiflood` · `.antidoc` · `.antiloc` · `.antibtn` · `.antistickerplus` · `.antiporn` · `.antistatus` · `.antitoxic` · `.antipalavra` · `.x9` · `.wladd` · `.wl.remove` · `.wl.lista` · `.atividade` · `.checkativo` · `.limparrank` · `.resetrank` · `.mantercontador` · `.addmod` · `.delmod` · `.listmods` · `.grantmodcmd` · `.revokemodcmd` · `.listmodcmds` · `.parcerias` · `.addparceria` · `.delparceria` · `.modoparceria` · `.addautoadm` · `.addautoadmidia` · `.listautoadm` · `.delautoadm` · `.autorespostas` · `.autorepo` · `.modolite` · `.soadm` · `.autodl` · `.autosticker` · `.autotranscrever` · `.assistente` · `.assistentevoz` · `.minmessage` · `.cmdlimit`
+
+</details>
+
+<details>
+  <summary><strong>👑 Dono (151)</strong></summary>
+
+<br>
+
+`.atualizar` · `.reiniciar` · `.status` · `.logs` · `.avisos` · `.manutencao` · `.autoreload` · `.painelweb` · `.backupdados` · `.backupsemanal` · `.instalarfundo` · `.figfps` · `.menubotoes` · `.testebotoes` · `.formatobotoes` · `.tutorial` · `.addsubdono` · `.delsubdono` · `.listasubdonos` · `.permsub` · `.registropv` · `.registrados` · `.desregistrar` · `.addpremium` · `.delpremium` · `.listprem` · `.resetgold` · `.tm` · `.tmm` · `.tmparar` · `.tmexcluir` · `.tmincluir` · `.tmexcluidos` · `.tmprevia` · `.tmcanal` · `.tmavisos` · `.tmconfig` · `.tm2` · `.statustm` · `.inscrevertm` · `.divdono` · `.divdonomidia` · `.prefixo` · `.nomebot` · `.nomedono` · `.numerodono` · `.fotobot` · `.fotomenu` · `.videomenu` · `.audiomenu` · `.lermais` · `.configcmdnotfound` · `.setcmdmsg` · `.personalizargrupo` · `.designmenu` · `.resetdesign` · `.setheader` · `.settitulo` · `.setitem` · `.setborda` · `.setbordameio` · `.setbordafim` · `.setseparador` · `.setpersonalidade` · `.criarpers` · `.novapers` · `.addauto` · `.addautomidia` · `.listauto` · `.delauto` · `.addreact` · `.listreact` · `.delreact` · `.addnopref` · `.listnopref` · `.delnopref` · `.addcmd` · `.addcmdmidia` · `.listcmd` · `.delcmd` · `.testcmd` · `.addcmd-subdono` · `.removecmd-subdono` · `.listcmd-subdono` · `.addalias` · `.listalias` · `.delalias` · `.addblackglobal` · `.listblackglobal` · `.rmblackglobal` · `.cmdlimitar` · `.cmddeslimitar` · `.cmdlimites` · `.modoaluguel` · `.addaluguel` · `.gerarcod` · `.listaraluguel` · `.listaluguel` · `.infoaluguel` · `.estenderaluguel` · `.removeraluguel` · `.limparaluguel` · `.dayfree` · `.setdiv` · `.divulgar` · `.addindicacao` · `.delindicacao` · `.topindica` · `.addsubbot` · `.removesubbot` · `.listarsubbots` · `.conectarsubbot` · `.gerarcodigo` · `.addcmdvip` · `.removecmdvip` · `.listcmdvip` · `.togglecmdvip` · `.statsvip` · `.infovip` · `.menuvip` · `.entrar` · `.sairgp` · `.gruposinativos` · `.seradm` · `.sermembro` · `.listagp` · `.bangp` · `.unbangp` · `.listbangp` · `.blockcmdg` · `.unblockcmdg` · `.blockuserg` · `.unblockuserg` · `.listblocks` · `.antibanmarcar` · `.antipv` · `.antipv2` · `.antipv3` · `.antipv4` · `.antipvmsg` · `.antispamcmd` · `.modoliteglobal` · `.msgprefix` · `.viewmsg` · `.cases` · `.getcase` · `.iaclear` · `.limpardb` · `.limparrankg` · `.reviverqr` · `.nuke`
+
+</details>
 
 ---
 
