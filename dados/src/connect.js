@@ -687,6 +687,23 @@ if (groupSettings?.x9 && inf.author && !entradaPorLink) {
                         continue;
                     }
 
+                    // ===== ANTI-GRINGO (!antigringo): número de fora do país é removido na hora =====
+                    if (groupSettings.antigringo?.on) {
+                        try {
+                            const EXX = await import('./funcs/utils/astaExtras.js');
+                            const pInfo = (groupMetadata?.participants || []).find(x => x.id === participant || x.lid === participant);
+                            const pnG = String(pInfo?.phoneNumber || (participant.endsWith('@s.whatsapp.net') ? participant : '')).split('@')[0];
+                            const cfgG = groupSettings.antigringo;
+                            const ddiG = pnG ? EXX.ddiDe(pnG) : '';
+                            const bloq = pnG && (cfgG.bloqueados?.length ? cfgG.bloqueados.includes(ddiG) : ddiG !== '55');
+                            if (bloq && !pInfo?.admin) {
+                                membersToRemove.push(participant);
+                                removalReasons.push(`@${userId} (número de fora: ${EXX.DDI_PAIS[ddiG] || `+${ddiG}`})`);
+                                continue;
+                            }
+                        } catch (eG) { console.log('⚠️ antigringo:', eG.message); }
+                    }
+
 
                     const participantStripped = participant.replace(/@.*/, '');
                     let participantNumber = participantStripped;

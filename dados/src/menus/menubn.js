@@ -23,7 +23,13 @@ export default async function menubn(prefix, botName = 'MeuBot', userName = 'Usu
         'batalhanaval @user',
         'dueloquiz @user — duelo de perguntas',
         'digitar @user — quem digita mais rápido',
-        'forca · wordle · anagrama · stop',
+        'forca — em equipe, com placar e 💰',
+        'wordle · anagrama · stop',
+        'minado — campo minado',
+        'adivinhaanime — imagem desfocada que vai clareando',
+        'apostacorrida — corrida de cavalos com apostas 💰',
+        'tesouro on/off — caça ao tesouro',
+        'pegar — abre o baú do tesouro',
         'memoria · memoria ranking',
         'quiz <categoria>',
         'cacapalavras [dificuldade]'
@@ -31,7 +37,13 @@ export default async function menubn(prefix, botName = 'MeuBot', userName = 'Usu
     },
     {
       t: '🎲 SORTE E PERGUNTAS', i: [
-        { g: ['eununca', 'vab', 'chance', 'quando', 'sorte', 'sn', 'ppt', NL('suicidio')], n: 4 }
+        { g: ['eununca', 'vab', 'chance', 'quando', 'sorte', 'sn', 'ppt', NL('suicidio')], n: 4 },
+        'vod — verdade ou desafio com botões',
+        'caraoucoroa [cara|coroa] [valor]',
+        'roletarussa',
+        'euamor — o quanto você ama (30 brincadeiras)',
+        'interesses — lugar favorito (20 brincadeiras)',
+        'saudebrincadeira — medidor de saúde (19 brincadeiras)'
       ]
     },
     {
@@ -47,7 +59,7 @@ export default async function menubn(prefix, botName = 'MeuBot', userName = 'Usu
       ]
     },
     {
-      t: '💬 FRASES', i: [{ g: ['conselho', 'conselhobiblico', 'cantada', 'piada', 'charada', 'motivacional', 'elogio', 'reflexao', 'fato'], n: 3 }]
+      t: '💬 FRASES', i: [{ g: ['conselho', 'conselhobiblico', 'cantada', 'piada', 'charada', 'motivacional', 'elogio', 'reflexao', 'fato', 'frasedeamor', 'frasebonita', 'frasecriativas', 'ansiedade', 'deboche', 'indiretas', 'raiva', 'recado'], n: 3 }]
     },
     {
       t: '🤝 INTERAÇÕES (marque alguém)', i: [{ g: ['abraco', 'beijo', 'cafune', 'tapa', 'soco', 'chute', 'morder', 'lamber', 'tomate', 'explodir', 'matar'], n: 4 }]

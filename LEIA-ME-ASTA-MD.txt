@@ -676,3 +676,62 @@ v10.14.0 — MODELOS DE IMAGEM NAS BOAS-VINDAS E NO REGISTRO
 - .registromodelo (só o dono) → escolhe o modelo da imagem que chega quando alguém termina o
   .registrar no privado. Os cartões mostram "Registro nº" e "se registrou no <bot>".
   0 = volta o cartão antigo. Fica salvo no config.json ("registroModelo").
+
+v10.15.0 — 112 COMANDOS NOVOS (ideias do SANDRO-MD, refeitas do zero)
+==================================================
+O código do SANDRO-MD é criptografado e o autor não permite repassar, então nada foi copiado:
+cada função foi refeita do zero a partir do nome do comando.
+Ficaram de fora: menu +18 (fotos de pessoas reais), comandos sexuais/ofensivos, links de filmes/séries/
+jogos/apps piratas, travas (destrava), consultas de dados de pessoas (cpf/nome/placa/celular) e x9 de
+visualização única.
+
+MODERAÇÃO
+- .antigringo → só +55 entra · .antigringo bloquear 1 62 91 → bloqueia só esses DDIs
+  .antigringo todos · .antigringo varrer (remove os que já estão) · .antifake é atalho
+- .antiimg .antivideo .antiaudio .anticontato .anticatalogo → apaga e avisa (1 aviso por minuto)
+- .antifig mute 5 → passou do limite: aviso; se continuar em 10 min, fica 5 min silenciado
+- .advs @user → advertências com motivo, quem deu e data · .mutados · .rankddd
+- Já existiam: .mutar @user 10m · .adv/.listadv/.rmadv (3 = remoção) · .verificarnovato (botão
+  "SOU HUMANO") · .antidelete · .qrcode
+
+UTILIDADES
+- .cotacao / .dolar / .euro / .btc / .eth / .libra (AwesomeAPI, sem chave)
+- .encurtar <link> (TinyURL, reserva is.gd) — atalhos .tinyur .bitly .cuttly
+- .cep (ViaCEP/BrasilAPI) · .ddd [nº] · .feriados [ano] · .validarcpf · .validarcnpj
+- .bhaskara a b c · .raizquadrada · .dinextenso 1250,90 · .gerarsenha [tamanho] [sem]
+
+JOGOS
+- .adivinhaanime → capa de anime do top 200 (Jikan) desfocada, 4 fases de 20 s; aceita o nome em
+  japonês ou inglês com errinho de digitação; prêmio maior para quem acerta rápido; .adivinhaanime parar
+- .apostacorrida → 60 s de apostas (.apostar <cavalo 1-5> <valor>); quem acertar leva 4x
+  (o .apostar do RPG continua funcionando quando não tem corrida aberta)
+- .tesouro on/off → baú entre 9h e 23h, some em 10 min; .pegar
+- .forca → placar por pessoa (1 pt por letra revelada; acertar a palavra = 3 + letras que faltavam);
+  no fim cada ponto vira 10 💰 · .resetforca
+- .vod (botões Verdade/Desafio) · .verdade · .minado (6x6) · .caraoucoroa [lado] [aposta] · .roletarussa
+- .euamor_* (30) · .interesses_* (20) · .saude_* (19) — listas: .euamor · .interesses · .saudebrincadeira
+- Frases: .frasedeamor .frasebonita .frasecriativas .ansiedade .deboche .indiretas .raiva .recado
+
+ATALHOS
+- play1/play4/play5/playmix → play · tiktok2-5 → tiktok · attp1-9 → attp · fechar → fechargp
+- descgp, grupoinfo, advertencia, advertidos, listanegra, so_adm, traduzir, gtts, pinterest2,
+  letramusic, ping2, marcar2, gerarnick2, antisticker, antipalavrao, jogodaforca…
+
+v10.16.0 — DOWNLOADER UNIVERSAL (.baixar) E PINTEREST COM VÍDEO
+==================================================
+- .baixar <link> → baixa vídeo de vários apps com um comando só:
+  TikTok, YouTube, Instagram, Twitter/X, Facebook, Kwai, Pinterest, Reddit, Threads,
+  Snapchat, Tumblr, Vimeo, Dailymotion, Likee, Bilibili, Twitch, SoundCloud e outros.
+  • .baixar audio <link> (ou .baixaraudio) → baixa só o som, convertido em mp3
+  • também funciona respondendo uma mensagem que tenha o link, mandando só .baixar
+  • atalhos: .download .dl .baixarvideo .baixarmp3 .dlaudio
+  Motor: nayan-video-downloader (o mesmo "all-in-one" já usado no .facebook) + resolvedor
+  próprio para o Pinterest. Não usa a apikey_vex.
+- .pinterest com link de PIN agora traz vídeo quando o pin é de vídeo (antes só imagem);
+  pin de foto continua trazendo a imagem, e a busca por texto continua igual.
+
+v10.16.1 — !baixar COM BOTÕES
+==================================================
+- .baixar <link> agora pergunta com botões: 🎥 VÍDEO ou 🎧 ÁUDIO (mp3).
+  Tocou no botão, o bot baixa do jeito escolhido.
+- Sem botão: .baixar video <link> · .baixar audio <link> · .baixaraudio <link>

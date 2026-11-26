@@ -11,9 +11,11 @@ export default async function menuadm(prefix, botName = 'MeuBot', userName = 'Us
         'promover @user · rebaixar @user',
         'punir @user — painel advertir / silenciar / banir',
         'mutar @user 30m — silencia por um tempo',
+        'mutados — quem está mutado',
         'mute @user · desmute @user',
         'mute2 @user · desmute2 @user',
         'adv @user · rmadv @user · listadv',
+        'advs @user — histórico de advertências com data',
         'roletaban — sorteia alguém para banir',
         'bam @user — ban de brincadeira',
         'setbammsg <texto>',
@@ -95,6 +97,10 @@ export default async function menuadm(prefix, botName = 'MeuBot', userName = 'Us
         'linkspermitidos add youtube tiktok',
         { sub: 'MENSAGENS' },
         'antifig · antifig limite 5',
+        'antifig mute 5 — passou do limite: aviso e depois silêncio',
+        'antiimg · antivideo · antiaudio',
+        'anticontato · anticatalogo',
+        'antigringo — só +55 entra (ou bloqueie países)',
         'antiflood · antidoc · antiloc',
         'antibtn · antistickerplus',
         'antiporn · antistatus',
@@ -108,6 +114,7 @@ export default async function menuadm(prefix, botName = 'MeuBot', userName = 'Us
     {
       t: '📊 ATIVIDADE', i: [
         'atividade · checkativo',
+        'rankddd — de onde é o pessoal',
         'limparrank · resetrank',
         'mantercontador'
       ]

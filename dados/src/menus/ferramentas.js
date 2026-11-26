@@ -29,6 +29,29 @@ export default async function menuFerramentas(prefix, botName = 'MeuBot', userNa
         'meuslembretes · apagalembrete <id>'
       ]
     },
+    {
+      t: '💱 DINHEIRO E CONTAS', i: [
+        'cotacao · dolar · euro · btc — cotação do dia',
+        'dinextenso <valor> — valor por extenso',
+        'bhaskara <a> <b> <c>',
+        'raizquadrada <número>',
+        'gerarsenha [tamanho] — senha forte'
+      ]
+    },
+    {
+      t: '🇧🇷 BRASIL', i: [
+        'cep <cep> — endereço do CEP',
+        'ddd [número] — cidades do DDD',
+        'feriados [ano]',
+        'validarcpf <cpf> · validarcnpj <cnpj>'
+      ]
+    },
+    {
+      t: '🔗 LINKS', i: [
+        'encurtar <link> — tinyur · bitly · cuttly',
+        'tagme — o bot te marca'
+      ]
+    },
     { t: '🔮 HORÓSCOPO', i: ['horoscopo <signo>', 'signos'] },
     { t: '📊 OUTROS', i: ['estatisticas'] }
   ]);

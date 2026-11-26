@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.14.0-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.16.1-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -61,7 +61,7 @@
 
 <!-- NOVIDADES:INICIO (esta seção mostra só a versão mais nova; o histórico completo fica no LEIA-ME-ASTA-MD.txt) -->
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.14.0-blue?style=for-the-badge" alt="v10.14.0" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.16.1-blue?style=for-the-badge" alt="v10.16.1" />
 </p>
 
 <details open>
@@ -69,21 +69,12 @@
 
 <br>
 
-- 🖼️ **Boas-vindas com a foto de perfil de quem entrou** + o texto do `.legendabv` como legenda
-  - `.bemvindo 1` → o bot mostra a prévia dos **10 modelos** (com a foto do adm) e um botão para escolher
-  - **1 a 5 — só a foto:** Foto pura · Foto redonda · Polaroid · Moldura neon · Story
-  - **6 a 10 — cartões:** Cartão clássico · Capa (estilo Discord) · Minimalista claro · Cyber neon · Carteirinha
-  - `.bemvindo modelo 0` volta para a imagem antiga
-- 🪪 **Modelo da imagem do registro** — o dono escolhe com `.registromodelo` (mesmos 10 modelos, com "Registro nº")
-- 🎨 **`.autofigu` no privado** — toda foto, vídeo ou GIF que você mandar no PV vira figurinha, sem comando
-</details>
-
-<details open>
-  <summary><strong>🔧 Corrigido</strong></summary>
-
-<br>
-
-- 🆕 **Aviso de atualização** — o bot procura versão nova no GitHub a cada 30 minutos (antes era a cada 6 horas)
+- 📥 **`.baixar <link>` — baixa de vários apps de uma vez**
+  - um comando só para TikTok, YouTube, Instagram, Twitter/X, Facebook, Kwai, Pinterest, Reddit, Threads, Snapchat, Tumblr, Vimeo, Dailymotion, Likee, Bilibili, Twitch, SoundCloud e muitos outros
+  - o bot pergunta com **botões** se você quer **🎥 VÍDEO** ou **🎧 ÁUDIO (mp3)**
+  - direto, sem botão: `.baixar video <link>` · `.baixar audio <link>` (ou `.baixaraudio`)
+  - dá para responder uma mensagem com o link e mandar só `.baixar`
+- 📌 **`.pinterest` agora baixa vídeo também** — se o link for um pin de vídeo, vem o vídeo; se for foto, vem a imagem
 </details>
 <!-- NOVIDADES:FIM -->
 
@@ -107,8 +98,8 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.14.0-blue?style=flat-square) |
-| 🧩 Comandos | ![Comandos](https://img.shields.io/badge/902_comandos_(1846_com_atalhos)-brightgreen?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.16.1-blue?style=flat-square) |
+| 🧩 Comandos | ![Comandos](https://img.shields.io/badge/1016_comandos_(2039_com_atalhos)-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
 | 📝 Commits | ![Commits](https://img.shields.io/github/commit-activity/t/geovanesouzx/asta-md?style=flat-square&color=purple) |
@@ -130,11 +121,11 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 ## 📋 Todos os Comandos
 
 <p align="center">
-  <img src="https://img.shields.io/badge/TOTAL-902_COMANDOS-brightgreen?style=for-the-badge" alt="902 comandos" />
-  <img src="https://img.shields.io/badge/COM_ATALHOS-1846-blue?style=for-the-badge" alt="1846 com atalhos" />
+  <img src="https://img.shields.io/badge/TOTAL-1016_COMANDOS-brightgreen?style=for-the-badge" alt="1016 comandos" />
+  <img src="https://img.shields.io/badge/COM_ATALHOS-2039-blue?style=for-the-badge" alt="2039 com atalhos" />
 </p>
 
-> 🔢 O ASTA MD tem **902 comandos** — ou **1.846** contando os atalhos (ex.: `.b` = `.ban`).
+> 🔢 O ASTA MD tem **1.016 comandos** — ou **2.039** contando os atalhos (ex.: `.b` = `.ban`).
 > O prefixo padrão é `.` (no seu bot pode ser outro). Mandando um comando sem nada, o bot explica pra que serve e como usar.
 
 <div align="center">
@@ -142,17 +133,17 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 | Categoria | Comandos |
 |-----------|:--------:|
 | 🎨 Figurinhas | 39 |
-| 📥 Downloads | 15 |
-| 🎮 Jogos e Brincadeiras | 300 |
+| 📥 Downloads | 17 |
+| 🎮 Jogos e Brincadeiras | 388 |
 | 👥 Membros | 34 |
-| 🧰 Ferramentas | 22 |
+| 🧰 Ferramentas | 37 |
 | 🎚️ Áudio e Vídeo | 45 |
 | 🎞️ Edições | 6 |
 | 🖌️ Logos | 38 |
 | 🗡️ RPG e Economia | 123 |
-| 🛡️ Administração | 128 |
+| 🛡️ Administração | 137 |
 | 👑 Dono | 152 |
-| **TOTAL** | **902** |
+| **TOTAL** | **1016** |
 
 </div>
 
@@ -166,20 +157,20 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 </details>
 
 <details>
-  <summary><strong>📥 Downloads (15)</strong></summary>
+  <summary><strong>📥 Downloads (17)</strong></summary>
 
 <br>
 
-`.play` · `.play2` · `.spotify` · `.soundcloud` · `.letra` · `.playvid` · `.tiktok` · `.instagram` · `.igstory` · `.facebook` · `.twitter` · `.kwai` · `.pinterest` · `.gdrive` · `.mediafire`
+`.baixar` · `.baixaraudio` · `.play` · `.play2` · `.spotify` · `.soundcloud` · `.letra` · `.playvid` · `.tiktok` · `.instagram` · `.igstory` · `.facebook` · `.twitter` · `.kwai` · `.pinterest` · `.gdrive` · `.mediafire`
 
 </details>
 
 <details>
-  <summary><strong>🎮 Jogos e Brincadeiras (300)</strong></summary>
+  <summary><strong>🎮 Jogos e Brincadeiras (388)</strong></summary>
 
 <br>
 
-`.duelo` · `.torneio` · `.adivinha` · `.forcaanime` · `.quemdisse` · `.quizanime` · `.quizrank` · `.pet` · `.lojinha` · `.meuperfil` · `.jogodavelha` · `.connect4` · `.uno` · `.batalhanaval` · `.dueloquiz` · `.digitar` · `.forca` · `.wordle` · `.anagrama` · `.stop` · `.memoria` · `.quiz` · `.cacapalavras` · `.eununca` · `.vab` · `.chance` · `.quando` · `.sorte` · `.sn` · `.ppt` · `.suicidio` · `.brincadeira` · `.namorar` · `.casar` · `.casal` · `.shipo` · `.relacionamento` · `.casais` · `.terminar` · `.trair` · `.historicotraicao` · `.conselho` · `.conselhobiblico` · `.cantada` · `.piada` · `.charada` · `.motivacional` · `.elogio` · `.reflexao` · `.fato` · `.abraco` · `.beijo` · `.cafune` · `.tapa` · `.soco` · `.chute` · `.morder` · `.lamber` · `.tomate` · `.explodir` · `.matar` · `.beijob` · `.tapar` · `.sexo` · `.surubao` · `.goza` · `.mamar` · `.gay` · `.burro` · `.inteligente` · `.otaku` · `.fiel` · `.infiel` · `.corno` · `.gado` · `.gostoso` · `.feio` · `.rico` · `.pobre` · `.pirocudo` · `.nazista` · `.ladrao` · `.safado` · `.vesgo` · `.bebado` · `.machista` · `.homofobico` · `.racista` · `.chato` · `.sortudo` · `.azarado` · `.forte` · `.fraco` · `.pegador` · `.otario` · `.macho` · `.bobo` · `.nerd` · `.preguicoso` · `.trabalhador` · `.brabo` · `.lindo` · `.malandro` · `.simpatico` · `.engracado` · `.charmoso` · `.misterioso` · `.carinhoso` · `.humilde` · `.desumilde` · `.ciumento` · `.corajoso` · `.covarde` · `.esperto` · `.talarico` · `.chorao` · `.brincalhao` · `.bolsonarista` · `.petista` · `.comunista` · `.lulista` · `.traidor` · `.bandido` · `.cachorro` · `.vagabundo` · `.pilantra` · `.mito` · `.padrao` · `.comedia` · `.psicopata` · `.fortao` · `.global` · `.independente` · `.infantil` · `.inseguro` · `.introvertido` · `.irresponsavel` · `.lider` · `.liberal` · `.local` · `.maduro` · `.magrelo` · `.moderno` · `.nervoso` · `.offline` · `.online` · `.otimista` · `.patriotico` · `.pessimista` · `.pratico` · `.programador` · `.rainha` · `.realista` · `.religioso` · `.responsavel` · `.romantico` · `.rural` · `.saudavel` · `.seguidor` · `.serio` · `.social` · `.solitario` · `.sonhador` · `.supersticioso` · `.tecnologico` · `.tradicional` · `.urbano` · `.viajante` · `.visionario` · `.zueiro` · `.billionario` · `.gamer` · `.poderoso` · `.vencedor` · `.senhor` · `.lesbica` · `.burra` · `.corna` · `.gostosa` · `.feia` · `.rica` · `.bucetuda` · `.ladra` · `.safada` · `.vesga` · `.bebada` · `.homofobica` · `.chata` · `.sortuda` · `.azarada` · `.fraca` · `.pegadora` · `.otaria` · `.boba` · `.preguicosa` · `.trabalhadora` · `.braba` · `.linda` · `.malandra` · `.simpatica` · `.engracada` · `.charmosa` · `.misteriosa` · `.carinhosa` · `.ciumenta` · `.corajosa` · `.esperta` · `.talarica` · `.chorona` · `.brincalhona` · `.traidora` · `.bandida` · `.cachorra` · `.vagabunda` · `.ateia` · `.aventureira` · `.bagunceira` · `.calma` · `.caseira` · `.cetica` · `.confiante` · `.conservadora` · `.cosmopolita` · `.criativa` · `.dependente` · `.digital` · `.dorminhoca` · `.doente` · `.economica` · `.estudiosa` · `.extrovertida` · `.fofoqueira` · `.fortona` · `.gastadora` · `.insegura` · `.introvertida` · `.madura` · `.magrela` · `.moderna` · `.nervosa` · `.patriotica` · `.pratica` · `.programadora` · `.religiosa` · `.romantica` · `.sedentaria` · `.seguidora` · `.seria` · `.solitaria` · `.sonhadora` · `.supersticiosa` · `.tecnologica` · `.urbana` · `.vencedora` · `.visionaria` · `.zueira` · `.bilionaria` · `.poderosa` · `.senhora` · `.rankgay` · `.rankburro` · `.rankinteligente` · `.rankotaku` · `.rankfiel` · `.rankinfiel` · `.rankcorno` · `.rankgado` · `.rankgostoso` · `.rankrico` · `.rankpobre` · `.rankforte` · `.rankpegador` · `.rankmacho` · `.ranknerd` · `.ranktrabalhador` · `.rankbrabo` · `.ranklindo` · `.rankmalandro` · `.rankengracado` · `.rankcharmoso` · `.rankvisionario` · `.rankpoderoso` · `.rankvencedor` · `.ranklesbica` · `.rankburra` · `.rankcorna` · `.rankgada` · `.rankgostosa` · `.rankrica` · `.rankpegadora` · `.ranktrabalhadora` · `.rankbraba` · `.ranklinda` · `.rankmalandra` · `.rankengracada` · `.rankcharmosa` · `.rankvisionaria` · `.rankpoderosa` · `.rankvencedora` · `.modobn`
+`.duelo` · `.torneio` · `.adivinha` · `.forcaanime` · `.quemdisse` · `.quizanime` · `.quizrank` · `.pet` · `.lojinha` · `.meuperfil` · `.jogodavelha` · `.connect4` · `.uno` · `.batalhanaval` · `.dueloquiz` · `.digitar` · `.forca` · `.wordle` · `.anagrama` · `.stop` · `.memoria` · `.quiz` · `.cacapalavras` · `.eununca` · `.vab` · `.chance` · `.quando` · `.sorte` · `.sn` · `.ppt` · `.suicidio` · `.brincadeira` · `.namorar` · `.casar` · `.casal` · `.shipo` · `.relacionamento` · `.casais` · `.terminar` · `.trair` · `.historicotraicao` · `.conselho` · `.conselhobiblico` · `.cantada` · `.piada` · `.charada` · `.motivacional` · `.elogio` · `.reflexao` · `.fato` · `.abraco` · `.beijo` · `.cafune` · `.tapa` · `.soco` · `.chute` · `.morder` · `.lamber` · `.tomate` · `.explodir` · `.matar` · `.beijob` · `.tapar` · `.sexo` · `.surubao` · `.goza` · `.mamar` · `.gay` · `.burro` · `.inteligente` · `.otaku` · `.fiel` · `.infiel` · `.corno` · `.gado` · `.gostoso` · `.feio` · `.rico` · `.pobre` · `.pirocudo` · `.nazista` · `.ladrao` · `.safado` · `.vesgo` · `.bebado` · `.machista` · `.homofobico` · `.racista` · `.chato` · `.sortudo` · `.azarado` · `.forte` · `.fraco` · `.pegador` · `.otario` · `.macho` · `.bobo` · `.nerd` · `.preguicoso` · `.trabalhador` · `.brabo` · `.lindo` · `.malandro` · `.simpatico` · `.engracado` · `.charmoso` · `.misterioso` · `.carinhoso` · `.humilde` · `.desumilde` · `.ciumento` · `.corajoso` · `.covarde` · `.esperto` · `.talarico` · `.chorao` · `.brincalhao` · `.bolsonarista` · `.petista` · `.comunista` · `.lulista` · `.traidor` · `.bandido` · `.cachorro` · `.vagabundo` · `.pilantra` · `.mito` · `.padrao` · `.comedia` · `.psicopata` · `.fortao` · `.global` · `.independente` · `.infantil` · `.inseguro` · `.introvertido` · `.irresponsavel` · `.lider` · `.liberal` · `.local` · `.maduro` · `.magrelo` · `.moderno` · `.nervoso` · `.offline` · `.online` · `.otimista` · `.patriotico` · `.pessimista` · `.pratico` · `.programador` · `.rainha` · `.realista` · `.religioso` · `.responsavel` · `.romantico` · `.rural` · `.saudavel` · `.seguidor` · `.serio` · `.social` · `.solitario` · `.sonhador` · `.supersticioso` · `.tecnologico` · `.tradicional` · `.urbano` · `.viajante` · `.visionario` · `.zueiro` · `.billionario` · `.gamer` · `.poderoso` · `.vencedor` · `.senhor` · `.lesbica` · `.burra` · `.corna` · `.gostosa` · `.feia` · `.rica` · `.bucetuda` · `.ladra` · `.safada` · `.vesga` · `.bebada` · `.homofobica` · `.chata` · `.sortuda` · `.azarada` · `.fraca` · `.pegadora` · `.otaria` · `.boba` · `.preguicosa` · `.trabalhadora` · `.braba` · `.linda` · `.malandra` · `.simpatica` · `.engracada` · `.charmosa` · `.misteriosa` · `.carinhosa` · `.ciumenta` · `.corajosa` · `.esperta` · `.talarica` · `.chorona` · `.brincalhona` · `.traidora` · `.bandida` · `.cachorra` · `.vagabunda` · `.ateia` · `.aventureira` · `.bagunceira` · `.calma` · `.caseira` · `.cetica` · `.confiante` · `.conservadora` · `.cosmopolita` · `.criativa` · `.dependente` · `.digital` · `.dorminhoca` · `.doente` · `.economica` · `.estudiosa` · `.extrovertida` · `.fofoqueira` · `.fortona` · `.gastadora` · `.insegura` · `.introvertida` · `.madura` · `.magrela` · `.moderna` · `.nervosa` · `.patriotica` · `.pratica` · `.programadora` · `.religiosa` · `.romantica` · `.sedentaria` · `.seguidora` · `.seria` · `.solitaria` · `.sonhadora` · `.supersticiosa` · `.tecnologica` · `.urbana` · `.vencedora` · `.visionaria` · `.zueira` · `.bilionaria` · `.poderosa` · `.senhora` · `.rankgay` · `.rankburro` · `.rankinteligente` · `.rankotaku` · `.rankfiel` · `.rankinfiel` · `.rankcorno` · `.rankgado` · `.rankgostoso` · `.rankrico` · `.rankpobre` · `.rankforte` · `.rankpegador` · `.rankmacho` · `.ranknerd` · `.ranktrabalhador` · `.rankbrabo` · `.ranklindo` · `.rankmalandro` · `.rankengracado` · `.rankcharmoso` · `.rankvisionario` · `.rankpoderoso` · `.rankvencedor` · `.ranklesbica` · `.rankburra` · `.rankcorna` · `.rankgada` · `.rankgostosa` · `.rankrica` · `.rankpegadora` · `.ranktrabalhadora` · `.rankbraba` · `.ranklinda` · `.rankmalandra` · `.rankengracada` · `.rankcharmosa` · `.rankvisionaria` · `.rankpoderosa` · `.rankvencedora` · `.modobn` `.minado` · `.adivinhaanime` · `.apostacorrida` · `.tesouro` · `.pegar` · `.vod` · `.caraoucoroa` · `.roletarussa` · `.euamor` · `.interesses` · `.saudebrincadeira` · `.frasedeamor` · `.frasebonita` · `.frasecriativas` · `.ansiedade` · `.deboche` · `.indiretas` · `.raiva` · `.recado` · `.euamor_amigos` · `.euamor_animais` · `.euamor_artes` · `.euamor_aventura` · `.euamor_cachorro` · `.euamor_carro` · `.euamor_chocolate` · `.euamor_chuva` · `.euamor_ciencia` · `.euamor_comida` · `.euamor_cozinhar` · `.euamor_esporte` · `.euamor_familia` · `.euamor_festas` · `.euamor_filmes` · `.euamor_flor` · `.euamor_futebol` · `.euamor_gato` · `.euamor_livros` · `.euamor_mae` · `.euamor_musica` · `.euamor_natureza` · `.euamor_novelas` · `.euamor_pai` · `.euamor_pizza` · `.euamor_sol` · `.euamor_series` · `.euamor_teatro` · `.euamor_tecnologia` · `.euamor_viagens` · `.interesses_aeroporto` · `.interesses_academia` · `.interesses_biblioteca` · `.interesses_casa` · `.interesses_cinema` · `.interesses_curso` · `.interesses_estadio` · `.interesses_escola` · `.interesses_festa` · `.interesses_hospital` · `.interesses_livraria` · `.interesses_museu` · `.interesses_onibus` · `.interesses_parque` · `.interesses_praia` · `.interesses_restaurante` · `.interesses_rua` · `.interesses_shopping` · `.interesses_supermercado` · `.interesses_trabalho` · `.saude_alimentacao_saudavel` · `.saude_cardiovascular` · `.saude_condicionamento_fisico` · `.saude_digestiva` · `.saude_equilibrio_emocional` · `.saude_exercicios_diarios` · `.saude_flexibilidade` · `.saude_geral` · `.saude_hidratacao` · `.saude_imunologica` · `.saude_mental` · `.saude_mental_trabalho` · `.saude_muscular` · `.saude_ossea` · `.saude_relacionamentos` · `.saude_relaxamento` · `.saude_respiratoria` · `.saude_rotina_sono` · `.saude_energia_fisica` ·
 
 </details>
 
@@ -193,11 +184,11 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 </details>
 
 <details>
-  <summary><strong>🧰 Ferramentas (22)</strong></summary>
+  <summary><strong>🧰 Ferramentas (37)</strong></summary>
 
 <br>
 
-`.tradutor` · `.tts` · `.transcrever` · `.calc` · `.hora` · `.clima` · `.qrcode` · `.lerqr` · `.ssweb` · `.encurtalink` · `.upload` · `.verificar` · `.removebg` · `.gerarnick` · `.nota` · `.notas` · `.lembrete` · `.meuslembretes` · `.apagalembrete` · `.horoscopo` · `.signos` · `.estatisticas`
+`.tradutor` · `.tts` · `.transcrever` · `.calc` · `.hora` · `.clima` · `.qrcode` · `.lerqr` · `.ssweb` · `.encurtalink` · `.upload` · `.verificar` · `.removebg` · `.gerarnick` · `.nota` · `.notas` · `.lembrete` · `.meuslembretes` · `.apagalembrete` · `.horoscopo` · `.signos` · `.estatisticas` `.cotacao` · `.dolar` · `.euro` · `.btc` · `.dinextenso` · `.bhaskara` · `.raizquadrada` · `.gerarsenha` · `.cep` · `.ddd` · `.feriados` · `.validarcpf` · `.validarcnpj` · `.encurtar` · `.tagme` ·
 
 </details>
 
@@ -238,11 +229,11 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 </details>
 
 <details>
-  <summary><strong>🛡️ Administração (128)</strong></summary>
+  <summary><strong>🛡️ Administração (137)</strong></summary>
 
 <br>
 
-`.ban` · `.ban2` · `.bangeral` · `.inativos` · `.promover` · `.rebaixar` · `.punir` · `.mutar` · `.mute` · `.desmute` · `.mute2` · `.desmute2` · `.adv` · `.rmadv` · `.listadv` · `.roletaban` · `.bam` · `.setbammsg` · `.blockuser` · `.unblockuser` · `.listblocksgp` · `.addblacklist` · `.delblacklist` · `.listblacklist` · `.blockcmd` · `.unblockcmd` · `.bemvindo` · `.bemvindo2` · `.legendabv` · `.fotobv` · `.set-fotobv` · `.set-bannerbv` · `.rmfotobv` · `.bvcard` · `.bvfig` · `.bvbotoes` · `.verificarnovato` · `.regrasaceite` · `.addregra` · `.delregra` · `.saida` · `.legendasaiu` · `.fotosaiu` · `.rmfotosaiu` · `.solicitacoes` · `.aprovar` · `.recusarsolic` · `.marcar` · `.hidetag` · `.del` · `.limpar` · `.nomegp` · `.descgrupo` · `.fotogrupo` · `.linkgp` · `.grupo` · `.opengp` · `.modonoturno` · `.automsg` · `.limitmessage` · `.dellimitmessage` · `.banghost` · `.setprefix` · `.fotomenugrupo` · `.infoperso` · `.agendar` · `.desagendar` · `.enquete` · `.votacao` · `.evento` · `.sorteio` · `.sorteiobotao` · `.figdia` · `.rankingsemanal` · `.role.criar` · `.role.alterar` · `.role.excluir` · `.anticategoria` · `.antilinkgp` · `.antilinkcanal` · `.antilinkhard` · `.antilinksoft` · `.antilinkpro` · `.linkspermitidos` · `.antifig` · `.antiflood` · `.antidoc` · `.antiloc` · `.antibtn` · `.antistickerplus` · `.antiporn` · `.antistatus` · `.antitoxic` · `.antipalavra` · `.x9` · `.wladd` · `.wl.remove` · `.wl.lista` · `.atividade` · `.checkativo` · `.limparrank` · `.resetrank` · `.mantercontador` · `.addmod` · `.delmod` · `.listmods` · `.grantmodcmd` · `.revokemodcmd` · `.listmodcmds` · `.parcerias` · `.addparceria` · `.delparceria` · `.modoparceria` · `.addautoadm` · `.addautoadmidia` · `.listautoadm` · `.delautoadm` · `.autorespostas` · `.autorepo` · `.modolite` · `.soadm` · `.autodl` · `.autosticker` · `.autotranscrever` · `.assistente` · `.assistentevoz` · `.minmessage` · `.cmdlimit`
+`.ban` · `.ban2` · `.bangeral` · `.inativos` · `.promover` · `.rebaixar` · `.punir` · `.mutar` · `.mute` · `.desmute` · `.mute2` · `.desmute2` · `.adv` · `.rmadv` · `.listadv` · `.roletaban` · `.bam` · `.setbammsg` · `.blockuser` · `.unblockuser` · `.listblocksgp` · `.addblacklist` · `.delblacklist` · `.listblacklist` · `.blockcmd` · `.unblockcmd` · `.bemvindo` · `.bemvindo2` · `.legendabv` · `.fotobv` · `.set-fotobv` · `.set-bannerbv` · `.rmfotobv` · `.bvcard` · `.bvfig` · `.bvbotoes` · `.verificarnovato` · `.regrasaceite` · `.addregra` · `.delregra` · `.saida` · `.legendasaiu` · `.fotosaiu` · `.rmfotosaiu` · `.solicitacoes` · `.aprovar` · `.recusarsolic` · `.marcar` · `.hidetag` · `.del` · `.limpar` · `.nomegp` · `.descgrupo` · `.fotogrupo` · `.linkgp` · `.grupo` · `.opengp` · `.modonoturno` · `.automsg` · `.limitmessage` · `.dellimitmessage` · `.banghost` · `.setprefix` · `.fotomenugrupo` · `.infoperso` · `.agendar` · `.desagendar` · `.enquete` · `.votacao` · `.evento` · `.sorteio` · `.sorteiobotao` · `.figdia` · `.rankingsemanal` · `.role.criar` · `.role.alterar` · `.role.excluir` · `.anticategoria` · `.antilinkgp` · `.antilinkcanal` · `.antilinkhard` · `.antilinksoft` · `.antilinkpro` · `.linkspermitidos` · `.antifig` · `.antiflood` · `.antidoc` · `.antiloc` · `.antibtn` · `.antistickerplus` · `.antiporn` · `.antistatus` · `.antitoxic` · `.antipalavra` · `.x9` · `.wladd` · `.wl.remove` · `.wl.lista` · `.atividade` · `.checkativo` · `.limparrank` · `.resetrank` · `.mantercontador` · `.addmod` · `.delmod` · `.listmods` · `.grantmodcmd` · `.revokemodcmd` · `.listmodcmds` · `.parcerias` · `.addparceria` · `.delparceria` · `.modoparceria` · `.addautoadm` · `.addautoadmidia` · `.listautoadm` · `.delautoadm` · `.autorespostas` · `.autorepo` · `.modolite` · `.soadm` · `.autodl` · `.autosticker` · `.autotranscrever` · `.assistente` · `.assistentevoz` · `.minmessage` · `.cmdlimit` `.antiimg` · `.antivideo` · `.antiaudio` · `.anticontato` · `.anticatalogo` · `.antigringo` · `.rankddd` · `.mutados` · `.advs` ·
 
 </details>
 

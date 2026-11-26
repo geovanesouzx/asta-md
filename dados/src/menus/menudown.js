@@ -3,6 +3,12 @@ import { renderMenu } from './_render.js';
 export default async function menudown(prefix, botName = 'MeuBot', userName = 'Usuário', design = {}) {
   return renderMenu(prefix, botName, userName, design, [
     {
+      t: '⭐ BAIXAR DE VÁRIOS APPS', i: [
+        'baixar <link> — vídeo de qualquer app',
+        'baixar audio <link> — só o som (mp3)'
+      ]
+    },
+    {
       t: '🎵 MÚSICA', i: [
         'play <nome ou link> — áudio (com botões ÁUDIO/VÍDEO)',
         'play2 <nome> — outra fonte de áudio',
@@ -20,7 +26,7 @@ export default async function menudown(prefix, botName = 'MeuBot', userName = 'U
         'facebook <link>',
         'twitter <link>',
         'kwai <link>',
-        'pinterest <busca>'
+        'pinterest <busca ou link> — imagem e também vídeo'
       ]
     },
     { t: '📁 ARQUIVOS', i: ['gdrive <link>', 'mediafire <link>'] }
