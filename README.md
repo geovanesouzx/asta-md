@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.9.3-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.10.1-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -58,157 +58,20 @@
 
 ## 🆕 Novidades da Última Atualização
 
+<!-- NOVIDADES:INICIO (esta seção mostra só a versão mais nova; o histórico completo fica no LEIA-ME-ASTA-MD.txt) -->
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.9.3-blue?style=for-the-badge" alt="v10.9.3" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.10.1-blue?style=for-the-badge" alt="v10.10.1" />
 </p>
 
 <details open>
-  <summary><strong>✨ Adicionado</strong></summary>
+  <summary><strong>🛠️ Corrigido</strong></summary>
 
 <br>
 
-**🆕 v10.9.3**
-- 😴 **Grupos parados**: se um grupo ficar 5 dias sem mensagens de pessoas (as do bot não contam), o dono recebe no privado os botões 🚪 SAIR · ✅ CONTINUAR · 📌 SEMPRE FICAR. `.gruposinativos` lista tudo e tem "sair de todos" com confirmação · `dias 5` · `auto on/off` · `on/off`
-
-**🆕 v10.9.2**
-- 🔌 **Conexão mais estável**: no erro 403 o bot não apaga mais a sessão (não precisa escanear o QR de novo); ele espera 1, 3, 10, 30 e 60 minutos e continua tentando. No 503 espera pelo menos 20s antes de reconectar (reconectar rápido demais fazia o WhatsApp responder 403). Antes de apagar uma sessão (401), o bot guarda uma cópia em `dados/database/qr-code-backup`
-
-**🆕 v10.9.1**
-- 🔇 **Figurinha sem som**: `.ssoff` (normal), `.scoff` (redonda), `.sqoff` (quadrada), `.scorteoff` (sem tarja), `.sfundooff` (sem fundo), `.sloff <texto>` (legenda), `.s2off` (formato original), `.sefeitooff <efeito>` — também funciona respondendo uma figurinha com som
-- 📋 **Menus reorganizados**: cada menu em seções claras, sem comandos repetidos, com uma explicação curta em cada comando, e só com comandos que existem de verdade (o visual do `.designmenu` continua igual)
-
-**🆕 v10.9.0**
-- 🔐 **Registro no privado** (`.registropv on`): quem não tem registro recebe um aviso e só consegue usar `.registrar` e `.dono`. O `.registrar Nome|idade` mostra os termos com ✅ ACEITO / ❌ RECUSO e manda um código de 4 números numa imagem (captcha). No fim, a pessoa ganha um número de registro e um cartão. Dono: `.registrados`, `.desregistrar`
-- `.inativos [dias]` → lista quem não fala há X dias, com botão para remover que **só admins** confirmam
-- `.regrasaceite on` → o novato recebe as regras e precisa tocar em ✅ LI E ACEITO para poder falar
-- `.antilinkpro on` + `.linkspermitidos add youtube tiktok` → só passam links dos sites liberados (a lista vale também para o antilinkhard e o antilinksoft)
-- `.modonoturno 23:00 07:00` → o grupo fecha e abre sozinho com mensagem de boa noite e de bom dia
-- `.bvcard on [tema]` → cartão de boas-vindas em imagem (foto de perfil, nome e "Membro nº"), 7 temas
-- `.lojinha` (ou `.loja` sem Modo RPG) → títulos, cor do perfil, 🛡️ escudo contra roubo (24h) e ⚡ bônus em dobro de 💰 (1h) · `.meuperfil` → cartão com título e cor · `.titulo`
-- Pedidos de namoro/casamento com botões 💍 ACEITO / 💔 RECUSO · `.casal` mostra há quantos dias o casal está junto · presentes automáticos de mêsversário (+100 💰) e aniversário de casamento (+500 💰)
-- `.torneio criar 8 [prêmio]` → torneio de duelos de magia com chave automática (4, 8 ou 16) e prêmio para o campeão (com Modo RPG ligado: `.torneio magia`)
-- `.forcaanime` → forca de animes e personagens com lista de letras
-- `.quemdisse` → o bot mostra uma frase do grupo e a galera adivinha quem mandou
-- `.pet` → pet virtual (espíritos de Black Clover): alimentar, brincar, treinar, evoluir… e ele foge se for abandonado
-
-**🆕 v10.8.0**
-- `.sefeito lento / rapido / reverso / vaievolta / espelho` → efeitos na figurinha animada, **com o som acompanhando** (`mudo` tira o som)
-- `.svoz grave / esquilo / robo / eco / radio / monstro / reverso` → efeito de voz em figurinha com som, áudio ou vídeo
-- `.trocarsom` → troca o som de uma figurinha (responda a figurinha e o áudio, em qualquer ordem)
-- `.sfala <texto>` → figurinha com o texto escrito e uma voz falando (Vex API ou voz grátis do Google)
-- `.topfig` → as figurinhas mais mandadas do grupo · `.topfig pegar 1` reenvia · `.topfig zerar`
-- **Cache de figurinhas**: a mesma mídia com as mesmas opções não é convertida de novo (fica instantâneo)
-- `.agendar todo dia 08:00 Bom dia!` · `toda segunda` · `dias uteis` · `fim de semana` → mensagem que repete
-- **Parabéns automático** no dia do aniversário (`.aniversario auto on/off` · `.aniversario hora 09:00`)
-- `.antifig limite 5` → antiflood: cada membro pode mandar até 5 figurinhas por minuto (pega as com som também)
-- `.bvfig` → figurinha (com som 🔊) enviada para quem entra no grupo
-- `.duelo @fulano [aposta]` → **duelo de magia Black Clover** com grimório aleatório e botões ATAQUE / MAGIA / DEFESA / CURA, prêmio em 💰 e `.duelo rank` (o duelo de perguntas continua em `.dueloquiz`)
-- `.adivinha` → **qual é o anime?** com imagem borrada que vai clareando, `dica`, `rank` e +50 💰
-- `.permsub @fulano tm` → subdono com permissões escolhidas (ex.: só o `.tm`) · `tudo` · `limpar`
-- **Painel web com controle** (`.painelweb on`): mandar transmissão para todos os grupos, ligar/desligar funções e reiniciar o bot pelo navegador
-- `.bangeral` → remove **todos os membros** do grupo (admins, bot e dono ficam), com botões ✅ CONFIRMAR / ❌ RECUSAR que só admins podem apertar
-
-**🔊 Figurinhas com som (o recurso novo do WhatsApp)**
-- `.s` respondendo um **áudio, nota de voz ou música** → figurinha com som (capa automática com a onda do som)
-- Foto com legenda `.s` respondendo um áudio → a foto vira a capa da figurinha com som
-- `.s` em **vídeo com som** → figurinha animada com o som do vídeo (até 30s)
-- `.s 15` (usa 15s) · `.s 1:05 10` (começa em 1:05 e dura 10s) · `.s mudo` (sem som) · `.s circulo`
-- Em músicas longas o bot escolhe sozinho o trecho mais forte (normalmente o refrão)
-- `.ssom <link do TikTok>` → figurinha animada com o som do vídeo
-- `.ssom <link do YouTube ou nome da música>` → capa + música
-- `.somfig` → tira o som de uma figurinha (como nota de voz ou arquivo de música)
-- `.tovideo` → figurinha animada vira vídeo (com o som)
-- `.autosticker` → vídeos com som viram figurinha com som (`.autosticker som on/off`)
-- `.soundinfo` → relatório técnico de uma figurinha (diagnóstico)
-
-**🎨 Novos comandos de figurinha**
-- `.squadrado` (ou `.sq`) → corta foto/vídeo/figurinha em quadrado 1:1 **de verdade** (sem esticar e sem bordas), com som · `.squadrado cima / baixo / esquerda / direita`
-- `.scorte` → acha e corta a **tarja preta** (em cima/embaixo ou nas laterais) e mantém o som. Se a mídia não tiver tarja, nada é cortado
-- `.sfundo` → tira o fundo de **fotos, vídeos e figurinhas** no próprio aparelho (sem API), vídeo mantém o som · `.rmbg` devolve PNG transparente · `.instalarfundo` (dono, uma vez)
-- `.sc` → figurinha redonda · `.sl <texto>` → figurinha com legenda estilo meme
-- `.pack add / ver / nome / limpar` → monte seu pacote de figurinhas
-- Figurinha de **visualização única** (foto, vídeo e áudio) com `.s` respondendo ou com o comando na legenda
-
-**👁️ Visualização única**
-- `.revelar` (ou `.abrir` / `.rvisu`) → reenvia a foto, vídeo ou áudio de visualização única · `.revelar pv` manda no privado
-- O bot guarda as visualizações únicas recebidas por 24h e pede o arquivo ao celular principal quando o WhatsApp manda só o aviso
-
-**📋 Menu com botões**
-- `.menu` → banner + botões **PRINCIPAL / LISTA / FALAR COM O DONO** · `.menu texto` → menu em texto
-- Submenus com ⬅️ VOLTAR e 📜 MENU COMPLETO · `.play <música>` com botões 🎵 ÁUDIO / 🎬 VÍDEO
-- Botões funcionam com **qualquer prefixo**, até em menus enviados antes de trocar o prefixo
-
-**🎮 Diversão**
-- `.quizanime` / `.quizrank` → quiz de anime com botões (+1 ponto e 50 💰)
-- `.sorteiobotao 10m <prêmio>` → sorteio com botão 🎟️ PARTICIPAR e resultado automático
-- `.figdia on [HH:MM]` → figurinha do dia no grupo
-- `.rankingsemanal on` → top 10 da semana todo domingo + prêmio 💰
-- `.cargos` → títulos por nível (tema Black Clover ⚔️)
-
-**🛡️ Administração do grupo**
-- `.punir @fulano` → painel ⚠️ ADVERTIR / 🔇 SILENCIAR 1H / 🚫 BANIR
-- `.mutar @fulano 30m` → silencia por tempo (apaga as mensagens até o prazo)
-- `.verificarnovato on` → quem entra precisa tocar em ✅ SOU HUMANO
-- `.bvbotoes on` → botões 📜 REGRAS e 📋 MENU nas boas-vindas
-- `.resumo` / `.resumo semana` → quem mais falou, horário de pico, entradas e saídas
-- `.agendar HH:MM <mensagem>` (texto, foto, vídeo, figurinha...) · `.agendados` · `.desagendar <n>`
-- `.votacao 30m Pergunta | opção 1 | opção 2` → votação com resultado automático
-- `.evento Nome | DD/MM HH:MM | Local` → evento nativo do WhatsApp
-- `.assistentevoz on` → o Asta responde também em áudio 🎙️
-
-**🧠 IA e utilidades**
-- IA com a personalidade do **Asta**: determinado, leal e motivador (`.assistente asta`)
-- `.resumir` → a IA resume a conversa do grupo
-- `.lembrete` agora chega com botões ⏰ ADIAR 10 MIN / ✅ FEITO
-
-**👑 Dono**
-- `.tm` → transmissão de **qualquer coisa** (foto, vídeo, GIF, figurinha com som, enquete, áudio, documento, evento, localização, contato...) com prévia e botões ✅ ENVIAR / ❌ CANCELAR
-- `.tm enquete Pergunta | a | b` · `.tm direto <texto>` · `.tmparar` · `.tmexcluir` · `.tmincluir` · `.tmexcluidos` · `.tmprevia on/off` · `.tmcanal <link>`
-- `.divdono img / video / gif / fig / audio / voz / doc / enquete / evento / local / contato / tudo`
-- `.divdono salvar` → divulgação agendada com mídia em rodízio · `.divdono itens / veritem / enviaritem / remitem / limparitens`
-- `.status` → saúde do bot (conexão, fila, memória, backups) · `.logs` · `.avisos on/off`
-- `.manutencao on/off` → só o dono usa comandos
-- `.painelweb on/off` → painel do bot no navegador
-- `.backupdados` · `.backupsemanal on/off` → backup dos dados (sem a sessão)
-- `.figfps qualidade / auto / 30` · `.figfps ate 15` → fluidez × nitidez das figurinhas
-- `.menubotoes on/off` · `.autoreload on/off` · `.cargos asta` / `.cargos padrao`
-
-**⚙️ Sistema**
-- 📱 **Termux sempre ligado:** liga ao abrir o Termux e ao ligar o celular (Termux:Boot), religa se fechar, sem duplicar · figurinhas usando todos os núcleos do celular
-- 🔄 `.atualizar` → atualiza o bot direto do GitHub, sem Git e sem mexer em arquivos (mantém sessão, dados, config e banner), com backup e reinício automático. O bot avisa o dono quando sai versão nova (`.atualizar aviso on/off`)
-- ♻️ Reinício automático quando os arquivos do bot mudam (é só extrair a atualização por cima)
-- 💾 Backup diário automático da sessão (não precisa escanear o QR de novo)
-- 🔔 Aviso de aluguel vencendo com botões 🔄 RENOVAR / 📞 FALAR COM O DONO
-- 🔌 Se a conexão cair no meio do envio de uma figurinha, o bot espera reconectar e reenvia
-- 📦 Instala sozinho a versão compatível do módulo de figurinhas (sharp) quando o aparelho não tem versão pronta (Termux/Android)
-- 🖱️ Para Windows: `iniciar.bat` (dois cliques) abre o bot da pasta certa e reinicia se fechar
-</details>
-
-<details open>
-  <summary><strong>🔧 Corrigidos</strong></summary>
-
-<br>
-
-- No Termux, o autostart antigo abria **uma cópia nova do bot** cada vez que o Termux era aberto (causava quedas e "Bad MAC") → refeito
-- "Comando não encontrado" ao fazer **figurinhas em lote** (comando com Enter depois, caracteres invisíveis do copiar/colar, fotos enviadas em álbum) → corrigido, e as conversões agora entram numa fila em vez de sobrecarregar o computador
-- `.tm` e `.divdono` transmitiam figurinha **sem o som** → agora transmitem com som
-- Comandos que mexem em figurinha (take, rename, pack, sl, sc, s2, hidetag, automsg, comandos personalizados...) perdiam o som → agora mantêm
-- Som da figurinha no **iPhone**: a figurinha agora vai com os mesmos campos que o celular manda
-- Figurinhas animadas travadas/pixeladas → até 512px, **30 fps até 15s** e sempre abaixo do limite de ~1MB do WhatsApp
-- Figurinha de vídeo que já tinha menos de 1MB saía pixelada → agora mantém a qualidade
-- Erro `Unrecognized option 'vsync'` do FFmpeg novo
-- Botões do menu paravam de funcionar depois de trocar o prefixo
-- Botões ✅ ENVIAR / ❌ CANCELAR do `.tm` não respondiam em alguns aparelhos (e agora também dá para digitar `.tmconfirmar` / `.tmcancelar`)
-- O antibotão removia quem só clicava nos botões do menu
-- `.revelar` mandava a foto corrompida
-- Erro `Could not load the "sharp" module` na instalação (a instalação usava `--no-optional`)
-- Avisos falsos `Erro ao ler configurações do grupo ... ENOENT`
-- O configurador (`npm run config`, que roda quando falta o `config.json`) dava `Erro fatal: off is not defined` e nunca funcionava → corrigido, e agora cria um `config.json` completo do ASTA MD
-- Aviso `DeprecationWarning DEP0190` no Windows
-- Fotos e vídeos enviados **juntos (álbum)** eram ignorados pelos comandos de figurinha → agora funcionam
-- Em grupos com **mensagens temporárias**, alguns comandos não achavam a mídia → corrigido
-- O atualizador antigo (`.atualizar`) baixava a Nazuna original e apagava o ASTA MD → refeito, agora atualiza pelo repositório do ASTA MD
-- Aviso `[EXPORTS] Module 'Logos2' not found` no console
+- 🍎 **Botões no iPhone**: todos os menus e mensagens com botões agora usam os formatos que apareceram no iPhone no `.testebotoes`:
+  - **B** (botões sem campos vazios + `messageSecret`) para mensagens com até 3 botões — com imagem, link etc.
+  - **F** (lista clássica) para listas e mensagens com mais de 3 opções (categorias do menu, forca, ações do duelo, quem disse...)
+- 📋 No `.menu`, o botão **LISTA** abre as categorias numa lista clássica (`.menu categorias`)
 </details>
 
 <details open>
@@ -216,20 +79,10 @@
 
 <br>
 
-- `.s` / `.sticker` — som, trechos (`.s 1:05 10`), redonda, visualização única, até 30s e 512px
-- `.tm` — qualquer tipo de mensagem, prévia com botões, envio em segundo plano, canal
-- `.divdono` — todos os tipos de mídia, itens salvos em rodízio, figurinha com som
-- `.sfundo` / `.sbg` — agora no próprio aparelho, também em vídeo e figurinha
-- `.revelar` — foto, vídeo e áudio, com opção de mandar no privado
-- `.menu` — com banner e botões
-- `.play` — botões de áudio e vídeo
-- `.lembrete` — botões de adiar e concluir
-- `.mutar` — com tempo
-- `.autosticker` — com som
-- `.take` / `.rename` / `.pack` — mantêm o som
-- `.assistente` — personalidade do Asta
-- `.atualizar` — funcionando de novo: pelo GitHub do ASTA MD, com botões, backup e aviso de versão nova
+- `.formatobotoes AUTO` — novo padrão (B + F); `.formatobotoes A` volta ao formato de antes
+- `.testebotoes <número>` — testa os formatos num celular e mostra quais chegaram
 </details>
+<!-- NOVIDADES:FIM -->
 
 ---
 
@@ -251,7 +104,7 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.9.3-blue?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.10.1-blue?style=flat-square) |
 | 🧩 Comandos e atalhos | ![Comandos](https://img.shields.io/badge/+1700-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |

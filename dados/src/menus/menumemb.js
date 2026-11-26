@@ -7,7 +7,7 @@ export default async function menuMembros(prefix, botName = 'MeuBot', userName =
         'meuperfil — seu cartão (título, cor, pet, casal)',
         'perfil — perfil de brincadeira',
         'meustatus',
-        'registrar Nome|idade — registro (no privado)',
+        'registrar — registro (no privado)',
         'meuregistro',
         'afk <motivo> · voltei',
         'mention'

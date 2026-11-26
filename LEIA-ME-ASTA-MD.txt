@@ -477,3 +477,120 @@ v10.9.3 — GRUPOS PARADOS (O BOT SAI COM A SUA CONFIRMAÇÃO)
   !gruposinativos off/on     -> desliga/liga os avisos
 - Antes de sair, o bot manda no grupo: "Estou saindo porque este grupo ficou X dias sem mensagens".
 - A contagem começa quando você instala esta versão (nenhum grupo é avisado logo de cara).
+
+v10.9.4 — BOTÕES NO IPHONE, REGISTRO CONVERSANDO, TODOS OS COMANDOS
+==================================================
+BOTÕES NO IPHONE (pesquisa em repositórios do Baileys)
+- Mensagens com campo vazio (título/subtítulo/rodapé em branco) eram descartadas pelo celular:
+  a mensagem nem aparecia. Agora nenhum campo vazio é enviado.
+- A lista nova (single_select) não aparece no iPhone. Agora toda lista vai como LISTA CLÁSSICA,
+  que aparece no iPhone, no Android e no WhatsApp Web.
+- O WhatsApp aceita no máximo 3 botões por mensagem. Com mais de 3, as opções viram lista clássica.
+- O menu com imagem chega assim: a imagem com o texto e, logo abaixo, a lista de categorias
+  (e uma mensagem separada com o link "falar com o dono").
+- !modobotoes compat (padrão) | !modobotoes antigo (jeito anterior, se preferir no Android)
+
+REGISTRO
+- Tocar em 📝 REGISTRAR (ou !registrar): o bot pergunta o nome -> a pessoa escreve -> pergunta a idade
+  -> a pessoa escreve -> termos (ACEITO/RECUSO) -> código da imagem. Sem digitar comando.
+- Botão "✅ USAR <nome do WhatsApp>" para não precisar digitar o nome.
+- O atalho antigo !registrar Nome|idade continua funcionando.
+
+TODOS OS COMANDOS
+- Botão "📜 TODOS OS COMANDOS" no !menu (e o comando !todoscmd / !todoscomandos)
+- Mostra todos os comandos por categoria e o total. Também mostra quantos nomes de comando
+  existem contando os atalhos (ex.: !b = !ban).
+
+GITHUB
+- A seção "Novidades da Última Atualização" do README agora mostra só a versão mais nova.
+  O histórico completo fica neste arquivo.
+
+v10.9.5 — BOTÕES NO IPHONE (FORMATO NOVO)
+==================================================
+- No iPhone a mensagem com botões não aparecia (nem o texto), mesmo com 2 botões.
+  O envio agora segue o formato da lib baileys-buttons (testada no Baileys 7 rc14, o mesmo do bot):
+  • os botões vão dentro de viewOnceMessage + messageContextInfo (deviceListMetadataVersion 2)
+  • nó <biz> simples, sem atributos extras
+  • no PRIVADO o nó <bot biz_bot="1"> — ele estava DESLIGADO no config ("botoesBotNode": false)
+    e agora vem ligado. No privado pode aparecer o selo de "IA" ao lado da mensagem; é normal.
+    Para desligar: !menubotoes privado off
+  • nenhum campo vazio
+- Listas continuam como lista clássica (a lista nova não aparece no iPhone).
+- Se algo ficar estranho no Android: !modobotoes antigo volta ao jeito anterior.
+
+v10.9.6 — !tmm (TRANSMISSÃO MARCANDO TODOS)
+==================================================
+- !tmm funciona igual ao !tm, com tudo: texto, mídia com legenda, responder qualquer mensagem,
+  !tmm enquete Pergunta | a | b, !tmm direto, prévia com botões, canal, !tmparar, grupos excluídos.
+- A diferença: em cada grupo a mensagem marca TODO MUNDO sem aparecer @ (igual ao !hidetag).
+  Quem desativou as marcações no grupo não é marcado; o bot não marca a si mesmo.
+- Pausa de 3 a 5 segundos entre os grupos (no !tm normal é 1 a 2 s) para proteger o número,
+  porque marcar muita gente em muitos grupos de uma vez chama atenção do WhatsApp.
+- Subdono com permissão "tm" (!permsub @fulano tm) também pode usar o !tmm.
+
+v10.9.7 — REGISTRO NÃO APARECIA + PLANO B DOS BOTÕES
+==================================================
+- CORRIGIDO: a mensagem de registro (quando a pessoa manda "oi" no privado) não aparecia.
+  Quando o envio com botões falhava, o envio em texto de reserva dava erro interno
+  ("__midiaIndisponivel before initialization") e nada era enviado.
+- O formato padrão dos botões voltou a ser o que o Android já mostrava (agora sem campos vazios).
+  O formato da v10.9.5 (viewOnceMessage + nó <bot>) ficou como opção: !modobotoes ios
+- PLANO B (no privado): o bot espera o "entregue" (✓✓) da mensagem com botões. Se em ~12 s o
+  celular não confirmar (é o que acontece quando o aparelho descarta os botões), ele manda a mesma
+  mensagem EM TEXTO com as opções numeradas. A pessoa responde 1, 2... e funciona igual ao botão.
+  Essa pessoa passa a receber só texto por 7 dias (se um dia confirmar uma mensagem com botões, volta ao normal).
+  • !modobotoes planob on/off    • !modobotoes resetar (volta a tentar botões para todo mundo)
+  • Se a pessoa estiver sem internet na hora, ela pode receber as duas versões quando voltar.
+
+v10.9.8 — SÓ BOTÕES (SEM NÚMEROS) + FORMATO DO SANDRO-MD
+==================================================
+- Removido o "plano B" da v10.9.7 (responder com 1, 2...). Agora é só botão.
+- O envio de botões ficou igual ao do Baileys que o SANDRO-MD usa (@systemzero/baileys):
+  • messageContextInfo.messageSecret em toda mensagem com botões/lista (o app oficial sempre manda;
+    sem ele o iPhone pode descartar a mensagem — foi o mesmo problema do som das figurinhas)
+  • nó <biz> com atributos (actual_actors, host_storage, privacy_mode_ts, quality_control)
+  • no PRIVADO, o nó <bot biz_bot="1"> em toda mensagem com botões (o SANDRO-MD faz isso por padrão).
+    Pode aparecer o selo de "IA" na mensagem no privado. Desligar: !menubotoes privado off
+  • nenhum campo vazio; listas como lista clássica; mais de 3 botões viram lista
+- !modobotoes compat (padrão, formato do SANDRO-MD) | ios | antigo
+- No terminal aparece "[BOTÕES] ⚠️ O celular de X não confirmou..." quando alguém no privado não
+  recebeu a mensagem com botões. Se for um iPhone, teste: !modobotoes ios
+
+v10.9.9 — BOTÕES DE VOLTA AO FORMATO QUE FUNCIONAVA
+==================================================
+- O envio de botões (funcs/utils/buttonMenu.js) voltou EXATAMENTE ao código de antes das mudanças
+  para iPhone (v10.9.4 a v10.9.8 desfeitas): mesmo formato, mesmo nó <biz>, sem nó <bot> no privado,
+  listas como antes e o menu com imagem + 3 botões numa mensagem só.
+- O !modobotoes foi removido (não tem mais o que escolher).
+- Continuam: registro conversando, "TODOS OS COMANDOS" (agora dentro da LISTA do menu e no !todoscmd),
+  !tmm, !gruposinativos e a correção do registro que não aparecia quando os botões falhavam.
+
+v10.10.0 — TESTE DE BOTÕES (DESCOBRIR O FORMATO QUE CHEGA EM CADA CELULAR)
+==================================================
+Quando a mensagem com botões fica com 1 tracinho (✓) mesmo com a pessoa no chat, o servidor
+recebeu mas o CELULAR dela não aceitou aquele formato. Isso muda de aparelho para aparelho.
+
+- !testebotoes 5575999999999   (ou só !testebotoes dentro do privado da pessoa)
+  O bot manda para a pessoa: 1 texto normal + a mesma mensagem em 6 formatos de botão:
+    A = atual (padrão)
+    B = sem campos vazios + messageSecret
+    C = B + marca de bot no privado
+    D = viewOnce + marca de bot
+    E = botões antigos (buttonsMessage)
+    F = lista clássica
+  Peça para a pessoa abrir o chat do bot e tocar em "VI ESTE" nas que aparecerem.
+  Em ~1 minuto chega para você o resultado: ✓✓ entregue / 👁️ lido / ✓ só enviado, e em quais ela tocou.
+- !formatobotoes C   -> usa esse formato no bot inteiro (menu, registro, jogos...). !formatobotoes A volta ao padrão.
+- Dica: teste em 2 ou 3 iPhones que NÃO viam os botões e em 1 Android. Escolha o formato que chegou em todos.
+
+v10.10.1 — FORMATOS B + F EM TODOS OS MENUS (APARECERAM NO IPHONE)
+==================================================
+- No !testebotoes, os formatos B, E e F apareceram no iPhone. Agora o padrão é "AUTO":
+  • mensagens com até 3 botões -> formato B (aceita imagem, link etc.)
+  • listas e mais de 3 opções   -> formato F (lista clássica)
+  Vale para tudo: menu, registro, duelo, torneio, lojinha, pet, forca, quem disse, inativos,
+  bangeral, grupos parados, boas-vindas, !tm (prévia), sorteio, votação...
+- !menu: imagem + 3 botões (PRINCIPAL · LISTA · FALAR COM O DONO). O LISTA abre as categorias
+  numa lista clássica (!menu categorias).
+- !formatobotoes AUTO (padrão) | A (formato de antes) | B | C | D | E | F
+- Recomendado: rode !testebotoes num Android também, para confirmar que B e F aparecem nele.

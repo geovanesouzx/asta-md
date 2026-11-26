@@ -168,7 +168,7 @@ import * as PLUS from './funcs/utils/astaPlus.js';
 const { readJ: plusRead, writeJ: plusWrite, temEscudo, temDobro, comDobro } = PLUS;
 import { prepareClip as prepareSoundClip, makeCover as makeSoundCover, coverFromImage as soundCoverFromImage, sendSoundSticker, describeSoundSticker, parseArgs as parseSoundArgs, parseTime as parseSoundTime, setSoundLimits, SoundStickerError, clipFromAudioMessage, quotedStickerOf } from './funcs/utils/soundSticker.js';
 import { writeExif as writeStickerExif, convertToWebp as convertStickerWebp, trimMedia as trimStickerMedia, captionMedia as captionStickerMedia, stickerToVideo, detectBlackBars, cropBlackBars, renderCaptionPng } from './funcs/utils/sticker.js';
-import { sendButtons, quickReply, listButton, urlButton } from './funcs/utils/buttonMenu.js';
+import { sendButtons, quickReply, listButton, urlButton, enviarFormato, FORMATOS as BTN_FORMATOS } from './funcs/utils/buttonMenu.js';
 import { recordMessage as recordGroupMessage, getStats as getGroupStats, parseDuration, formatDuration, baseId, readJson as readJsonX, writeJson as writeJsonX, DB_DIR as X_DB_DIR, makeZip, listFiles, toVoiceNote, ASTA_PATENTS, QUIZ_ANIME, parseRepeatSchedule, nextRepeatAt, describeRepeat } from './funcs/utils/extras.js';
 import { detectMessage as detectAnyMessage, isOnlyText as isOnlyTextMsg, preparePayload as prepareBroadcast, pollPayload as broadcastPoll, parsePollText, broadcastPrepared, sendPrepared as sendPreparedMsg, TYPE_LABELS as BROADCAST_LABELS, saveDetectedItem, pollItem as makePollItem, payloadFromItem, deleteItemFiles } from './funcs/utils/broadcast.js';
 import spotifyModule from './funcs/downloads/spotify.js';
@@ -564,6 +564,48 @@ if (!global.__astaErrWrap) {
 }
 
 // ===== ASTA MD: painel web (somente leitura, protegido por token) =====
+// ===================== TODOS OS COMANDOS (tela com a lista completa) =====================
+async function astaTodosComandos() {
+  if (global.__astaTodosCmd) return global.__astaTodosCmd;
+  const fonte = fs.readFileSync(pathz.join(__dirname, 'index.js'), 'utf-8');
+  const existentes = new Set([...fonte.matchAll(/case '([^']+)':/g)].map(m => m[1].toLowerCase()));
+  const categorias = [
+    ['🎨 FIGURINHAS', 'menufig.js'], ['📥 DOWNLOADS', 'menudown.js'], ['🎮 JOGOS E BRINCADEIRAS', 'menubn.js'],
+    ['👥 MEMBROS', 'menumemb.js'], ['🧰 FERRAMENTAS', 'ferramentas.js'], ['🎚️ ÁUDIO E VÍDEO', 'alteradores.js'],
+    ['🎞️ EDIÇÕES', 'menuedits.js'], ['🖌️ LOGOS', 'menulogo.js'], ['🗡️ RPG E ECONOMIA', 'menurpg.js'],
+    ['🛡️ ADMINISTRAÇÃO', 'menuadm.js'], ['👑 DONO', 'menudono.js']
+  ];
+  const vistos = new Set();
+  const lista = [];
+  const placeholder = (w) => !w || /^[<\[@(]/.test(w) || /^\d/.test(w) || w.includes('/') || w.includes('|');
+  for (const [nome, arq] of categorias) {
+    let texto = '';
+    try {
+      const m = await import(`./menus/${arq}`);
+      texto = arq === 'menubn.js' ? await m.default('§', 'B', 'U', false, {}) : await m.default('§', 'B', 'U', {});
+    } catch { continue; }
+    const cmds = [];
+    const add = (w) => { w = String(w || '').toLowerCase().replace(/[^a-z0-9çãõéáíú.\-]/g, ''); if (!w || vistos.has(w)) return; const raiz = w.split('.')[0]; if (!existentes.has(w) && !existentes.has(raiz)) return; vistos.add(w); cmds.push(w); };
+    for (const linha of texto.split('\n')) {
+      if (!linha.includes('§')) continue;
+      const blocos = linha.split('§').slice(1);
+      if (blocos.length > 1) { for (const b of blocos) add(b.trim().split(/\s+/)[0]); continue; } // linha com vários comandos
+      const item = blocos[0].split(' — ')[0];
+      const partes = item.split(' · ');
+      const p0 = partes[0].trim().split(/\s+/);
+      add(p0[0]);
+      const modoSub = p0.length > 1 && !placeholder(p0[1]); // "uno criar · entrar" = opções do mesmo comando
+      for (const pt of partes.slice(1)) {
+        const w = pt.trim().split(/\s+/)[0];
+        if (!modoSub || w.startsWith(p0[0])) add(w);
+      }
+    }
+    if (cmds.length) lista.push({ nome, cmds });
+  }
+  global.__astaTodosCmd = { lista, total: vistos.size, nomes: existentes.size };
+  return global.__astaTodosCmd;
+}
+
 // ===================== GRUPOS PARADOS (última mensagem de PESSOA em cada grupo) =====================
 const astaGpAtiv = global.__astaGpAtiv || (global.__astaGpAtiv = { db: null, timer: null });
 function astaGpAtivDb() { if (!astaGpAtiv.db) astaGpAtiv.db = plusRead('grupos-atividade.json', {}); return astaGpAtiv.db; }
@@ -1272,6 +1314,7 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
   const from = info?.key?.remoteJid || 'unknown';
 
   let config = loadJsonFile(CONFIG_FILE, {});
+  global.__astaBotoesFormato = String(config.botoesFormato || 'AUTO').toUpperCase();
   ensureDatabaseIntegrity({ log: Boolean(config?.debug) });
 
   // Verificação e correção do prefixo reservado $ ao inicializar
@@ -3119,24 +3162,16 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
       const bRG = PLUS.baseNum(sender);
       const regRG = plusRead('registros.json', { users: {} }).users?.[bRG];
       if (!regRG) {
-        const livres = ['registrar', 'registro', 'reg', 'dono', 'criador', 'owner', 'meuregistro'];
+        const livres = ['registrar', 'registro', 'reg', 'dono', 'criador', 'owner', 'meuregistro', 'testebotoes'];
         const fluxo = global.__astaRegFlow?.get(bRG);
-        const passa = (isCmd && livres.includes(command)) || (!isCmd && fluxo?.stage === 'codigo');
+        const passa = (isCmd && livres.includes(command)) || (!isCmd && ['nome', 'idade', 'codigo'].includes(fluxo?.stage));
         if (!passa) {
           global.__astaRegAvisos = global.__astaRegAvisos || new Map();
           if (Date.now() - (global.__astaRegAvisos.get(bRG) || 0) > 10 * 60_000) {
             global.__astaRegAvisos.set(bRG, Date.now());
-            const txtRG = `👋 Olá${pushname ? `, ${pushname}` : ''}!
-
-🔐 *Você ainda não tem registro.*
-Para usar o ${nomebot} no privado, faça seu registro (leva 1 minuto):
-
-${prefix}registrar Nome|idade
-📌 Exemplo: ${prefix}registrar ${PLUS.limparTexto(pushname, 20) || 'Geovane'}|18
-
-💬 Nos grupos você pode usar normalmente.`;
+            const txtRG = `👋 Olá${pushname ? `, ${pushname}` : ''}!\n\n🔐 *Você ainda não tem registro.*\nPara usar o ${nomebot} no privado, toque em *📝 REGISTRAR* (leva 1 minuto).\n\nSem botões: ${prefix}registrar\n💬 Nos grupos você pode usar normalmente.`;
             try { await sendButtons(nazu, from, { text: txtRG, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('📝 REGISTRAR', `${prefix}registrar`), quickReply('👑 DONO', `${prefix}dono`)] }); }
-            catch { await reply(txtRG); }
+            catch (eRG) { console.error('[REGISTRO] botões falharam, mandando em texto:', eRG?.message || eRG); await reply(txtRG); }
           }
           return;
         }
@@ -3289,7 +3324,7 @@ Depois toque em ✅ LI E ACEITO (ou digite "aceito").`;
         console.error('❌ Erro no sistema de leveling:', levelingError.message);
       }
     }
-    let __midiaIndisponivel = false; // marcado pelo getFileBuffer quando o WhatsApp não mandou a mídia
+    var __midiaIndisponivel = false; // (var: o reply() pode ser chamado antes desta linha) marcado pelo getFileBuffer quando o WhatsApp não mandou a mídia
     async function reply(text, options = {}) {
       try {
         // erro genérico depois de mídia indisponível (visualização única bloqueada / mídia expirada) → explica direito
@@ -4553,13 +4588,23 @@ Código: *${roleCode}*`,
       const state = { stop: false, done: 0, total: job.groupIds.length, startedAt: Date.now() };
       global.__tmRunning = state;
       const sockNow = () => liveSock(nazu);
-      sockNow().sendMessage(job.chat, { text: `📡 Transmissão iniciada para ${state.total} grupo(s)...\n🛑 Para interromper: ${prefixo}tmparar` }).catch(() => {});
+      sockNow().sendMessage(job.chat, { text: `📡 Transmissão iniciada para ${state.total} grupo(s)...${job.marcar ? '\n📣 Marcando todo mundo de cada grupo (sem @).' : ''}\n🛑 Para interromper: ${prefixo}tmparar` }).catch(() => {});
       (async () => {
         let r;
         try {
+          // !tmm: em cada grupo, marca todos (menos o bot e quem desativou as marcações), sem @ no texto
+          const mencoesDo = job.marcar ? async (gid) => {
+            let parts = job.gruposMeta?.[gid]?.participants;
+            if (!parts?.length) { try { parts = (await sockNow().groupMetadata(gid)).participants; } catch { parts = []; } }
+            let mark = {};
+            try { mark = JSON.parse(fs.readFileSync(pathz.join(GRUPOS_DIR, `${gid}.json`), 'utf-8')).mark || {}; } catch { }
+            const eu = [sockNow().user?.id, sockNow().user?.lid].filter(Boolean).map(x => String(x).split(':')[0].split('@')[0]);
+            return (parts || []).map(p => p.id).filter(id => id && !eu.includes(String(id).split('@')[0]) && !['0', 'games'].includes(mark[id]));
+          } : undefined;
           r = await broadcastPrepared(sockNow, job.groupIds, job.payload, {
             decorate: job.decorate,
-            delayMs: [1000, 2000],
+            mentionsFor: mencoesDo,
+            delayMs: job.marcar ? [3000, 5000] : [1000, 2000],
             shouldStop: () => state.stop,
             onProgress: (p) => { state.done = p.done; },
             onError: (gid, err) => console.error(`[TM] Erro ao enviar para ${gid}:`, err?.message || err)
@@ -6543,16 +6588,37 @@ Código: *${roleCode}*`,
     if (isGroup && !isCmd && body && global.__astaForca?.has(from) && !info.key.fromMe && body.trim().length <= 40) {
       try { if (await astaForcaJogar(nazu, from, sender, body, prefix)) return; } catch (e) { console.error('[FORCA] jogada:', e?.message); }
     }
+    // ===== REGISTRO: nome e idade digitados no privado =====
+    if (!isGroup && !isCmd && body && ['nome', 'idade'].includes(global.__astaRegFlow?.get(PLUS.baseNum(sender))?.stage)) {
+      const bRN = PLUS.baseNum(sender);
+      const fRN = global.__astaRegFlow.get(bRN);
+      if (Date.now() - fRN.at > 10 * 60_000) { global.__astaRegFlow.delete(bRN); await reply(`⌛ O registro expirou. Toque em 📝 REGISTRAR de novo (${prefix}registrar).`); return; }
+      if (fRN.stage === 'nome') {
+        const nomeRN = PLUS.limparTexto(body, 30);
+        if (nomeRN.length < 2 || /https?:|www\.|\.com/i.test(nomeRN) || /^\d+$/.test(nomeRN)) { await reply('❌ Nome inválido. Escreva só o seu nome (de 2 a 30 letras).'); return; }
+        fRN.nome = nomeRN; fRN.stage = 'idade'; fRN.at = Date.now();
+        await reply(`👤 Nome: *${nomeRN}*\n\n🎂 Agora me diga *a sua idade* (só o número).\nEx: 18`);
+        return;
+      }
+      const idadeRN = parseInt(String(body).replace(/\D/g, ''), 10);
+      if (!idadeRN || idadeRN < 10 || idadeRN > 100) { await reply('❌ Idade inválida. Mande só o número (de 10 a 100).'); return; }
+      fRN.idade = idadeRN; fRN.stage = 'termos'; fRN.at = Date.now();
+      const termosRN = config.registroTermos || `1. Não use o bot para spam, golpes ou conteúdo ilegal.\n2. Não tente travar ou derrubar o bot.\n3. O dono pode remover seu registro se você quebrar as regras.\n4. Seus dados (nome e idade) ficam só aqui no bot.`;
+      const txtRN = `📜 *TERMOS DE USO — ${nomebot}*\n\n👤 Nome: *${fRN.nome}*\n🎂 Idade: *${idadeRN}*\n\n${termosRN}\n\nVocê aceita?\n\nSem botões: ${prefix}registrar aceito · ${prefix}registrar recuso`;
+      try { await sendButtons(nazu, from, { text: txtRN, footer: '★彡 ASTA MD 彡★', buttons: [quickReply('✅ ACEITO', `${prefix}registrar aceito`), quickReply('❌ RECUSO', `${prefix}registrar recuso`)] }); }
+      catch { await reply(txtRN); }
+      return;
+    }
     // ===== REGISTRO: código de 4 números digitado no privado =====
     if (!isGroup && !isCmd && body && global.__astaRegFlow?.get(PLUS.baseNum(sender))?.stage === 'codigo') {
       const bRC = PLUS.baseNum(sender);
       const fRC = global.__astaRegFlow.get(bRC);
       const dig = String(body).replace(/\D/g, '');
-      if (Date.now() - fRC.at > 5 * 60_000) { global.__astaRegFlow.delete(bRC); await reply(`⌛ O código expirou. Comece de novo: ${prefix}registrar ${fRC.nome}|${fRC.idade}`); return; }
+      if (Date.now() - fRC.at > 5 * 60_000) { global.__astaRegFlow.delete(bRC); await reply(`⌛ O código expirou. Comece de novo: ${prefix}registrar`); return; }
       if (dig.length === 4) {
         if (dig !== fRC.codigo) {
           fRC.tent = (fRC.tent || 0) + 1;
-          if (fRC.tent >= 3) { global.__astaRegFlow.delete(bRC); await reply(`❌ Código errado 3 vezes. Comece de novo: ${prefix}registrar ${fRC.nome}|${fRC.idade}`); return; }
+          if (fRC.tent >= 3) { global.__astaRegFlow.delete(bRC); await reply(`❌ Código errado 3 vezes. Comece de novo: ${prefix}registrar`); return; }
           await reply(`❌ Código errado. Você tem mais ${3 - fRC.tent} tentativa(s).`); return;
         }
         global.__astaRegFlow.delete(bRC);
@@ -21817,7 +21883,7 @@ Se não definir cores, a API usa padrão automaticamente.`
                 {
                   title: 'PRINCIPAL',
                   highlight_label: '⚔️',
-                  rows: [row('【⚔️】 MENU COMPLETO 【⚔️】', 'Todos os comandos do menu principal', 'menu texto')]
+                  rows: [row('【⚔️】 MENU COMPLETO 【⚔️】', 'Todos os comandos do menu principal', 'menu texto'), row('【📜】 TODOS OS COMANDOS', 'Lista com todos os comandos do bot e o total', 'todoscmd')]
                 },
                 {
                   title: 'CATEGORIAS',
@@ -21842,6 +21908,12 @@ Se não definir cores, a API usa padrão automaticamente.`
                 }
               ];
 
+              // "!menu categorias" (botão LISTA): abre as categorias numa lista clássica, que aparece no iPhone
+              if (['categorias', 'categoria', 'cat'].includes((args[0] || '').toLowerCase())) {
+                await sendButtons(nazu, from, { text: `📋 *CATEGORIAS — ${customBotName}*\n\nToque no botão abaixo e escolha uma categoria.`, footer: `© ${customBotName}`, buttons: [listButton('【⚔️】 CATEGORIAS', menuSections)], quoted: info });
+                break;
+              }
+
               if (isMenuAudioEnabled()) {
                 const audioPathB = getMenuAudioPath();
                 if (audioPathB && fs.existsSync(audioPathB)) {
@@ -21856,7 +21928,7 @@ Se não definir cores, a API usa padrão automaticamente.`
                 footer: `© ${customBotName}`,
                 buttons: [
                   quickReply('【⚔️】 PRINCIPAL 【⚔️】', `${gp}menu texto`),
-                  listButton('【⚔️】 LISTA 【⚔️】', menuSections),
+                  ...(['A', 'C', 'D'].includes(global.__astaBotoesFormato) ? [listButton('【⚔️】 LISTA 【⚔️】', menuSections)] : [quickReply('【📋】 LISTA 【📋】', `${gp}menu categorias`)]),
                   urlButton('【⚔️】 FALAR COM O DONO 【⚔️】', `https://wa.me/${String(numerodono).replace(/\D/g, '')}`)
                 ],
                 quoted: info,
@@ -23935,22 +24007,27 @@ Precisa de ajuda? Entre em contato:
           await reply("Ocorreu um erro 💔");
         }
         break;
+      case 'tmm':
       case 'tm':
         try {
           if (!isOwner) return reply("Este comando é apenas para o meu dono 💔");
+          // !tmm = igual ao !tm, mas marca todo mundo de cada grupo sem aparecer @ (como o hidetag)
+          const tmMarcar = command === 'tmm';
+          const tmCmd = `${prefix}${command}`;
           const tmSub = (args[0] || '').toLowerCase();
           const tmText = tmSub === 'direto' ? args.slice(1).join(' ') : q;
           const tmQuotedRaw = quotedMessageContent || Object.values(info.message || {}).find(v => v?.contextInfo?.quotedMessage)?.contextInfo?.quotedMessage || null;
           const tmOwn = detectAnyMessage(info.message);
           const tmQuoted = tmQuotedRaw ? detectAnyMessage(tmQuotedRaw) : null;
 
-          const tmHelp = `📡 *TRANSMISSÃO PARA TODOS OS GRUPOS*\n\n` +
+          const tmHelp = `📡 *TRANSMISSÃO PARA TODOS OS GRUPOS*${tmMarcar ? ' 📣 *MARCANDO TODOS*' : ''}\n\n` +
             `Envia *qualquer coisa*: texto, imagem, vídeo, GIF, áudio, nota de voz, figurinha (até com som), documento, enquete, evento, localização e contato.\n\n` +
-            `• ${prefix}tm <texto>\n` +
-            `• Envie uma mídia com a legenda ${prefix}tm <texto>\n` +
-            `• Responda qualquer mensagem com ${prefix}tm [texto]\n` +
-            `• ${prefix}tm enquete Pergunta | opção 1 | opção 2\n` +
-            `• ${prefix}tm direto <texto> (sem prévia)\n` +
+            `• ${tmCmd} <texto>\n` +
+            `• Envie uma mídia com a legenda ${tmCmd} <texto>\n` +
+            `• Responda qualquer mensagem com ${tmCmd} [texto]\n` +
+            `• ${tmCmd} enquete Pergunta | opção 1 | opção 2\n` +
+            `• ${tmCmd} direto <texto> (sem prévia)\n` +
+            `• ${prefix}tm → normal  ·  ${prefix}tmm → marca todo mundo de cada grupo sem aparecer @ (igual ao hidetag)\n` +
             `• ${prefix}tmparar | ${prefix}tmexcluir | ${prefix}tmincluir | ${prefix}tmexcluidos | ${prefix}tmprevia on/off\n` +
             `  (termine a pergunta com * para permitir várias respostas)`;
 
@@ -23958,7 +24035,7 @@ Precisa de ajuda? Entre em contato:
           let tmDet = null;
           if (['enquete', 'poll', 'votacao', 'votação'].includes(tmSub)) {
             const poll = parsePollText(args.slice(1).join(' '));
-            if (!poll) return reply(`💡 Use: ${prefix}tm enquete Pergunta | opção 1 | opção 2 | ...`);
+            if (!poll) return reply(`💡 Use: ${tmCmd} enquete Pergunta | opção 1 | opção 2 | ...`);
             tmPayload = broadcastPoll(poll);
           } else {
             let det = null;
@@ -24000,7 +24077,7 @@ Precisa de ajuda? Entre em contato:
           const groups = await nazu.groupFetchAllParticipating();
           const excluidos = loadTmExcluidos();
           const groupIds = Object.keys(groups).filter(id => !excluidos.includes(id));
-          const job = { payload: tmPayload, decorate: tmDecorate, groupIds, chat: from, createdAt: Date.now(), canalContent, canal: null };
+          const job = { payload: tmPayload, decorate: tmDecorate, groupIds, chat: from, createdAt: Date.now(), canalContent, canal: null, marcar: tmMarcar, gruposMeta: tmMarcar ? groups : null };
 
           // sem prévia: envia direto
           if (config.tmPrevia === false || tmSub === 'direto') {
@@ -24014,7 +24091,7 @@ Precisa de ajuda? Entre em contato:
           const token = Math.random().toString(36).slice(2, 8);
           global.__tmPending.set(token, job);
           await sendPreparedMsg(nazu, from, tmPayload, tmDecorate);
-          const tmAsk = `📡 *PRÉVIA DA TRANSMISSÃO* (acima)\n\n👥 Vai para *${groupIds.length}* grupo(s)${excluidos.length ? ` (${excluidos.length} excluído(s))` : ''}.\n⏱️ Tempo estimado: ~${Math.ceil(groupIds.length * 1.5 / 60)} min\n\nConfirma o envio? Toque no botão ou digite:\n✅ ${groupPrefix}tmconfirmar${canalContent ? `  (ou ${groupPrefix}tmconfirmar canal)` : ''}\n❌ ${groupPrefix}tmcancelar`;
+          const tmAsk = `📡 *PRÉVIA DA TRANSMISSÃO* (acima)\n\n👥 Vai para *${groupIds.length}* grupo(s)${excluidos.length ? ` (${excluidos.length} excluído(s))` : ''}.${tmMarcar ? '\n📣 *Marcando todo mundo* de cada grupo (sem aparecer @).' : ''}\n⏱️ Tempo estimado: ~${Math.ceil(groupIds.length * (tmMarcar ? 4 : 1.5) / 60)} min\n\nConfirma o envio? Toque no botão ou digite:\n✅ ${groupPrefix}tmconfirmar${canalContent ? `  (ou ${groupPrefix}tmconfirmar canal)` : ''}\n❌ ${groupPrefix}tmcancelar`;
           try {
             await sendButtons(nazu, from, {
               text: tmAsk,
@@ -29296,16 +29373,28 @@ break;
           const subR = String(args[0] || '').toLowerCase();
           if (ja) return reply(`✅ Você já é registrado!\n\n🪪 Registro nº *${String(ja.n).padStart(4, '0')}*\n👤 ${ja.nome}\n📅 Desde ${new Date(ja.data).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}\n\nSeu cartão: ${prefix}meuperfil`);
           if (isGroup) return reply(`📩 O registro é feito no meu *privado*: wa.me/${String(botNumber).split('@')[0]}?text=${encodeURIComponent(prefix + 'registrar')}`);
-          if (subR === 'recuso' || subR === 'cancelar') { FL.delete(bR); return reply('❌ Registro cancelado. Sem registro não dá para usar o bot no privado.\nQuando quiser: ' + `${prefix}registrar Nome|idade`); }
+          if (subR === 'recuso' || subR === 'cancelar') { FL.delete(bR); return reply('❌ Registro cancelado. Sem registro não dá para usar o bot no privado.\nQuando quiser: ' + `${prefix}registrar`); }
           if (subR === 'aceito' || subR === 'aceitar') {
             const f = FL.get(bR);
-            if (!f || f.stage !== 'termos') return reply(`ℹ️ Comece com: ${prefix}registrar Nome|idade`);
+            if (!f || f.stage !== 'termos') return reply(`ℹ️ Comece com: ${prefix}registrar`);
             f.stage = 'codigo'; f.codigo = String(1000 + Math.floor(Math.random() * 9000)); f.tent = 0; f.at = Date.now();
             return nazu.sendMessage(from, { image: await PLUS.captchaImagem(f.codigo), caption: `🔐 *Último passo!*\n\nDigite aqui no chat os *4 números* da imagem.\n⏳ Vale por 5 minutos · 3 tentativas` }, { quoted: info });
           }
           const entR = String(q || '').trim();
+          const nomeWA = PLUS.limparTexto(pushname, 30);
+          if (subR === 'usarnome') {
+            const f = FL.get(bR);
+            if (!f || f.stage !== 'nome' || nomeWA.length < 2) return reply(`ℹ️ Toque em 📝 REGISTRAR para começar.`);
+            f.nome = nomeWA; f.stage = 'idade'; f.at = Date.now();
+            return reply(`👤 Nome: *${nomeWA}*\n\n🎂 Agora me diga *a sua idade* (só o número).\nEx: 18`);
+          }
           if (!entR) {
-            return reply(`📝 *REGISTRO — ${nomebot}*\n\nPara usar o bot no privado, faça seu registro:\n\n${prefix}registrar Nome|idade\n\n📌 Exemplo: ${prefix}registrar ${PLUS.limparTexto(pushname, 20) || 'Geovane'}|18`);
+            // conversa: o bot pergunta o nome e depois a idade (sem precisar digitar comando)
+            FL.set(bR, { stage: 'nome', at: Date.now() });
+            const txtN = `📝 *REGISTRO — ${nomebot}*\n\n✍️ Qual é o seu *nome*?\nÉ só escrever aqui no chat.${nomeWA.length >= 2 ? `\n\nOu toque em *USAR ${nomeWA.toUpperCase().slice(0, 14)}* para usar o nome do seu WhatsApp.` : ''}`;
+            const btnsN = [...(nomeWA.length >= 2 ? [quickReply(`✅ USAR ${nomeWA.toUpperCase()}`.slice(0, 24), `${prefix}registrar usarnome`)] : []), quickReply('❌ CANCELAR', `${prefix}registrar cancelar`)];
+            try { await sendButtons(nazu, from, { text: txtN, footer: '★彡 ASTA MD 彡★', buttons: btnsN }); } catch { await reply(txtN); }
+            return;
           }
           const [nomeR0, idadeR0] = entR.split('|').map(x => (x || '').trim());
           const nomeR = PLUS.limparTexto(nomeR0, 30);
@@ -29323,7 +29412,7 @@ break;
       case 'meuregistro':
         try {
           const r = plusRead('registros.json', { users: {} }).users?.[PLUS.baseNum(sender)];
-          if (!r) return reply(`📝 Você ainda não tem registro. ${prefix}registrar Nome|idade (no meu privado)`);
+          if (!r) return reply(`📝 Você ainda não tem registro. ${prefix}registrar (no meu privado)`);
           return reply(`🪪 *SEU REGISTRO*\n\nNº *${String(r.n).padStart(4, '0')}*\n👤 ${r.nome}\n🎂 ${r.idade} anos\n📅 ${new Date(r.data).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}\n\n🪪 Cartão: ${prefix}meuperfil`);
         } catch (e) { console.error(e); }
         break;
@@ -29440,6 +29529,80 @@ break;
             await sendButtons(nazu, from, { text: txtL, footer: '★彡 ASTA MD 彡★', buttons: [listButton('📋 ESCOLHER GRUPO', [{ title: '🚪 Sair do grupo', rows: rows('sair', '🚪') }, { title: '✅ Continuar no grupo', rows: rows('continuar', '✅') }]), ...(parados.length > 1 ? [quickReply(`🚪 SAIR DE TODOS (${parados.length})`, `${prefix}${command} todos`)] : [])] });
           } catch { await reply(txtL); }
         } catch (e) { console.error('[GRUPOS PARADOS] Erro:', e); await reply('❌ Erro ao ver os grupos parados.'); }
+        break;
+
+      // ---------- TODOS OS COMANDOS ----------
+      case 'todoscmd':
+      case 'todoscomandos':
+      case 'allcmd':
+      case 'listacmd':
+        try {
+          const tc = await astaTodosComandos();
+          const blocos = tc.lista.map(c => {
+            const linhas = [];
+            for (let i = 0; i < c.cmds.length; i += 4) linhas.push(c.cmds.slice(i, i + 4).map(x => `${prefix}${x}`).join('  '));
+            return `*${c.nome}* (${c.cmds.length})\n${linhas.join('\n')}`;
+          });
+          const txtTC = `📜 *TODOS OS COMANDOS — ${nomebot}*\n\n🔢 *${tc.total} comandos*\n➕ Contando os atalhos (ex.: ${prefix}b = ${prefix}ban), são ${tc.nomes} nomes de comando.\n\n${blocos.join('\n\n')}\n\n💡 Para ver o que cada um faz, abra o menu da categoria (${prefix}menu).`;
+          try { await sendButtons(nazu, from, { text: txtTC, footer: `© ${nomebot}`, buttons: [quickReply('⬅️ VOLTAR AO MENU', `${prefix}menu`)], quoted: info }); }
+          catch { await reply(txtTC); }
+        } catch (e) { console.error('[TODOSCMD] Erro:', e); await reply('❌ Erro ao montar a lista de comandos.'); }
+        break;
+
+      // ---------- TESTE DE BOTÕES: descobre qual formato chega no celular de cada pessoa ----------
+      case 'testebotoes':
+      case 'testarbotoes':
+        try {
+          const T = global.__astaTesteBtn || (global.__astaTesteBtn = { testes: new Map(), hooked: new WeakSet() });
+          // clique da pessoa testada (qualquer um pode)
+          if (String(args[0] || '').toLowerCase() === 'clique') {
+            const t = T.testes.get(args[1]);
+            if (t && args[2]) { t.cliques.add(String(args[2]).toUpperCase()); await nazu.sendMessage(from, { react: { text: '✅', key: info.key } }).catch(() => { }); }
+            return;
+          }
+          if (!isOwner) return reply('🚫 Só o dono.');
+          let alvoT = menc_os2 || (String(args[0] || '').replace(/\D/g, '').length >= 10 ? `${String(args[0]).replace(/\D/g, '')}@s.whatsapp.net` : (!isGroup ? from : null));
+          if (!alvoT) return reply(`🧪 *TESTE DE BOTÕES*\n\nManda a mesma mensagem em ${Object.keys(BTN_FORMATOS).length} formatos de botão para uma pessoa e mostra qual chegou (✓✓) no celular dela.\n\n• ${prefix}${command} 5575999999999 → testa no privado desse número\n• ${prefix}${command} (no privado de alguém) → testa nessa conversa\n\nPeça para a pessoa ficar com o chat do bot aberto e tocar em "VI ESTE" nos que aparecerem.`);
+          if (!T.hooked.has(nazu.ev)) {
+            T.hooked.add(nazu.ev);
+            nazu.ev.on('messages.update', (ups) => {
+              for (const u of ups || []) for (const t of T.testes.values()) { const r = t.ids.get(u?.key?.id); if (r && Number(u.update?.status) > (t.status.get(r) || 0)) t.status.set(r, Number(u.update.status)); }
+            });
+          }
+          const token = Math.random().toString(36).slice(2, 7);
+          const teste = { ids: new Map(), status: new Map(), cliques: new Set(), alvo: alvoT };
+          T.testes.set(token, teste);
+          await reply(`🧪 Testando ${Object.keys(BTN_FORMATOS).length - 1} formatos de botão em +${alvoT.split('@')[0]}...\nPeça para a pessoa abrir o chat do bot e tocar em *VI ESTE* nos que aparecerem.\n⏳ Resultado em ~1 minuto.`);
+          const txtCtl = await nazu.sendMessage(alvoT, { text: `🧪 *Teste de botões do ${nomebot}*\nVão chegar algumas mensagens de teste. Toque em *✅ VI ESTE* em cada uma que aparecer com botão. Obrigado!` });
+          if (txtCtl?.key?.id) teste.ids.set(txtCtl.key.id, 'TEXTO');
+          for (const f of Object.keys(BTN_FORMATOS).filter(k => k !== 'AUTO')) {
+            await new Promise(r => setTimeout(r, 2500));
+            try {
+              const b = await enviarFormato(f, nazu, alvoT, { text: `🧪 Teste *${f}*\nSe você está vendo os botões, toque em ✅ VI ESTE.`, footer: nomebot, buttons: [quickReply(`✅ VI ESTE (${f})`, `${prefix}testebotoes clique ${token} ${f}`), quickReply('👍 OK', `${prefix}testebotoes clique ${token} ${f}`)] });
+              if (b?.key?.id) teste.ids.set(b.key.id, f);
+            } catch (e) { teste.status.set(f, -1); console.error(`[TESTE BOTÕES] formato ${f}:`, e?.message || e); }
+          }
+          const donoChat = from;
+          setTimeout(async () => {
+            const nome = (st) => st >= 4 ? '👁️ lido' : st === 3 ? '✓✓ entregue' : st === -1 ? '❌ erro ao enviar' : '✓ só enviado (não chegou no celular)';
+            const linhas = ['TEXTO', ...Object.keys(BTN_FORMATOS).filter(k => k !== 'AUTO')].map(f => `${f === 'TEXTO' ? '📝 Texto normal' : `*${f}* — ${BTN_FORMATOS[f]}`}\n    ${nome(teste.status.get(f) || 0)}${teste.cliques.has(f) ? ' · 👆 a pessoa tocou no botão' : ''}`);
+            const chegaram = Object.keys(BTN_FORMATOS).filter(k => k !== 'AUTO').filter(f => (teste.status.get(f) || 0) >= 3 || teste.cliques.has(f));
+            const tocou = Object.keys(BTN_FORMATOS).filter(k => k !== 'AUTO').filter(f => teste.cliques.has(f));
+            const sugestao = tocou[0] || chegaram[0];
+            await (global.__nazunaSock || nazu).sendMessage(donoChat, { text: `🧪 *RESULTADO DO TESTE DE BOTÕES*\n👤 +${alvoT.split('@')[0]}\n\n${linhas.join('\n')}\n\n${sugestao ? `✅ Melhor formato para esse celular: *${sugestao}*\nPara usar em todo o bot: ${prefix}formatobotoes ${sugestao}` : '⚠️ Nenhum formato de botão chegou nesse celular. Se o texto normal chegou, o WhatsApp desse aparelho está bloqueando mensagens com botões (atualizar o WhatsApp pode resolver).'}\n\n📌 Formato em uso agora: *${global.__astaBotoesFormato || 'AUTO'}*` }).catch(() => { });
+            T.testes.delete(token);
+          }, 45_000);
+        } catch (e) { console.error('[TESTE BOTÕES] Erro:', e); await reply('❌ Erro no teste de botões.'); }
+        break;
+      case 'formatobotoes':
+        try {
+          if (!isOwner) return reply('🚫 Só o dono.');
+          const f = String(args[0] || '').toUpperCase();
+          const cfgF = loadJsonFile(CONFIG_FILE, {});
+          if (BTN_FORMATOS[f]) { cfgF.botoesFormato = f; fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfgF, null, 2)); global.__astaBotoesFormato = f; }
+          const atual = String(cfgF.botoesFormato || 'AUTO').toUpperCase();
+          return reply(`🔘 *FORMATO DOS BOTÕES:* ${atual} — ${BTN_FORMATOS[atual] || ''}\n\n${Object.entries(BTN_FORMATOS).map(([k, v]) => `${k === atual ? '👉' : '▫️'} *${k}* — ${v}`).join('\n')}\n\n• ${prefix}${command} AUTO → padrão (B + F, os que apareceram no iPhone)\n• ${prefix}${command} A → o formato de antes\n• ${prefix}testebotoes 5575... → descobre qual formato chega num celular`);
+        } catch (e) { console.error(e); }
         break;
 
       // ===== ADIVINHE O ANIME (imagem borrada que vai clareando) =====

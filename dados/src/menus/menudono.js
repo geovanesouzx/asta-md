@@ -16,6 +16,8 @@ export default async function menuDono(prefix, botName = 'MeuBot', userName = 'U
         'instalarfundo — removedor de fundo local',
         'figfps 30/24/20/auto',
         'menubotoes on/off',
+        'testebotoes <número> — qual formato de botão chega no celular',
+        'formatobotoes AUTO/A-F — escolhe o formato dos botões',
         'tutorial'
       ]
     },
@@ -33,6 +35,7 @@ export default async function menuDono(prefix, botName = 'MeuBot', userName = 'U
     {
       t: '📢 TRANSMISSÃO (!tm)', i: [
         'tm <texto> — ou responda qualquer mensagem',
+        'tmm <texto> — igual ao tm, marcando todos (sem @)',
         'tm enquete Pergunta | op1 | op2',
         'tm direto · tmparar',
         'tmexcluir · tmincluir · tmexcluidos',

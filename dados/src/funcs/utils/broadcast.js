@@ -230,32 +230,40 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  * Envia um pacote preparado para um chat.
  * @param decorate  (texto) => texto final (ex.: adiciona cabeçalho e ID). Recebe '' quando não há texto.
  */
-export const sendPrepared = async (nazu, jid, payload, decorate = (s) => s) => {
+export const sendPrepared = async (nazu, jid, payload, decorate = (s) => s, { mentions } = {}) => {
   const userJid = nazu.user?.id;
+  // marcação invisível (igual ao hidetag): menciona todo mundo sem escrever @ no texto
+  const men = Array.isArray(mentions) && mentions.length ? { mentions } : {};
+  const comMencao = (content) => {
+    if (!men.mentions) return content;
+    const k = Object.keys(content)[0];
+    return { ...content, [k]: { ...content[k], contextInfo: { ...(content[k]?.contextInfo || {}), mentionedJid: men.mentions } } };
+  };
   const relay = async (content, marker) => {
-    const built = generateWAMessageFromContent(jid, content, { userJid });
+    const built = generateWAMessageFromContent(jid, comMencao(content), { userJid });
     const msg = marker ? { ...built.message, ...marker } : built.message;
     await nazu.relayMessage(jid, msg, { messageId: built.key.id });
   };
   const extra = async () => {
     const txt = payload.text ? decorate(payload.text) : '';
-    if (txt) await nazu.sendMessage(jid, { text: txt });
+    if (txt) await nazu.sendMessage(jid, { text: txt, ...men });
   };
 
   switch (payload.kind) {
     case 'text':
-      await nazu.sendMessage(jid, { text: decorate(payload.text) });
+      await nazu.sendMessage(jid, { text: decorate(payload.text), ...men });
       return;
     case 'poll':
-      await nazu.sendMessage(jid, { poll: { ...payload.poll, values: [...payload.poll.values] } });
+      await nazu.sendMessage(jid, { poll: { ...payload.poll, values: [...payload.poll.values] }, ...men });
       await extra();
       return;
     case 'event':
-      await nazu.sendMessage(jid, { event: { ...payload.event } });
+      await nazu.sendMessage(jid, { event: { ...payload.event }, ...men });
       return;
     case 'soundsticker': {
       // monta direto (sem passar pelo fromObject do Baileys, que apagaria os campos que o iPhone precisa)
       const inner = applyNativeSoundFields({ ...payload.sticker }, payload.sticker.audioMessage ? { ...payload.sticker.audioMessage } : null);
+      if (men.mentions) inner.contextInfo = { ...(inner.contextInfo || {}), mentionedJid: men.mentions };
       const ids = generateWAMessageFromContent(jid, { stickerMessage: { ...payload.sticker } }, { userJid });
       const wrapped = { audioStickerMessage: { message: { stickerMessage: inner } }, messageContextInfo: { messageSecret: crypto.randomBytes(32) }, stickerMessage: inner };
       await nazu.relayMessage(jid, wrapped, { messageId: ids.key.id });
@@ -284,7 +292,7 @@ export const sendPrepared = async (nazu, jid, payload, decorate = (s) => s) => {
  * Envia para vários chats com pausa entre eles.
  * @returns {{ sent: number, failed: number, total: number }}
  */
-export const broadcastPrepared = async (nazuOrGetter, jids, payload, { decorate, delayMs = [1000, 2000], onError, shouldStop, onProgress } = {}) => {
+export const broadcastPrepared = async (nazuOrGetter, jids, payload, { decorate, delayMs = [1000, 2000], onError, shouldStop, onProgress, mentionsFor } = {}) => {
   let sent = 0;
   let failed = 0;
   let stopped = false;
@@ -293,7 +301,8 @@ export const broadcastPrepared = async (nazuOrGetter, jids, payload, { decorate,
     if (shouldStop?.()) { stopped = true; break; }
     const sock = typeof nazuOrGetter === 'function' ? nazuOrGetter() : nazuOrGetter;
     try {
-      await sendPrepared(sock, list[i], payload, decorate);
+      const mentions = mentionsFor ? await mentionsFor(list[i]) : undefined;
+      await sendPrepared(sock, list[i], payload, decorate, { mentions });
       sent++;
     } catch (e) {
       failed++;
