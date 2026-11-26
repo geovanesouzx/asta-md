@@ -13,6 +13,7 @@ export default async function menuSticker(prefix, botName = 'MeuBot', userName =
         'sl <texto> — figurinha com legenda',
         'ssom <link ou música> — figurinha com a música',
         'sticker2 — formato original, sem cortar',
+        'autofigu — no privado: toda foto/vídeo que você mandar vira figurinha',
         { sub: 'VISUALIZAÇÃO ÚNICA' },
         's — também funciona em foto/vídeo/áudio de visualização única',
         'revelar — reenvia a visualização única'

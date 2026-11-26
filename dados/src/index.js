@@ -652,6 +652,10 @@ async function astaTiposProgresso() {
 
 // ===================== GRUPOS PARADOS (última mensagem de PESSOA em cada grupo) =====================
 const astaGpAtiv = global.__astaGpAtiv || (global.__astaGpAtiv = { db: null, timer: null });
+// ===== AUTOFIGU NO PRIVADO: quem liga, toda foto/vídeo/GIF que mandar no PV vira figurinha =====
+const astaAutoFiguPv = { db: null };
+function astaAutoFiguDb() { if (!astaAutoFiguPv.db) { astaAutoFiguPv.db = plusRead('autofigu-pv.json', { users: {} }); if (!astaAutoFiguPv.db.users) astaAutoFiguPv.db.users = {}; } return astaAutoFiguPv.db; }
+function astaAutoFiguSalvar() { try { plusWrite('autofigu-pv.json', astaAutoFiguDb()); } catch { } }
 function astaGpAtivDb() { if (!astaGpAtiv.db) astaGpAtiv.db = plusRead('grupos-atividade.json', {}); return astaGpAtiv.db; }
 function astaGpAtivSalvar(agora = false) {
   const gravar = () => { astaGpAtiv.timer = null; try { plusWrite('grupos-atividade.json', astaGpAtivDb()); } catch { } };
@@ -5173,7 +5177,8 @@ Código: *${roleCode}*`,
         }
       }
     }
-    if (isGroup && groupData.autoSticker && !info.key.fromMe) {
+    const __autoFiguPvCfg = (!isGroup && !isStatus && !info.key.fromMe && !isCmd) ? astaAutoFiguDb().users[PLUS.baseNum(sender)] : null;
+    if (((isGroup && groupData.autoSticker) || __autoFiguPvCfg?.on) && !info.key.fromMe) {
       try {
         const mediaImage = info.message?.imageMessage || info.message?.viewOnceMessageV2?.message?.imageMessage || info.message?.viewOnceMessage?.message?.imageMessage;
         const mediaVideo = info.message?.videoMessage || info.message?.viewOnceMessageV2?.message?.videoMessage || info.message?.viewOnceMessage?.message?.videoMessage;
@@ -5190,7 +5195,7 @@ Código: *${roleCode}*`,
             const vSecs = Number(mediaVideo.seconds) || 0;
             autoDur = Math.max(1, Math.min(autoMax, vSecs || autoMax));
             if (vSecs > autoDur + 0.5) buffer = await trimStickerMedia(buffer, 0, autoDur); // longo: usa o começo
-            if (!mediaVideo.gifPlayback && groupData.autoStickerSom !== false) {
+            if (!mediaVideo.gifPlayback && (isGroup ? groupData.autoStickerSom !== false : __autoFiguPvCfg?.som !== false)) {
               try {
                 const autoClip = await prepareSoundClip(buffer, 'mp4', { start: 0, seconds: Math.ceil(autoDur) });
                 let autoWebp = await convertStickerWebp(buffer, true, shouldForceSquare, Math.ceil(autoDur));
@@ -33958,6 +33963,34 @@ ${prefix}antistickerplus remover → remove usuário e apaga mensagem
         } catch (e) {
           console.error(e);
           reply("ocorreu um erro 💔");
+        }
+        break;
+      case 'autofigu':
+      case 'autofig':
+      case 'autofigurinha':
+        try {
+          if (isGroup) return reply(`📌 O ${prefix}autofigu é para o *privado*.\nNo grupo, os admins usam ${prefix}autosticker.`);
+          const dbAF = astaAutoFiguDb();
+          const bAF = PLUS.baseNum(sender);
+          const cfgAF = dbAF.users[bAF] || { on: false, som: true };
+          const a0 = (args[0] || '').toLowerCase();
+          const a1 = (args[1] || '').toLowerCase();
+          if (a0 === 'som') {
+            if (!['on', 'off'].includes(a1)) return reply(`🔊 *Som no autofigu:* ${cfgAF.som === false ? 'desligado 🔇' : 'ligado 🔊'}\n\n💡 ${prefix}autofigu som on → vídeo com áudio vira figurinha com som\n💡 ${prefix}autofigu som off → figurinha sem som`);
+            cfgAF.som = a1 === 'on';
+          } else if (['on', 'ligar', 'ativar'].includes(a0)) cfgAF.on = true;
+          else if (['off', 'desligar', 'desativar'].includes(a0)) cfgAF.on = false;
+          else if (!a0) cfgAF.on = !cfgAF.on;
+          else return reply(`🎨 *AUTOFIGU (privado)*\n\n• ${prefix}autofigu → liga/desliga\n• ${prefix}autofigu on/off\n• ${prefix}autofigu som on/off`);
+          dbAF.users[bAF] = cfgAF;
+          astaAutoFiguSalvar();
+          if (a0 === 'som') return reply(`✅ Som no autofigu ${cfgAF.som ? 'ligado 🔊' : 'desligado 🔇'}.`);
+          return reply(cfgAF.on
+            ? `✅ *Autofigu ligado!* 🎨\n\nAgora é só mandar foto, vídeo ou GIF aqui no privado que eu transformo em figurinha — sem precisar de comando.\n${cfgAF.som === false ? '🔇 Vídeos saem sem som' : '🔊 Vídeos com áudio saem com som'} (${prefix}autofigu som on/off)\n\n❌ Para desligar: ${prefix}autofigu off`
+            : `❌ *Autofigu desligado.*\nPara fazer figurinha use ${prefix}s respondendo a mídia.\nPara ligar de novo: ${prefix}autofigu`);
+        } catch (e) {
+          console.error(e);
+          reply("Ocorreu um erro 💔");
         }
         break;
       case 'autosticker':

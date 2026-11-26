@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.12.1-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.13.0-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -61,7 +61,7 @@
 
 <!-- NOVIDADES:INICIO (esta seção mostra só a versão mais nova; o histórico completo fica no LEIA-ME-ASTA-MD.txt) -->
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.12.1-blue?style=for-the-badge" alt="v10.12.1" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.13.0-blue?style=for-the-badge" alt="v10.13.0" />
 </p>
 
 <details open>
@@ -69,13 +69,9 @@
 
 <br>
 
-- 📊 **Barra de progresso** nos comandos que fazem esperar — o bot manda uma mensagem e vai **editando**:
-  `🎨 Fazendo a figurinha... [▰▰▰▰▱▱▱▱▱▱] 40%` → `📤 Enviando...` → `✅ Figurinha enviada!`
-  - vale para figurinhas, downloads, efeitos de áudio e vídeo, logos, edições, voz (tts), remover fundo e mais
-  - a mensagem de espera de cada comando ("⏳ Baixando...", "Aguarde...") vira a própria barra
-  - comando rápido não ganha barra; se der erro, a barra vira a mensagem de erro
-  - `.barraprogresso on/off`
-- 📋 Aba **[Todos os Comandos](#-todos-os-comandos)** aqui no README
+- 🎨 **`.autofigu` no privado** — liga uma vez e toda foto, vídeo ou GIF que você mandar no PV do bot vira figurinha, **sem precisar de comando**
+  - vídeo com áudio sai como figurinha com som 🔊 (`.autofigu som off` para sair sem som)
+  - `.autofigu` liga/desliga · `.autofigu on/off` · cada pessoa liga só para ela
 - 🔗 Links da Nazuna atualizados para o novo repositório: [DevTokyo2/nazuna](https://github.com/DevTokyo2/nazuna)
 </details>
 <!-- NOVIDADES:FIM -->
@@ -100,8 +96,8 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.12.1-blue?style=flat-square) |
-| 🧩 Comandos | ![Comandos](https://img.shields.io/badge/900_comandos_(1841_com_atalhos)-brightgreen?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.13.0-blue?style=flat-square) |
+| 🧩 Comandos | ![Comandos](https://img.shields.io/badge/901_comandos_(1844_com_atalhos)-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
 | 📝 Commits | ![Commits](https://img.shields.io/github/commit-activity/t/geovanesouzx/asta-md?style=flat-square&color=purple) |
@@ -123,18 +119,18 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 ## 📋 Todos os Comandos
 
 <p align="center">
-  <img src="https://img.shields.io/badge/TOTAL-900_COMANDOS-brightgreen?style=for-the-badge" alt="900 comandos" />
-  <img src="https://img.shields.io/badge/COM_ATALHOS-1841-blue?style=for-the-badge" alt="1841 com atalhos" />
+  <img src="https://img.shields.io/badge/TOTAL-901_COMANDOS-brightgreen?style=for-the-badge" alt="901 comandos" />
+  <img src="https://img.shields.io/badge/COM_ATALHOS-1844-blue?style=for-the-badge" alt="1844 com atalhos" />
 </p>
 
-> 🔢 O ASTA MD tem **900 comandos** — ou **1.841** contando os atalhos (ex.: `.b` = `.ban`).
+> 🔢 O ASTA MD tem **901 comandos** — ou **1.844** contando os atalhos (ex.: `.b` = `.ban`).
 > O prefixo padrão é `.` (no seu bot pode ser outro). Mandando um comando sem nada, o bot explica pra que serve e como usar.
 
 <div align="center">
 
 | Categoria | Comandos |
 |-----------|:--------:|
-| 🎨 Figurinhas | 38 |
+| 🎨 Figurinhas | 39 |
 | 📥 Downloads | 15 |
 | 🎮 Jogos e Brincadeiras | 300 |
 | 👥 Membros | 34 |
@@ -145,16 +141,16 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 | 🗡️ RPG e Economia | 123 |
 | 🛡️ Administração | 128 |
 | 👑 Dono | 151 |
-| **TOTAL** | **900** |
+| **TOTAL** | **901** |
 
 </div>
 
 <details>
-  <summary><strong>🎨 Figurinhas (38)</strong></summary>
+  <summary><strong>🎨 Figurinhas (39)</strong></summary>
 
 <br>
 
-`.s` · `.sc` · `.squadrado` · `.scorte` · `.sfundo` · `.sl` · `.ssom` · `.sticker2` · `.ssoff` · `.scoff` · `.sqoff` · `.scorteoff` · `.sfundooff` · `.sloff` · `.s2off` · `.sefeitooff` · `.revelar` · `.somfig` · `.sefeito` · `.svoz` · `.trocarsom` · `.sfala` · `.emojimix` · `.ttp` · `.attp` · `.brat` · `.bratvid` · `.qc` · `.rgtake` · `.take` · `.rename` · `.toimg` · `.tovideo` · `.pack` · `.topfig` · `.figurinhas` · `.figualeatoria` · `.soundinfo`
+`.s` · `.sc` · `.squadrado` · `.scorte` · `.sfundo` · `.sl` · `.ssom` · `.sticker2` · `.autofigu` · `.ssoff` · `.scoff` · `.sqoff` · `.scorteoff` · `.sfundooff` · `.sloff` · `.s2off` · `.sefeitooff` · `.revelar` · `.somfig` · `.sefeito` · `.svoz` · `.trocarsom` · `.sfala` · `.emojimix` · `.ttp` · `.attp` · `.brat` · `.bratvid` · `.qc` · `.rgtake` · `.take` · `.rename` · `.toimg` · `.tovideo` · `.pack` · `.topfig` · `.figurinhas` · `.figualeatoria` · `.soundinfo`
 
 </details>
 

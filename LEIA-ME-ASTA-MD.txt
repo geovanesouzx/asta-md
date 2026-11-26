@@ -640,3 +640,14 @@ v10.12.1 — NOVO REPOSITÓRIO DA NAZUNA
 ==================================================
 - Todos os links da Nazuna agora apontam para https://github.com/DevTokyo2/nazuna
   (README, créditos, config.json, comando de créditos do bot e package.json).
+
+v10.13.0 — AUTOFIGU NO PRIVADO
+==================================================
+- Novo .autofigu (ou .autofig / .autofigurinha) para o privado do bot:
+  liga uma vez e toda foto, vídeo ou GIF que a pessoa mandar no PV vira figurinha,
+  sem precisar de comando. Cada pessoa liga/desliga só para ela.
+  • .autofigu → liga/desliga   • .autofigu on/off
+  • .autofigu som on/off → vídeo com áudio sai com som ou sem som (padrão: com som)
+- Mídia com legenda de comando (ex.: foto com ".s") não vira figurinha dupla.
+- Se o registro no privado estiver ligado, a pessoa precisa estar registrada.
+- Salvo em dados/database/autofigu-pv.json.
