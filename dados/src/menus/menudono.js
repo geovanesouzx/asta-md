@@ -28,6 +28,7 @@ export default async function menuDono(prefix, botName = 'MeuBot', userName = 'U
         'listasubdonos',
         'permsub @user tm — o que cada subdono pode usar',
         'registropv on/off — registro obrigatório no PV',
+        'registromodelo — escolher o modelo da imagem do registro',
         'registrados [busca] · desregistrar @user',
         'addpremium @user · delpremium @user · listprem',
         'resetgold'

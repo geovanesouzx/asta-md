@@ -651,3 +651,28 @@ v10.13.0 — AUTOFIGU NO PRIVADO
 - Mídia com legenda de comando (ex.: foto com ".s") não vira figurinha dupla.
 - Se o registro no privado estiver ligado, a pessoa precisa estar registrada.
 - Salvo em dados/database/autofigu-pv.json.
+
+v10.13.1 — AVISO DE ATUALIZAÇÃO CORRIGIDO
+==================================================
+- O bot só procurava atualização 25 s depois de ligar e depois a cada 6 HORAS.
+  Se você subia pro GitHub depois de ligar o bot, o aviso demorava até 6 h.
+  Agora procura a cada 30 minutos ("intervaloAtualizacaoMin" no config.json, mínimo 10).
+- A decisão agora é pela versão do package.json: GitHub com versão maior = tem atualização.
+  Mesma versão só avisa se for uma correção nova enviada depois (commit diferente).
+  Quem atualizou na mão pelo zip não recebe aviso falso.
+- O aviso chega no privado do dono. Para conferir na hora: .atualizar
+
+v10.14.0 — MODELOS DE IMAGEM NAS BOAS-VINDAS E NO REGISTRO
+==================================================
+- Boas-vindas agora mandam a FOTO DE PERFIL de quem entrou (no lugar da imagem do gato)
+  com o texto do .legendabv como legenda.
+- .bemvindo 1 → o bot manda a prévia dos 10 modelos (feita com a foto do adm) e um botão
+  com a lista para escolher. Sem botões: .bemvindo modelo <0 a 10>.
+    1 Foto pura · 2 Foto redonda · 3 Polaroid · 4 Moldura neon · 5 Story   (só a foto)
+    6 Cartão clássico · 7 Capa (estilo Discord) · 8 Minimalista claro · 9 Cyber neon · 10 Carteirinha
+    0 = sem modelo (volta a imagem antiga)
+  Escolher um modelo já liga as boas-vindas e manda uma prévia com a legenda.
+- Quem não tem foto de perfil aparece com as iniciais ou um bonequinho.
+- .registromodelo (só o dono) → escolhe o modelo da imagem que chega quando alguém termina o
+  .registrar no privado. Os cartões mostram "Registro nº" e "se registrou no <bot>".
+  0 = volta o cartão antigo. Fica salvo no config.json ("registroModelo").

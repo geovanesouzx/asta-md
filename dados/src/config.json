@@ -25,5 +25,6 @@
   "repoAtualizacao": "geovanesouzx/asta-md",
   "ramoAtualizacao": "main",
   "avisoAtualizacao": true,
+  "intervaloAtualizacaoMin": 30,
   "registroPv": false
 }

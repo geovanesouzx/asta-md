@@ -652,6 +652,27 @@ async function astaTiposProgresso() {
 
 // ===================== GRUPOS PARADOS (última mensagem de PESSOA em cada grupo) =====================
 const astaGpAtiv = global.__astaGpAtiv || (global.__astaGpAtiv = { db: null, timer: null });
+// ===== MODELOS DE IMAGEM (boas-vindas !bemvindo 1 e registro !registromodelo) =====
+async function astaFotoDe(nazu, jid) {
+  try {
+    const url = await (global.__nazunaSock || nazu).profilePictureUrl(jid, 'image');
+    if (!url) return null;
+    const { data } = await axios.get(url, { responseType: 'arraybuffer', timeout: 15_000 });
+    return Buffer.from(data);
+  } catch { return null; }
+}
+async function astaMostrarModelos(nazu, from, info, { foto, nome, grupo, numero, registro = false, cmd, atual = 0, titulo }) {
+  const BVM = await import('./funcs/utils/bvModelos.js');
+  const d = { foto, nome, grupo, numero, registro };
+  await nazu.sendMessage(from, { image: await BVM.folhaModelosBV([1, 2, 3, 4, 5], d, 'Modelos 1 a 5 — só a foto') }, { quoted: info });
+  await nazu.sendMessage(from, { image: await BVM.folhaModelosBV([6, 7, 8, 9, 10], d, 'Modelos 6 a 10 — cartões') });
+  const rows = Object.entries(BVM.MODELOS_BV).map(([n, m]) => ({ title: `${n} — ${m.nome}${Number(n) === atual ? ' ✅' : ''}`, description: m.desc, id: `${cmd} ${n}` }));
+  const row0 = { title: `0 — Sem modelo${!atual ? ' ✅' : ''}`, description: registro ? 'volta o cartão antigo do registro' : 'volta a imagem antiga das boas-vindas', id: `${cmd} 0` };
+  const txt = `${titulo}\n\n🖼️ Modelo atual: *${atual ? `${atual} — ${BVM.MODELOS_BV[atual].nome}` : 'nenhum'}*\n\nToque no botão e escolha o modelo 👇\nSem botões: *${cmd} <número>* (0 a 10)`;
+  try {
+    await sendButtons(nazu, from, { text: txt, footer: '★彡 ASTA MD 彡★', buttons: [listButton('🖼️ ESCOLHER MODELO', [{ title: 'Só a foto', rows: rows.slice(0, 5) }, { title: 'Cartões', rows: rows.slice(5, 10) }, { title: 'Outros', rows: [row0] }])] });
+  } catch { await nazu.sendMessage(from, { text: txt }); }
+}
 // ===== AUTOFIGU NO PRIVADO: quem liga, toda foto/vídeo/GIF que mandar no PV vira figurinha =====
 const astaAutoFiguPv = { db: null };
 function astaAutoFiguDb() { if (!astaAutoFiguPv.db) { astaAutoFiguPv.db = plusRead('autofigu-pv.json', { users: {} }); if (!astaAutoFiguPv.db.users) astaAutoFiguPv.db.users = {}; } return astaAutoFiguPv.db; }
@@ -6677,7 +6698,10 @@ Código: *${roleCode}*`,
         const rRC = dbRC.users[bRC];
         try {
           const fotoRC = await (async () => { try { const u = await nazu.profilePictureUrl(sender, 'image'); const { data } = await axios.get(u, { responseType: 'arraybuffer', timeout: 15000 }); return Buffer.from(data); } catch { return null; } })();
-          const cardRC = await PLUS.cartaoPerfil({ foto: fotoRC, nome: rRC.nome, titulo: 'Mago registrado', cor: 'vermelho', linhas: [['Registro', `nº ${String(rRC.n).padStart(4, '0')}`], ['Idade', `${rRC.idade} anos`], ['Desde', new Date(rRC.data).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })]], rodape: nomebot });
+          let modRC = 0; try { modRC = Number(JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8')).registroModelo) || 0; } catch { }
+          const cardRC = (modRC >= 1 && modRC <= 10)
+            ? await (await import('./funcs/utils/bvModelos.js')).gerarModeloBV(modRC, { foto: fotoRC, nome: rRC.nome, grupo: nomebot, numero: String(rRC.n).padStart(4, '0'), registro: true })
+            : await PLUS.cartaoPerfil({ foto: fotoRC, nome: rRC.nome, titulo: 'Mago registrado', cor: 'vermelho', linhas: [['Registro', `nº ${String(rRC.n).padStart(4, '0')}`], ['Idade', `${rRC.idade} anos`], ['Desde', new Date(rRC.data).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })]], rodape: nomebot });
           await nazu.sendMessage(from, { image: cardRC, caption: `🎉 *REGISTRO CONCLUÍDO!*
 
 🪪 Registro nº *${String(rRC.n).padStart(4, '0')}*
@@ -29493,7 +29517,7 @@ break;
           const cfgR = loadJsonFile(CONFIG_FILE, {});
           if (['on', 'ligar', 'off', 'desligar'].includes(v)) { cfgR.registroPv = ['on', 'ligar'].includes(v); fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfgR, null, 2)); }
           const tot = Object.keys(plusRead('registros.json', { users: {} }).users || {}).length;
-          return reply(`🔐 *REGISTRO NO PRIVADO:* ${cfgR.registroPv ? 'LIGADO' : 'DESLIGADO'}\n👥 Registrados: ${tot}\n\nLigado: quem não tem registro só consegue usar ${prefix}registrar e ${prefix}dono no privado.\n(Grupos, dono e subdonos não precisam de registro.)\n\n• ${prefix}registropv on/off\n• ${prefix}registrados [busca]\n• ${prefix}desregistrar @fulano ou número`);
+          return reply(`🔐 *REGISTRO NO PRIVADO:* ${cfgR.registroPv ? 'LIGADO' : 'DESLIGADO'}\n👥 Registrados: ${tot}\n\nLigado: quem não tem registro só consegue usar ${prefix}registrar e ${prefix}dono no privado.\n(Grupos, dono e subdonos não precisam de registro.)\n\n• ${prefix}registropv on/off\n• ${prefix}registrados [busca]\n• ${prefix}desregistrar @fulano ou número\n• ${prefix}registromodelo → modelo da imagem do registro`);
         } catch (e) { console.error(e); }
         break;
       case 'registrados':
@@ -32652,6 +32676,26 @@ Exemplos:
           if (!isGroup) return reply("isso so pode ser usado em grupo 💔");
           if (!isGroupAdmin) return reply("você precisa ser adm 💔");
           const groupFilePath = buildGroupFilePath(from);
+          // ===== MODELO DA IMAGEM: !bemvindo 1 (mostra os modelos) · !bemvindo modelo <0-10> =====
+          const subBV = (args[0] || '').toLowerCase();
+          if (['1', 'modelo', 'modelos', 'imagem', 'foto'].includes(subBV)) {
+            const nBV = /^\d+$/.test(args[1] || '') ? Number(args[1]) : null;
+            if (nBV === null) {
+              await reply('🎨 Montando a prévia dos modelos com a sua foto...');
+              return astaMostrarModelos(nazu, from, info, { foto: await astaFotoDe(nazu, sender), nome: pushname || 'Novo membro', grupo: groupName, numero: groupMetadata?.participants?.length || 1, cmd: `${prefix}bemvindo modelo`, atual: Number(groupData.bvModelo) || 0, titulo: `👋 *MODELOS DAS BOAS-VINDAS*\n\nQuem entrar no grupo recebe a imagem com a *foto de perfil dele* e o texto do ${prefix}legendabv como legenda.` });
+            }
+            if (nBV < 0 || nBV > 10) return reply(`❌ Escolha um modelo de 0 a 10.\n💡 ${prefix}bemvindo 1 → ver os modelos`);
+            groupData.bvModelo = nBV;
+            if (nBV) groupData.bemvindo = true;
+            writeJsonFile(groupFilePath, groupData);
+            optimizer?.invalidateGroup?.(from);
+            if (!nBV) return reply('✅ Modelo desligado. As boas-vindas voltam a usar a imagem antiga.');
+            const BVM = await import('./funcs/utils/bvModelos.js');
+            const prevBV = await BVM.gerarModeloBV(nBV, { foto: await astaFotoDe(nazu, sender), nome: pushname || 'Novo membro', grupo: groupName, numero: groupMetadata?.participants?.length || 1 });
+            const legBV = String(groupData.textbv || '✨ Seja bem-vindo(a) ao grupo #nomedogp#! ✨').replace(/#numerodele#/g, `@${sender.split('@')[0]}`).replace(/#nomedogp#/g, groupName || '').replace(/#desc#/g, groupMetadata?.desc || 'Nenhuma').replace(/#membros#/g, groupMetadata?.participants?.length || 1);
+            await nazu.sendMessage(from, { image: prevBV, caption: legBV, mentions: [sender] }, { quoted: info });
+            return reply(`✅ *Modelo ${nBV} — ${BVM.MODELOS_BV[nBV].nome}* escolhido e boas-vindas ligadas!\nA imagem acima é uma prévia com a sua foto. Quem entrar recebe com a foto dele.\n\n📝 Legenda: ${prefix}legendabv <texto>\n🔁 Trocar modelo: ${prefix}bemvindo 1`);
+          }
           if (!groupData.bemvindo || groupData.bemvindo === undefined) {
 
             groupData.bemvindo = true;
@@ -32661,7 +32705,7 @@ Exemplos:
           }
           writeJsonFile(groupFilePath, groupData);
           if (groupData.bemvindo) {
-            await reply(`✅ *Boas-vindas ativadas!* Agora, novos membros serão recebidos com uma mensagem personalizada.\n📝 Para configurar a mensagem, use: *${prefixo}legendabv*`);
+            await reply(`✅ *Boas-vindas ativadas!* Agora, novos membros serão recebidos com uma mensagem personalizada.\n📝 Para configurar a mensagem, use: *${prefixo}legendabv*\n🖼️ Para escolher o modelo da imagem: *${prefixo}bemvindo 1*`);
           } else {
             await reply('⚠️ *Boas-vindas desativadas!* O grupo não enviará mais mensagens para novos membros.');
           }
@@ -33963,6 +34007,28 @@ ${prefix}antistickerplus remover → remove usuário e apaga mensagem
         } catch (e) {
           console.error(e);
           reply("ocorreu um erro 💔");
+        }
+        break;
+      case 'registromodelo':
+      case 'modeloregistro':
+        try {
+          if (!isOwner) return reply('🚫 Só o dono escolhe o modelo do registro.');
+          const cfgRM = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
+          const nRM = /^\d+$/.test(args[0] || '') ? Number(args[0]) : null;
+          if (nRM === null) {
+            await reply('🎨 Montando a prévia dos modelos com a sua foto...');
+            return astaMostrarModelos(nazu, from, info, { foto: await astaFotoDe(nazu, sender), nome: pushname || 'Usuário', grupo: nomebot, numero: '0001', registro: true, cmd: `${prefix}registromodelo`, atual: Number(cfgRM.registroModelo) || 0, titulo: `🪪 *MODELO DO REGISTRO*\n\nQuando alguém terminar o ${prefix}registrar no privado, recebe esta imagem com a *foto de perfil dele*.\n💡 Sem botões: ${prefix}registromodelo <número>` });
+          }
+          if (nRM > 10) return reply(`❌ Escolha um modelo de 0 a 10.\n💡 ${prefix}registromodelo → ver os modelos`);
+          cfgRM.registroModelo = nRM;
+          fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfgRM, null, 2));
+          if (!nRM) return reply('✅ Modelo desligado. O registro volta a usar o cartão antigo.');
+          const BVR = await import('./funcs/utils/bvModelos.js');
+          const prevRM = await BVR.gerarModeloBV(nRM, { foto: await astaFotoDe(nazu, sender), nome: pushname || 'Usuário', grupo: nomebot, numero: '0001', registro: true });
+          await nazu.sendMessage(from, { image: prevRM, caption: `✅ *Modelo ${nRM} — ${BVR.MODELOS_BV[nRM].nome}* escolhido para o registro!\nPrévia com a sua foto. Quem se registrar recebe com a foto dele.` }, { quoted: info });
+        } catch (e) {
+          console.error(e);
+          reply('Ocorreu um erro 💔');
         }
         break;
       case 'autofigu':

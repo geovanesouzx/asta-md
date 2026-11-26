@@ -543,6 +543,24 @@ async function createGroupMessage(NazunaSock, groupMetadata, participants, setti
     mentions
   };
 
+  const modeloBV = Number(settings.bvModelo) || 0;
+  if (isWelcome && modeloBV >= 1 && modeloBV <= 10 && settings.photo !== false) {
+    // ===== MODELO DE IMAGEM ESCOLHIDO NO !bemvindo 1 (foto de perfil do membro + legenda do !legendabv) =====
+    try {
+      const { gerarModeloBV } = await import('./funcs/utils/bvModelos.js');
+      const p0 = participants[0];
+      let foto = null;
+      try { const u = await NazunaSock.profilePictureUrl(p0, 'image'); const r = await fetch(u); foto = Buffer.from(await r.arrayBuffer()); } catch { }
+      const part = (groupMetadata?.participants || []).find(x => x.id === p0 || x.lid === p0 || x.phoneNumber === p0);
+      const pn = String(part?.phoneNumber || (String(p0).endsWith('@s.whatsapp.net') ? p0 : '')).split('@')[0];
+      const nome = participants.length > 1 ? `${participants.length} novos membros` : (pn ? `+${pn}` : 'Novo membro');
+      message.image = await gerarModeloBV(modeloBV, { foto, nome, grupo: groupMetadata?.subject || '', numero: groupMetadata?.participants?.length || 1 });
+      message.caption = text;
+      delete message.text;
+      return message;
+    } catch (e) { console.log('⚠️ modelo de boas-vindas:', e.message); }
+  }
+
   if (settings.photo === false) {
 
   } else if (settings.photoType === 'api') {
@@ -781,7 +799,7 @@ if (groupSettings?.x9 && inf.author && !entradaPorLink) {
                         NazunaSock,
                         groupMetadata,
                         membersToWelcome,
-                        { ...(groupSettings.welcome || {}), textbv: groupSettings.textbv }
+                        { ...(groupSettings.welcome || {}), textbv: groupSettings.textbv, bvModelo: groupSettings.bvModelo }
                     );
 
                     await NazunaSock.sendMessage(from, message);
@@ -1956,7 +1974,7 @@ async function createBotSocket(authDir) {
                             followChannelsOnce(NazunaSock).catch(() => { });
                         }, 20_000);
 
-                        // ===== ATUALIZADOR: avisa que voltou atualizado + procura versão nova a cada 6h =====
+                        // ===== ATUALIZADOR: avisa que voltou atualizado + procura versão nova a cada 30 min =====
                         setTimeout(async () => {
                             try {
                                 const upd = await import('./funcs/utils/autoUpdate.js');
@@ -1981,7 +1999,12 @@ async function createBotSocket(authDir) {
                                     } catch (e) { if (DEBUG_MODE) console.log('[ATUALIZAR] verificação falhou:', e.message); }
                                 };
                                 await verificar();
-                                if (!global.__astaUpdateTimer) global.__astaUpdateTimer = setInterval(verificar, 6 * 60 * 60_000);
+                                if (!global.__astaUpdateTimer) {
+                                    // procura versão nova a cada 30 min (config.json: "intervaloAtualizacaoMin", mínimo 10)
+                                    let minA = 30;
+                                    try { minA = Math.max(10, Number(JSON.parse(fsSync.readFileSync(path.join(__dirname, 'config.json'), 'utf-8')).intervaloAtualizacaoMin) || 30); } catch { }
+                                    global.__astaUpdateTimer = setInterval(verificar, minA * 60_000);
+                                }
                             } catch (e) { console.log('[ATUALIZAR] erro no aviso:', e.message); }
                         }, 25_000);
 

@@ -27,7 +27,8 @@ export default async function menuadm(prefix, botName = 'MeuBot', userName = 'Us
     },
     {
       t: '👋 ENTRADA E SAÍDA', i: [
-        'bemvindo — boas-vindas com foto',
+        'bemvindo — boas-vindas com a foto de perfil de quem entrou',
+        'bemvindo 1 — escolher o modelo da imagem (10 modelos)',
         'bemvindo2 — boas-vindas só texto',
         'legendabv <texto>',
         'fotobv · set-fotobv · set-bannerbv · rmfotobv',

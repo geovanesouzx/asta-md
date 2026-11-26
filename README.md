@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.13.0-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.14.0-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -61,7 +61,7 @@
 
 <!-- NOVIDADES:INICIO (esta seção mostra só a versão mais nova; o histórico completo fica no LEIA-ME-ASTA-MD.txt) -->
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.13.0-blue?style=for-the-badge" alt="v10.13.0" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.14.0-blue?style=for-the-badge" alt="v10.14.0" />
 </p>
 
 <details open>
@@ -69,10 +69,21 @@
 
 <br>
 
-- 🎨 **`.autofigu` no privado** — liga uma vez e toda foto, vídeo ou GIF que você mandar no PV do bot vira figurinha, **sem precisar de comando**
-  - vídeo com áudio sai como figurinha com som 🔊 (`.autofigu som off` para sair sem som)
-  - `.autofigu` liga/desliga · `.autofigu on/off` · cada pessoa liga só para ela
-- 🔗 Links da Nazuna atualizados para o novo repositório: [DevTokyo2/nazuna](https://github.com/DevTokyo2/nazuna)
+- 🖼️ **Boas-vindas com a foto de perfil de quem entrou** + o texto do `.legendabv` como legenda
+  - `.bemvindo 1` → o bot mostra a prévia dos **10 modelos** (com a foto do adm) e um botão para escolher
+  - **1 a 5 — só a foto:** Foto pura · Foto redonda · Polaroid · Moldura neon · Story
+  - **6 a 10 — cartões:** Cartão clássico · Capa (estilo Discord) · Minimalista claro · Cyber neon · Carteirinha
+  - `.bemvindo modelo 0` volta para a imagem antiga
+- 🪪 **Modelo da imagem do registro** — o dono escolhe com `.registromodelo` (mesmos 10 modelos, com "Registro nº")
+- 🎨 **`.autofigu` no privado** — toda foto, vídeo ou GIF que você mandar no PV vira figurinha, sem comando
+</details>
+
+<details open>
+  <summary><strong>🔧 Corrigido</strong></summary>
+
+<br>
+
+- 🆕 **Aviso de atualização** — o bot procura versão nova no GitHub a cada 30 minutos (antes era a cada 6 horas)
 </details>
 <!-- NOVIDADES:FIM -->
 
@@ -96,8 +107,8 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.13.0-blue?style=flat-square) |
-| 🧩 Comandos | ![Comandos](https://img.shields.io/badge/901_comandos_(1844_com_atalhos)-brightgreen?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.14.0-blue?style=flat-square) |
+| 🧩 Comandos | ![Comandos](https://img.shields.io/badge/902_comandos_(1846_com_atalhos)-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
 | 📝 Commits | ![Commits](https://img.shields.io/github/commit-activity/t/geovanesouzx/asta-md?style=flat-square&color=purple) |
@@ -119,11 +130,11 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 ## 📋 Todos os Comandos
 
 <p align="center">
-  <img src="https://img.shields.io/badge/TOTAL-901_COMANDOS-brightgreen?style=for-the-badge" alt="901 comandos" />
-  <img src="https://img.shields.io/badge/COM_ATALHOS-1844-blue?style=for-the-badge" alt="1844 com atalhos" />
+  <img src="https://img.shields.io/badge/TOTAL-902_COMANDOS-brightgreen?style=for-the-badge" alt="902 comandos" />
+  <img src="https://img.shields.io/badge/COM_ATALHOS-1846-blue?style=for-the-badge" alt="1846 com atalhos" />
 </p>
 
-> 🔢 O ASTA MD tem **901 comandos** — ou **1.844** contando os atalhos (ex.: `.b` = `.ban`).
+> 🔢 O ASTA MD tem **902 comandos** — ou **1.846** contando os atalhos (ex.: `.b` = `.ban`).
 > O prefixo padrão é `.` (no seu bot pode ser outro). Mandando um comando sem nada, o bot explica pra que serve e como usar.
 
 <div align="center">
@@ -140,8 +151,8 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 | 🖌️ Logos | 38 |
 | 🗡️ RPG e Economia | 123 |
 | 🛡️ Administração | 128 |
-| 👑 Dono | 151 |
-| **TOTAL** | **901** |
+| 👑 Dono | 152 |
+| **TOTAL** | **902** |
 
 </div>
 
@@ -236,11 +247,11 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 </details>
 
 <details>
-  <summary><strong>👑 Dono (151)</strong></summary>
+  <summary><strong>👑 Dono (152)</strong></summary>
 
 <br>
 
-`.atualizar` · `.reiniciar` · `.status` · `.logs` · `.avisos` · `.manutencao` · `.autoreload` · `.painelweb` · `.backupdados` · `.backupsemanal` · `.instalarfundo` · `.figfps` · `.menubotoes` · `.testebotoes` · `.formatobotoes` · `.tutorial` · `.addsubdono` · `.delsubdono` · `.listasubdonos` · `.permsub` · `.registropv` · `.registrados` · `.desregistrar` · `.addpremium` · `.delpremium` · `.listprem` · `.resetgold` · `.tm` · `.tmm` · `.tmparar` · `.tmexcluir` · `.tmincluir` · `.tmexcluidos` · `.tmprevia` · `.tmcanal` · `.tmavisos` · `.tmconfig` · `.tm2` · `.statustm` · `.inscrevertm` · `.divdono` · `.divdonomidia` · `.prefixo` · `.nomebot` · `.nomedono` · `.numerodono` · `.fotobot` · `.fotomenu` · `.videomenu` · `.audiomenu` · `.lermais` · `.configcmdnotfound` · `.setcmdmsg` · `.personalizargrupo` · `.designmenu` · `.resetdesign` · `.setheader` · `.settitulo` · `.setitem` · `.setborda` · `.setbordameio` · `.setbordafim` · `.setseparador` · `.setpersonalidade` · `.criarpers` · `.novapers` · `.addauto` · `.addautomidia` · `.listauto` · `.delauto` · `.addreact` · `.listreact` · `.delreact` · `.addnopref` · `.listnopref` · `.delnopref` · `.addcmd` · `.addcmdmidia` · `.listcmd` · `.delcmd` · `.testcmd` · `.addcmd-subdono` · `.removecmd-subdono` · `.listcmd-subdono` · `.addalias` · `.listalias` · `.delalias` · `.addblackglobal` · `.listblackglobal` · `.rmblackglobal` · `.cmdlimitar` · `.cmddeslimitar` · `.cmdlimites` · `.modoaluguel` · `.addaluguel` · `.gerarcod` · `.listaraluguel` · `.listaluguel` · `.infoaluguel` · `.estenderaluguel` · `.removeraluguel` · `.limparaluguel` · `.dayfree` · `.setdiv` · `.divulgar` · `.addindicacao` · `.delindicacao` · `.topindica` · `.addsubbot` · `.removesubbot` · `.listarsubbots` · `.conectarsubbot` · `.gerarcodigo` · `.addcmdvip` · `.removecmdvip` · `.listcmdvip` · `.togglecmdvip` · `.statsvip` · `.infovip` · `.menuvip` · `.entrar` · `.sairgp` · `.gruposinativos` · `.seradm` · `.sermembro` · `.listagp` · `.bangp` · `.unbangp` · `.listbangp` · `.blockcmdg` · `.unblockcmdg` · `.blockuserg` · `.unblockuserg` · `.listblocks` · `.antibanmarcar` · `.antipv` · `.antipv2` · `.antipv3` · `.antipv4` · `.antipvmsg` · `.antispamcmd` · `.modoliteglobal` · `.msgprefix` · `.viewmsg` · `.cases` · `.getcase` · `.iaclear` · `.limpardb` · `.limparrankg` · `.reviverqr` · `.nuke`
+`.atualizar` · `.reiniciar` · `.status` · `.logs` · `.avisos` · `.manutencao` · `.autoreload` · `.painelweb` · `.backupdados` · `.backupsemanal` · `.instalarfundo` · `.figfps` · `.menubotoes` · `.testebotoes` · `.formatobotoes` · `.tutorial` · `.addsubdono` · `.delsubdono` · `.listasubdonos` · `.permsub` · `.registropv` · `.registromodelo` · `.registrados` · `.desregistrar` · `.addpremium` · `.delpremium` · `.listprem` · `.resetgold` · `.tm` · `.tmm` · `.tmparar` · `.tmexcluir` · `.tmincluir` · `.tmexcluidos` · `.tmprevia` · `.tmcanal` · `.tmavisos` · `.tmconfig` · `.tm2` · `.statustm` · `.inscrevertm` · `.divdono` · `.divdonomidia` · `.prefixo` · `.nomebot` · `.nomedono` · `.numerodono` · `.fotobot` · `.fotomenu` · `.videomenu` · `.audiomenu` · `.lermais` · `.configcmdnotfound` · `.setcmdmsg` · `.personalizargrupo` · `.designmenu` · `.resetdesign` · `.setheader` · `.settitulo` · `.setitem` · `.setborda` · `.setbordameio` · `.setbordafim` · `.setseparador` · `.setpersonalidade` · `.criarpers` · `.novapers` · `.addauto` · `.addautomidia` · `.listauto` · `.delauto` · `.addreact` · `.listreact` · `.delreact` · `.addnopref` · `.listnopref` · `.delnopref` · `.addcmd` · `.addcmdmidia` · `.listcmd` · `.delcmd` · `.testcmd` · `.addcmd-subdono` · `.removecmd-subdono` · `.listcmd-subdono` · `.addalias` · `.listalias` · `.delalias` · `.addblackglobal` · `.listblackglobal` · `.rmblackglobal` · `.cmdlimitar` · `.cmddeslimitar` · `.cmdlimites` · `.modoaluguel` · `.addaluguel` · `.gerarcod` · `.listaraluguel` · `.listaluguel` · `.infoaluguel` · `.estenderaluguel` · `.removeraluguel` · `.limparaluguel` · `.dayfree` · `.setdiv` · `.divulgar` · `.addindicacao` · `.delindicacao` · `.topindica` · `.addsubbot` · `.removesubbot` · `.listarsubbots` · `.conectarsubbot` · `.gerarcodigo` · `.addcmdvip` · `.removecmdvip` · `.listcmdvip` · `.togglecmdvip` · `.statsvip` · `.infovip` · `.menuvip` · `.entrar` · `.sairgp` · `.gruposinativos` · `.seradm` · `.sermembro` · `.listagp` · `.bangp` · `.unbangp` · `.listbangp` · `.blockcmdg` · `.unblockcmdg` · `.blockuserg` · `.unblockuserg` · `.listblocks` · `.antibanmarcar` · `.antipv` · `.antipv2` · `.antipv3` · `.antipv4` · `.antipvmsg` · `.antispamcmd` · `.modoliteglobal` · `.msgprefix` · `.viewmsg` · `.cases` · `.getcase` · `.iaclear` · `.limpardb` · `.limparrankg` · `.reviverqr` · `.nuke`
 
 </details>
 

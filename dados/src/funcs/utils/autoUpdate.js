@@ -109,15 +109,20 @@ export async function checkForUpdate() {
   if (!sha) throw new Error('não consegui ler o último commit do GitHub');
   let latest = null;
   try { latest = await readPkgVersion(sha); } catch { }
+  // 1º decide pela VERSÃO do package.json (o que o dono sobe no GitHub sempre sobe a versão):
+  //    GitHub mais novo → tem atualização; GitHub mais velho → não tem.
+  // 2º mesma versão: só conta como atualização se o commit mudou DEPOIS que este bot
+  //    guardou o commit dele nesta mesma versão (correção sem subir versão).
+  //    Se o bot foi atualizado na mão (zip), o commit guardado é de outra versão → só anota o atual.
   let available;
-  let firstCheck = false;
-  if (state.sha) {
-    available = state.sha !== sha;
-  } else {
-    // primeira verificação: sem saber o commit local, decide pela versão
-    firstCheck = true;
-    available = latest ? compareVersions(latest, current) > 0 : false;
-    if (!available) writeState({ sha, version: current, checkedAt: Date.now() });
+  let firstCheck = !state.sha;
+  const cmp = latest ? compareVersions(latest, current) : 0;
+  if (cmp > 0) available = true;
+  else if (cmp < 0) available = false;
+  else if (state.sha && state.version === current) available = state.sha !== sha;
+  else {
+    available = false;
+    writeState({ sha, version: current, checkedAt: Date.now() });
   }
   return {
     available, current, latest: latest || '?', sha, shortSha: sha.slice(0, 7), tarRef: sha,
