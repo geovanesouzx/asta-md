@@ -1,61 +1,56 @@
 <p align="center">
-  <img 
-    src="dados/midias/menu.jpg"
-    width="500"
-    height="420"
-    style="border-radius: 50%; object-fit: cover;"
-  />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d0d0d,45:5c0000,100:ff1a1a&height=230&section=header&text=ASTA%20MD&fontSize=78&fontColor=ffffff&fontAlignY=38&animation=fadeIn&desc=Bot%20de%20WhatsApp%20%E2%80%A2%20Black%20Clover%20edition&descSize=20&descAlignY=60" width="100%" alt="ASTA MD"/>
+</p>
+
+<p align="center">
+  <img src="dados/midias/menu.jpg" width="230" style="border-radius: 50%;" alt="ASTA MD"/>
 </p>
 
 <h1 align="center">★彡 ASTA MD 彡★</h1>
 
 <p align="center">
-  Dono: <b>★彡 GEOVANE MD 彡★</b> · <a href="https://wa.me/5575920016995">wa.me/5575920016995</a><br>
-  <sub>Baseado no projeto open source <a href="https://github.com/DevTokyo2/nazuna">Nazuna</a> — créditos ao Hiudy e ao DevTokyo</sub>
+  <a href="#destaques"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=22&duration=2800&pause=700&color=FF2A2A&center=true&vCenter=true&width=640&height=45&lines=%E2%9A%94%EF%B8%8F+Desistir+n%C3%A3o+%C3%A9+o+meu+tipo+de+magia!;%F0%9F%A7%A9+Mais+de+1000+comandos+prontos+pra+usar;%F0%9F%94%8A+Figurinhas+com+som+%E2%80%A2+Bot%C3%B5es+no+iPhone;%F0%9F%93%A5+Baixa+de+TikTok,+YouTube,+Insta+e+muito+mais;%F0%9F%9B%A1%EF%B8%8F+Prote%C3%A7%C3%A3o+completa+para+o+seu+grupo" alt="Digitando..."/></a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.16.1-blue?style=for-the-badge" alt="Versão" />
-  <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
-  <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
+  <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status: Ativo" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.16.1-ff1a1a?style=for-the-badge&logo=github&logoColor=white" alt="v10.16.1" />
+  <img src="https://img.shields.io/badge/%2B1000-COMANDOS-8b0000?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Comandos" />
+  <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=d4a017&label=%E2%AD%90%20Estrelas" alt="Estrelas" />
 </p>
-
-<p align="center"><i>Projeto em desenvolvimento contínuo e ativo.</i></p>
 
 <p align="center">
-  <a href="https://wa.me/5575920016995">
-    <img src="https://img.shields.io/badge/Falar%20com%20o%20Dono-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Falar com o dono" />
-  </a>
-  <a href="https://github.com/geovanesouzx/asta-md">
-    <img src="https://img.shields.io/badge/Repositório-ASTA%20MD-181717?style=for-the-badge&logo=github" alt="Repositório ASTA MD" />
-  </a>
-  <a href="https://github.com/DevTokyo2/nazuna">
-    <img src="https://img.shields.io/badge/Projeto%20Base-Nazuna-8A2BE2?style=for-the-badge&logo=github" alt="Projeto base Nazuna" />
-  </a>
+  <a href="https://wa.me/5575920016995"><img src="https://img.shields.io/badge/Falar%20com%20o%20Dono-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Falar com o dono" /></a>
+  <a href="https://github.com/geovanesouzx/asta-md/archive/refs/heads/main.zip"><img src="https://img.shields.io/badge/Baixar%20ZIP-181717?style=for-the-badge&logo=github&logoColor=white" alt="Baixar ZIP" /></a>
+  <a href="#instalacao"><img src="https://img.shields.io/badge/Instalar%20agora-ff1a1a?style=for-the-badge&logo=gnubash&logoColor=white" alt="Instalar" /></a>
 </p>
 
----
+<p align="center">
+  <sub>👑 Dono: <b>★彡 GEOVANE MD 彡★</b> &nbsp;•&nbsp; 🧬 baseado no projeto open source <a href="https://github.com/DevTokyo2/nazuna">Nazuna</a> (Hiudy &amp; DevTokyo)</sub>
+</p>
 
-## 📚 Sumário
+<p align="center"><a href="#novidades"><img src="https://img.shields.io/badge/%F0%9F%86%95%20Novidades-ff1a1a?style=for-the-badge" alt="Novidades"/></a> <a href="#destaques"><img src="https://img.shields.io/badge/%E2%9C%A8%20Destaques-8b0000?style=for-the-badge" alt="Destaques"/></a> <a href="#comandos"><img src="https://img.shields.io/badge/%F0%9F%93%8B%20Comandos-5c0000?style=for-the-badge" alt="Comandos"/></a> <a href="#instalacao"><img src="https://img.shields.io/badge/%F0%9F%93%A5%20Instalar-1f6feb?style=for-the-badge" alt="Instalar"/></a> <a href="#faq"><img src="https://img.shields.io/badge/%E2%9D%93%20D%C3%BAvidas-6e40c9?style=for-the-badge" alt="Dúvidas"/></a> <a href="#creditos"><img src="https://img.shields.io/badge/%F0%9F%8F%86%20Cr%C3%A9ditos-d4a017?style=for-the-badge" alt="Créditos"/></a></p>
 
-- [🆕 Novidades da Última Atualização](#-novidades-da-última-atualização)
-- [⚔️ Sobre o ASTA MD](#️-sobre-o-asta-md)
-- [📊 O Legado em Números](#-o-legado-em-números)
-- [📋 Todos os Comandos](#-todos-os-comandos)
-- [📥 Instalação](#-instalação)
-  - [📱 Termux (Android)](#-termux-android)
-  - [🪟 Windows](#-windows)
-  - [🐧 Linux](#-linux)
-  - [☁️ VPS (24 horas online)](#️-vps-24-horas-online)
-  - [🍎 macOS](#-macos)
-  - [🖥️ Hospedagens de bot (Pterodactyl e similares)](#️-hospedagens-de-bot-pterodactyl-e-similares)
-- [❓ Perguntas Frequentes](#-perguntas-frequentes)
-- [💸 Vale a pena pagar a API?](#-vale-a-pena-pagar-a-api)
-- [🏆 Créditos](#-créditos)
-- [📜 Termos de Uso](#-termos-de-uso)
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
 
----
+<a id="sobre"></a>
+
+## ⚔️ O que é o ASTA MD
+
+O **ASTA MD** é um bot de WhatsApp **gratuito e open source**, com o tema do **Asta (Black Clover ⚔️)**.
+
+Ele nasceu da Nazuna e foi crescendo até virar um bot com mais de **1.000 comandos**: figurinhas com som, downloads de vários apps, jogos para o grupo, RPG, proteção completa e um menu com botões que funciona até no iPhone.
+
+- 🚀 **Instala com um comando só** no Android, Windows, Linux, macOS ou VPS
+- 🔄 **Se atualiza pelo próprio WhatsApp**, sem perder a sessão nem os dados
+- 💬 **Explica cada comando sozinho**: mande o comando vazio e ele mostra como usar
+
+> ⚔️ *"Desistir não é o meu tipo de magia!"* — Asta
+
+
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
+
+<a id="novidades"></a>
 
 ## 🆕 Novidades da Última Atualização
 
@@ -78,45 +73,97 @@
 </details>
 <!-- NOVIDADES:FIM -->
 
----
+<p align="center"><sub>📜 O histórico completo de todas as versões fica no <code>LEIA-ME-ASTA-MD.txt</code>.</sub></p>
 
-## ⚔️ Sobre o ASTA MD
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
 
-O **ASTA MD** é uma versão modificada e ampliada da **[Nazuna Bot](https://github.com/DevTokyo2/nazuna)**, mantida por **★彡 GEOVANE MD 彡★**.
+<a id="destaques"></a>
 
-A Nazuna foi criada pelo **[Hiudy](https://github.com/hiudyy)** e hoje é mantida pelo **[DevTokyo](https://github.com/DevTokyo2)**. O ASTA MD parte dessa base e adiciona figurinhas com som, menu com botões, transmissões completas, novos comandos de figurinha, visualização única e muito mais, com tema masculino inspirado no Asta (Black Clover ⚔️).
+## ✨ Destaques
 
-Este repositório é **público e open source**. O ASTA MD **não é a versão oficial da Nazuna** — para a Nazuna original, acesse o [repositório do DevTokyo](https://github.com/DevTokyo2/nazuna).
+<table>
+<tr>
+<td align="center" width="33%">
+<h3>🔊</h3>
+<b>Figurinhas com som</b><br/>
+<sub>Vídeo vira figurinha que toca o áudio, com corte, legenda e efeitos</sub>
+</td>
+<td align="center" width="33%">
+<h3>📱</h3>
+<b>Botões que funcionam</b><br/>
+<sub>Menus com botões que aparecem até no iPhone</sub>
+</td>
+<td align="center" width="33%">
+<h3>📥</h3>
+<b>Baixa de tudo</b><br/>
+<sub><code>.baixar</code> pega vídeo ou mp3 de TikTok, YouTube, Insta, X, Kwai…</sub>
+</td>
+</tr>
+<tr>
+<td align="center" width="33%">
+<h3>🎮</h3>
+<b>Jogos no grupo</b><br/>
+<sub>Duelo de magia, corrida de apostas, caça ao tesouro, adivinhe o anime…</sub>
+</td>
+<td align="center" width="33%">
+<h3>🛡️</h3>
+<b>Grupo protegido</b><br/>
+<sub>Antilink, antigringo, antiflood de figurinha, captcha na entrada…</sub>
+</td>
+<td align="center" width="33%">
+<h3>🖼️</h3>
+<b>Boas-vindas com foto</b><br/>
+<sub>10 modelos de imagem com a foto de perfil de quem entrou</sub>
+</td>
+</tr>
+<tr>
+<td align="center" width="33%">
+<h3>🗡️</h3>
+<b>RPG e economia</b><br/>
+<sub>Carteira, loja, títulos, pets e mais de 120 comandos de RPG</sub>
+</td>
+<td align="center" width="33%">
+<h3>🔄</h3>
+<b>Atualiza sozinho</b><br/>
+<sub><code>.atualizar</code> baixa a versão nova e reinicia sem perder nada</sub>
+</td>
+<td align="center" width="33%">
+<h3>⏳</h3>
+<b>Barra de progresso</b><br/>
+<sub>O bot vai editando a mensagem enquanto prepara sua mídia</sub>
+</td>
+</tr>
+</table>
 
-> ⚔️ *Desistir não é o meu tipo de magia!*
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
 
----
+<a id="numeros"></a>
 
-## 📊 O Legado em Números
+## 📊 O ASTA MD em Números
 
 <div align="center">
 
-| Métrica | Valor |
-|---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.16.1-blue?style=flat-square) |
-| 🧩 Comandos | ![Comandos](https://img.shields.io/badge/1016_comandos_(2039_com_atalhos)-brightgreen?style=flat-square) |
-| ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
-| 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
-| 📝 Commits | ![Commits](https://img.shields.io/github/commit-activity/t/geovanesouzx/asta-md?style=flat-square&color=purple) |
-| 💾 Tamanho do Repo | ![Size](https://img.shields.io/github/repo-size/geovanesouzx/asta-md?style=flat-square&color=orange) |
-| 🕒 Última atualização | ![Last commit](https://img.shields.io/github/last-commit/geovanesouzx/asta-md?style=flat-square&color=lightgrey) |
-| 🌐 Linguagem Principal | ![Language](https://img.shields.io/github/languages/top/geovanesouzx/asta-md?style=flat-square&color=teal) |
-| 🧬 Projeto base | [![Nazuna](https://img.shields.io/github/stars/DevTokyo2/nazuna?style=flat-square&label=Nazuna&color=8A2BE2)](https://github.com/DevTokyo2/nazuna) |
+| 🏷️ Versão | 🧩 Comandos | ⭐ Estrelas | 🍴 Forks | 📝 Commits | 🕒 Última atualização |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Versão](https://img.shields.io/badge/v10.16.1-ff1a1a?style=flat-square) | ![Comandos](https://img.shields.io/badge/1016_comandos_(2039_com_atalhos)-8b0000?style=flat-square) | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=d4a017) | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=1f6feb) | ![Commits](https://img.shields.io/github/commit-activity/t/geovanesouzx/asta-md?style=flat-square&color=6e40c9) | ![Last commit](https://img.shields.io/github/last-commit/geovanesouzx/asta-md?style=flat-square&color=555) |
 
 </div>
 
 <p align="center">
   <img src="https://count.getloli.com/@asta-md?name=asta-md&theme=booru-lewd&padding=8&offset=0&align=top&scale=2&pixelated=1&darkmode=1" alt="Visitas" />
   <br/>
-  <sub>Total de visitas ao repositório</sub>
+  <sub>👀 Total de visitas ao repositório</sub>
 </p>
 
----
+<p align="center">
+  <a href="https://star-history.com/#geovanesouzx/asta-md&Date">
+    <img src="https://api.star-history.com/svg?repos=geovanesouzx/asta-md&type=Date&theme=dark" width="640" alt="Estrelas ao longo do tempo" />
+  </a>
+</p>
+
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
+
+<a id="comandos"></a>
 
 ## 📋 Todos os Comandos
 
@@ -246,14 +293,33 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 </details>
 
----
+
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
+
+<a id="instalacao"></a>
 
 ## 📥 Instalação
 
-> **Requisitos:** Node.js 20 ou mais novo, Git e FFmpeg. Os comandos abaixo já instalam tudo.
-> Na primeira vez, o bot instala as dependências sozinho e pergunta como conectar (**QR Code** ou **código de pareamento**).
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node 20+" />
+  <img src="https://img.shields.io/badge/Git-obrigatório-F05032?style=flat-square&logo=git&logoColor=white" alt="Git" />
+  <img src="https://img.shields.io/badge/FFmpeg-obrigatório-007808?style=flat-square&logo=ffmpeg&logoColor=white" alt="FFmpeg" />
+</p>
 
-### 📱 Termux (Android)
+<div align="center">
+
+| 1️⃣ Instale | 2️⃣ Conecte | 3️⃣ Use |
+|:---:|:---:|:---:|
+| Cole **um comando** do seu sistema abaixo | Escolha **QR Code** ou **código de pareamento** | Mande `.menu` no WhatsApp e pronto ⚔️ |
+
+</div>
+
+> Os comandos abaixo já instalam Node.js, Git e FFmpeg. Na primeira vez, o bot instala as dependências sozinho. **Toque no seu sistema para abrir:**
+
+<details open>
+  <summary><img src="https://img.shields.io/badge/Termux%20(Android)-black?style=for-the-badge&logo=android&logoColor=white" alt="Termux (Android)"/></summary>
+
+<br>
 
 Copie e cole **um único comando** no Termux:
 
@@ -290,7 +356,12 @@ O que esse comando faz:
 - **Para atualizar:** `cd ~/asta-md && git pull && npm start`
 </details>
 
-### 🪟 Windows
+</details>
+
+<details>
+  <summary><img src="https://img.shields.io/badge/Windows-black?style=for-the-badge&logo=windows&logoColor=white" alt="Windows"/></summary>
+
+<br>
 
 **Opção 1 — PowerShell (um único comando):** abra o **PowerShell** e cole:
 
@@ -324,7 +395,12 @@ O winget vem no Windows 10 (atualizado) e no Windows 11. Se não tiver, instale 
 Depois, use o passo 2 da Opção 2.
 </details>
 
-### 🐧 Linux
+</details>
+
+<details>
+  <summary><img src="https://img.shields.io/badge/Linux-black?style=for-the-badge&logo=linux&logoColor=white" alt="Linux"/></summary>
+
+<br>
 
 **Ubuntu / Debian / Mint (e VPS com esses sistemas):**
 
@@ -344,7 +420,12 @@ sudo dnf install -y git nodejs npm ffmpeg-free && (test -d asta-md || git clone 
 sudo pacman -Syu --noconfirm git nodejs npm ffmpeg && (test -d asta-md || git clone --depth 1 https://github.com/geovanesouzx/asta-md) && cd asta-md && npm start
 ```
 
-### ☁️ VPS (24 horas online)
+</details>
+
+<details>
+  <summary><img src="https://img.shields.io/badge/VPS%20(24h%20online)-black?style=for-the-badge&logo=ubuntu&logoColor=white" alt="VPS (24h online)"/></summary>
+
+<br>
 
 1. Instale com o comando do **Linux** acima (a maioria das VPS usa Ubuntu ou Debian).
 2. Na primeira vez, conecte o WhatsApp (QR Code ou código) e espere aparecer que conectou.
@@ -356,7 +437,12 @@ sudo npm install -g pm2 && pm2 start npm --name asta-md -- start && pm2 save && 
 
 Comandos úteis: `pm2 logs asta-md` (ver o console) · `pm2 restart asta-md` · `pm2 stop asta-md`
 
-### 🍎 macOS
+</details>
+
+<details>
+  <summary><img src="https://img.shields.io/badge/macOS-black?style=for-the-badge&logo=apple&logoColor=white" alt="macOS"/></summary>
+
+<br>
 
 ```bash
 brew install node git ffmpeg && (test -d asta-md || git clone --depth 1 https://github.com/geovanesouzx/asta-md) && cd asta-md && npm start
@@ -364,16 +450,26 @@ brew install node git ffmpeg && (test -d asta-md || git clone --depth 1 https://
 
 > Precisa do [Homebrew](https://brew.sh) instalado.
 
-### 🖥️ Hospedagens de bot (Pterodactyl e similares)
+</details>
+
+<details>
+  <summary><img src="https://img.shields.io/badge/Hospedagens%20(Pterodactyl)-black?style=for-the-badge&logo=pterodactyl&logoColor=white" alt="Hospedagens (Pterodactyl)"/></summary>
+
+<br>
 
 1. Baixe o projeto em **Code → Download ZIP** e envie para a hospedagem.
 2. Use uma imagem/egg de **Node.js 20 ou mais novo** com **FFmpeg**.
 3. Comando de inicialização: `npm start`
 4. Conecte pelo console com o **código de pareamento** (mais fácil que o QR em painel).
 
----
+</details>
 
-# ❓ Perguntas Frequentes
+
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
+
+<a id="faq"></a>
+
+## ❓ Perguntas Frequentes
 
 <details>
   <summary><strong>💰 É pago?</strong></summary>
@@ -501,11 +597,13 @@ Pode, mas não damos suporte. O bot já vem integrado com a Vex API para facilit
 Abra uma Issue ou um Pull Request neste repositório, ou fale com o dono pelo [WhatsApp](https://wa.me/5575920016995).
 </details>
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
 
-# 💸 Vale a pena pagar a API?
+<a id="api"></a>
 
-O bot funciona muito bem sem a API, mas com a **Vex API** você libera comandos de download, edição de imagem, música e muito mais:
+## 💸 Vale a pena pagar a API?
+
+O bot funciona muito bem sem a API, mas com a **Vex API** você libera mais downloads, edição de imagem, música e muito mais:
 
 <div align="center">
 
@@ -528,41 +626,49 @@ O bot funciona muito bem sem a API, mas com a **Vex API** você libera comandos 
 | 📑 `autotranscrever` | Detecta áudios no grupo e transforma em texto |
 </div>
 
-> Acesse [vexapi.com.br/plans](https://vexapi.com.br/plans) e escolha o plano ideal para o seu uso.
+> Acesse [vexapi.com.br/plans](https://vexapi.com.br/plans) e escolha o plano ideal para o seu uso. O `.baixar` **não** gasta a API.
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
+
+<a id="feito-com"></a>
+
+## 🧰 Feito com
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nodejs,js,git,github,linux,windows,vscode&theme=dark" alt="Tecnologias" />
+</p>
+
+<p align="center"><sub>Conexão com o WhatsApp pela biblioteca <a href="https://github.com/WhiskeySockets/Baileys">Baileys</a> • figurinhas e mídias com <a href="https://ffmpeg.org">FFmpeg</a> e <a href="https://sharp.pixelplumbing.com">sharp</a></sub></p>
+
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
+
+<a id="creditos"></a>
 
 ## 🏆 Créditos
 
-<p align="center">
-  <img src="https://img.shields.io/badge/OBRIGADO-❤️-ff69b4?style=for-the-badge" />
-</p>
-
 <div align="center">
 
-| Quem | Papel |
-|------|-------|
-| 👑 **★彡 GEOVANE MD 彡★** · [wa.me/5575920016995](https://wa.me/5575920016995) | Dono e desenvolvedor do **ASTA MD** |
-| 🧬 **[DevTokyo](https://github.com/DevTokyo2)** | Mantenedor atual da **[Nazuna Bot](https://github.com/DevTokyo2/nazuna)**, base deste projeto |
-| 🌱 **[Hiudy](https://github.com/hiudyy)** | Criador original da Nazuna Bot |
-| 🤝 **Contribuidores da Nazuna** | Tudo o que construíram até aqui |
-| 📚 **[Baileys](https://github.com/WhiskeySockets/Baileys)** | Biblioteca de conexão com o WhatsApp |
+| | Quem | Papel |
+|:---:|:---|:---|
+| 👑 | **★彡 GEOVANE MD 彡★** · [wa.me/5575920016995](https://wa.me/5575920016995) | Dono e desenvolvedor do **ASTA MD** |
+| 🧬 | **[DevTokyo](https://github.com/DevTokyo2)** | Mantenedor atual da **[Nazuna](https://github.com/DevTokyo2/nazuna)**, base deste projeto |
+| 🌱 | **[Hiudy](https://github.com/hiudyy)** | Criador original da Nazuna |
+| 🤝 | **Contribuidores da Nazuna** | Tudo o que construíram até aqui |
+| 📚 | **[Baileys](https://github.com/WhiskeySockets/Baileys)** | Biblioteca de conexão com o WhatsApp |
 
 </div>
 
-<p align="center">Contribuidores da Nazuna, base do ASTA MD:</p>
+<p align="center"><sub>Contribuidores da Nazuna, base do ASTA MD:</sub></p>
 
 <p align="center">
   <a href="https://github.com/DevTokyo2/nazuna/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=DevTokyo2/nazuna&columns=10&anon=1" />
+    <img src="https://contrib.rocks/image?repo=DevTokyo2/nazuna&columns=10&anon=1" alt="Contribuidores" />
   </a>
 </p>
 
-<p align="center">
-  <sub>ASTA MD por ★彡 GEOVANE MD 彡★ • Baseado na <a href="https://github.com/DevTokyo2/nazuna">Nazuna</a> (Hiudy & DevTokyo)</sub>
-</p>
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=0:0d0d0d,50:ff1a1a,100:0d0d0d&height=3" width="100%" /></p>
 
----
+<a id="termos"></a>
 
 ## 📜 Termos de Uso
 
@@ -591,3 +697,17 @@ Não nos responsabilizamos caso seu número seja **banido do WhatsApp**. O Whats
 </p>
 
 </details>
+
+<br/>
+
+<p align="center">
+  <b>Gostou? Deixe uma ⭐ no repositório — isso ajuda muito o projeto a crescer!</b>
+</p>
+
+<p align="center">
+  <sub>ASTA MD por ★彡 GEOVANE MD 彡★ • baseado na <a href="https://github.com/DevTokyo2/nazuna">Nazuna</a> (Hiudy &amp; DevTokyo)</sub>
+</p>
+
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:ff1a1a,55:5c0000,100:0d0d0d&height=140&section=footer&animation=twinkling" width="100%" alt=""/>
+</p>
