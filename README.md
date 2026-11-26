@@ -11,12 +11,12 @@
 
 <p align="center">
   Dono: <b>★彡 GEOVANE MD 彡★</b> · <a href="https://wa.me/5575920016995">wa.me/5575920016995</a><br>
-  <sub>Baseado no projeto open source <a href="https://github.com/DevTokyoVx/nazuna">Nazuna</a> — créditos ao Hiudy e ao DevTokyo</sub>
+  <sub>Baseado no projeto open source <a href="https://github.com/DevTokyo2/nazuna">Nazuna</a> — créditos ao Hiudy e ao DevTokyo</sub>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-ATIVO-success?style=for-the-badge" alt="Status: Ativo" />
-  <img src="https://img.shields.io/badge/VERSÃO-v10.11.1-blue?style=for-the-badge" alt="Versão" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.12.1-blue?style=for-the-badge" alt="Versão" />
   <img src="https://img.shields.io/github/stars/geovanesouzx/asta-md?style=for-the-badge&color=yellow&label=Estrelas" alt="Estrelas" />
   <img src="https://img.shields.io/github/forks/geovanesouzx/asta-md?style=for-the-badge&color=blue&label=Forks" alt="Forks" />
 </p>
@@ -30,7 +30,7 @@
   <a href="https://github.com/geovanesouzx/asta-md">
     <img src="https://img.shields.io/badge/Repositório-ASTA%20MD-181717?style=for-the-badge&logo=github" alt="Repositório ASTA MD" />
   </a>
-  <a href="https://github.com/DevTokyoVx/nazuna">
+  <a href="https://github.com/DevTokyo2/nazuna">
     <img src="https://img.shields.io/badge/Projeto%20Base-Nazuna-8A2BE2?style=for-the-badge&logo=github" alt="Projeto base Nazuna" />
   </a>
 </p>
@@ -61,7 +61,7 @@
 
 <!-- NOVIDADES:INICIO (esta seção mostra só a versão mais nova; o histórico completo fica no LEIA-ME-ASTA-MD.txt) -->
 <p align="center">
-  <img src="https://img.shields.io/badge/VERSÃO-v10.11.1-blue?style=for-the-badge" alt="v10.11.1" />
+  <img src="https://img.shields.io/badge/VERSÃO-v10.12.1-blue?style=for-the-badge" alt="v10.12.1" />
 </p>
 
 <details open>
@@ -69,17 +69,15 @@
 
 <br>
 
-- 📋 **Nova aba no README: [Todos os Comandos](#-todos-os-comandos)** — a lista completa por categoria e o total (900 comandos)
-- 📖 **Ajuda automática**: quem manda um comando que precisa de informação **sem nada** (sem texto, sem marcar, sem responder mensagem e sem mídia) recebe *pra que serve* e *como usar*. Usando direto (`.tm tal coisa`), roda normal. Os comandos que já têm explicação própria (como `.tm`, `.duelo`, `.play`) continuam com a deles
-</details>
-
-<details open>
-  <summary><strong>⚡ Comandos Melhorados</strong></summary>
-
-<br>
-
-- 📋 **Menus limpos**: agora mostram só o nome dos comandos, sem textos e sem exemplos (a explicação aparece quando o comando é usado sem nada)
-- 🍎 Botões no formato que aparece no iPhone (B + F), com `.testebotoes` e `.formatobotoes`
+- 📊 **Barra de progresso** nos comandos que fazem esperar — o bot manda uma mensagem e vai **editando**:
+  `🎨 Fazendo a figurinha... [▰▰▰▰▱▱▱▱▱▱] 40%` → `📤 Enviando...` → `✅ Figurinha enviada!`
+  - vale para figurinhas, downloads, efeitos de áudio e vídeo, logos, edições, voz (tts), remover fundo e mais
+  - a mensagem de espera de cada comando ("⏳ Baixando...", "Aguarde...") vira a própria barra
+  - comando rápido não ganha barra; se der erro, a barra vira a mensagem de erro
+  - `.barraprogresso on/off`
+- 📋 Aba **[Todos os Comandos](#-todos-os-comandos)** aqui no README
+- 🔗 Links da Nazuna atualizados para o novo repositório: [DevTokyo2/nazuna](https://github.com/DevTokyo2/nazuna)
+- 👀 Contador de visitas animado
 </details>
 <!-- NOVIDADES:FIM -->
 
@@ -87,11 +85,11 @@
 
 ## ⚔️ Sobre o ASTA MD
 
-O **ASTA MD** é uma versão modificada e ampliada da **[Nazuna Bot](https://github.com/DevTokyoVx/nazuna)**, mantida por **★彡 GEOVANE MD 彡★**.
+O **ASTA MD** é uma versão modificada e ampliada da **[Nazuna Bot](https://github.com/DevTokyo2/nazuna)**, mantida por **★彡 GEOVANE MD 彡★**.
 
-A Nazuna foi criada pelo **[Hiudy](https://github.com/hiudyy)** e hoje é mantida pelo **[DevTokyo](https://github.com/DevTokyoVx)**. O ASTA MD parte dessa base e adiciona figurinhas com som, menu com botões, transmissões completas, novos comandos de figurinha, visualização única e muito mais, com tema masculino inspirado no Asta (Black Clover ⚔️).
+A Nazuna foi criada pelo **[Hiudy](https://github.com/hiudyy)** e hoje é mantida pelo **[DevTokyo](https://github.com/DevTokyo2)**. O ASTA MD parte dessa base e adiciona figurinhas com som, menu com botões, transmissões completas, novos comandos de figurinha, visualização única e muito mais, com tema masculino inspirado no Asta (Black Clover ⚔️).
 
-Este repositório é **público e open source**. O ASTA MD **não é a versão oficial da Nazuna** — para a Nazuna original, acesse o [repositório do DevTokyo](https://github.com/DevTokyoVx/nazuna).
+Este repositório é **público e open source**. O ASTA MD **não é a versão oficial da Nazuna** — para a Nazuna original, acesse o [repositório do DevTokyo](https://github.com/DevTokyo2/nazuna).
 
 > ⚔️ *Desistir não é o meu tipo de magia!*
 
@@ -103,7 +101,7 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 
 | Métrica | Valor |
 |---------|-------|
-| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.11.1-blue?style=flat-square) |
+| 🏷️ Versão atual | ![Versão](https://img.shields.io/badge/v10.12.1-blue?style=flat-square) |
 | 🧩 Comandos | ![Comandos](https://img.shields.io/badge/900_comandos_(1841_com_atalhos)-brightgreen?style=flat-square) |
 | ⭐ Estrelas | ![Stars](https://img.shields.io/github/stars/geovanesouzx/asta-md?style=flat-square&color=yellow) |
 | 🍴 Forks | ![Forks](https://img.shields.io/github/forks/geovanesouzx/asta-md?style=flat-square&color=blue) |
@@ -111,12 +109,12 @@ Este repositório é **público e open source**. O ASTA MD **não é a versão o
 | 💾 Tamanho do Repo | ![Size](https://img.shields.io/github/repo-size/geovanesouzx/asta-md?style=flat-square&color=orange) |
 | 🕒 Última atualização | ![Last commit](https://img.shields.io/github/last-commit/geovanesouzx/asta-md?style=flat-square&color=lightgrey) |
 | 🌐 Linguagem Principal | ![Language](https://img.shields.io/github/languages/top/geovanesouzx/asta-md?style=flat-square&color=teal) |
-| 🧬 Projeto base | [![Nazuna](https://img.shields.io/github/stars/DevTokyoVx/nazuna?style=flat-square&label=Nazuna&color=8A2BE2)](https://github.com/DevTokyoVx/nazuna) |
+| 🧬 Projeto base | [![Nazuna](https://img.shields.io/github/stars/DevTokyo2/nazuna?style=flat-square&label=Nazuna&color=8A2BE2)](https://github.com/DevTokyo2/nazuna) |
 
 </div>
 
 <p align="center">
-  <img src="https://count.getloli.com/@asta-md?name=asta-md&theme=booru-lewd&padding=8&offset=0&align=top&scale=2&pixelated=1&darkmode=1" alt="Visitas" />
+  <img src="https://count.getloli.com/@asta-md?name=asta-md&theme=cat-girls-yay&padding=8&offset=0&align=top&scale=2&pixelated=1&darkmode=1" alt="Visitas" />
   <br/>
   <sub>Total de visitas ao repositório</sub>
 </p>
@@ -548,7 +546,7 @@ O bot funciona muito bem sem a API, mas com a **Vex API** você libera comandos 
 | Quem | Papel |
 |------|-------|
 | 👑 **★彡 GEOVANE MD 彡★** · [wa.me/5575920016995](https://wa.me/5575920016995) | Dono e desenvolvedor do **ASTA MD** |
-| 🧬 **[DevTokyo](https://github.com/DevTokyoVx)** | Mantenedor atual da **[Nazuna Bot](https://github.com/DevTokyoVx/nazuna)**, base deste projeto |
+| 🧬 **[DevTokyo](https://github.com/DevTokyo2)** | Mantenedor atual da **[Nazuna Bot](https://github.com/DevTokyo2/nazuna)**, base deste projeto |
 | 🌱 **[Hiudy](https://github.com/hiudyy)** | Criador original da Nazuna Bot |
 | 🤝 **Contribuidores da Nazuna** | Tudo o que construíram até aqui |
 | 📚 **[Baileys](https://github.com/WhiskeySockets/Baileys)** | Biblioteca de conexão com o WhatsApp |
@@ -558,13 +556,13 @@ O bot funciona muito bem sem a API, mas com a **Vex API** você libera comandos 
 <p align="center">Contribuidores da Nazuna, base do ASTA MD:</p>
 
 <p align="center">
-  <a href="https://github.com/DevTokyoVx/nazuna/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=DevTokyoVx/nazuna&columns=10&anon=1" />
+  <a href="https://github.com/DevTokyo2/nazuna/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=DevTokyo2/nazuna&columns=10&anon=1" />
   </a>
 </p>
 
 <p align="center">
-  <sub>ASTA MD por ★彡 GEOVANE MD 彡★ • Baseado na <a href="https://github.com/DevTokyoVx/nazuna">Nazuna</a> (Hiudy & DevTokyo)</sub>
+  <sub>ASTA MD por ★彡 GEOVANE MD 彡★ • Baseado na <a href="https://github.com/DevTokyo2/nazuna">Nazuna</a> (Hiudy & DevTokyo)</sub>
 </p>
 
 ---
@@ -582,7 +580,7 @@ O bot funciona muito bem sem a API, mas com a **Vex API** você libera comandos 
 O ASTA MD é **open source** e deve permanecer assim. Ele é baseado na Nazuna Bot, que também é open source: **mantenha os créditos** ao ASTA MD e à Nazuna (Hiudy e DevTokyo) em qualquer cópia ou versão modificada. O arquivo original **não pode ser comercializado**.
 
 ### 🏷️ Não é a versão oficial da Nazuna
-O ASTA MD é uma versão modificada e **não é** uma versão oficial do projeto Nazuna. O repositório oficial da Nazuna é mantido pelo [DevTokyo](https://github.com/DevTokyoVx/nazuna), único responsável pelas versões oficiais dela.
+O ASTA MD é uma versão modificada e **não é** uma versão oficial do projeto Nazuna. O repositório oficial da Nazuna é mantido pelo [DevTokyo](https://github.com/DevTokyo2/nazuna), único responsável pelas versões oficiais dela.
 
 ### 🔄 Modificações
 Você pode clonar e modificar o ASTA MD livremente para uso próprio, mantendo os créditos.

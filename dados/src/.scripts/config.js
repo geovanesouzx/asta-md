@@ -253,8 +253,8 @@ async function main() {
         apikey_vex: '',
         lidowner: '',
 
-        github_ofc: 'https://github.com/DevTokyoVx/nazuna',
-        autor: 'DevTokyoVx',
+        github_ofc: 'https://github.com/DevTokyo2/nazuna',
+        autor: 'DevTokyo2',
         repositorio: 'nazuna',
         modoaluguel: false,
 

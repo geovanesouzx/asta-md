@@ -165,6 +165,7 @@ import { recordSticker, topStickers, topSince, resetTop } from './funcs/utils/to
 import { sortearGrimorio, barraVida, resolverAcao, acertou as acertouAnime, animeAleatorio, versoesBorradas } from './funcs/utils/jogosAsta.js';
 import { getSubPerms, setSubPerms, allSubPerms, subPodeUsar, SO_DONO_PRINCIPAL, FAMILIAS as SUB_FAMILIAS } from './funcs/utils/subPerms.js';
 import * as PLUS from './funcs/utils/astaPlus.js';
+import { comProgresso } from './funcs/utils/progresso.js';
 const { readJ: plusRead, writeJ: plusWrite, temEscudo, temDobro, comDobro } = PLUS;
 import { prepareClip as prepareSoundClip, makeCover as makeSoundCover, coverFromImage as soundCoverFromImage, sendSoundSticker, describeSoundSticker, parseArgs as parseSoundArgs, parseTime as parseSoundTime, setSoundLimits, SoundStickerError, clipFromAudioMessage, quotedStickerOf } from './funcs/utils/soundSticker.js';
 import { writeExif as writeStickerExif, convertToWebp as convertStickerWebp, trimMedia as trimStickerMedia, captionMedia as captionStickerMedia, stickerToVideo, detectBlackBars, cropBlackBars, renderCaptionPng } from './funcs/utils/sticker.js';
@@ -617,6 +618,36 @@ function astaTextoAjuda(prefix, cmd, a) {
   const d0 = ASTA_AJUDA_DESC[cmd] || a.desc;
   const pra = d0 ? d0.charAt(0).toUpperCase() + d0.slice(1) : `Comando de ${a.cat.toLowerCase()}`;
   return `📖 *${prefix}${cmd}*\n\n🎯 *Pra que serve:* ${pra}\n\n✍️ *Como usar:*\n${prefix}${a.uso}${dicas.length ? `\n\n${dicas.join('\n')}` : ''}`;
+}
+
+// ===================== BARRA DE PROGRESSO: que tipo de barra cada comando demorado usa =====================
+const ASTA_PROG_BASE = {
+  fig: ['s', 'sticker', 'sc', 'squadrado', 'scorte', 'sfundo', 'sbg', 'sl', 'ssom', 'sticker2', 'sefeito', 'svoz', 'trocarsom', 'sfala', 'emojimix', 'ttp', 'attp', 'brat', 'bratvid', 'qc', 'toimg', 'tovideo', 'somfig', 'take', 'rename', 'figurinhas', 'figualeatoria'],
+  down: ['play', 'play2', 'spotify', 'soundcloud', 'playvid', 'tiktok', 'instagram', 'igstory', 'facebook', 'twitter', 'kwai', 'pinterest', 'gdrive', 'mediafire'],
+  efeito: ['cortarvideo', 'tomp3', 'videorapido', 'videolento', 'videoreverso', 'videoloop', 'videomudo', 'pretoebranco', 'sepia', 'espelhar', 'rotacionar', 'cortaraudio', 'velocidade', 'normalizar', 'vozmenino', 'vozmulher', 'vozhomem', 'vozcrianca', 'vozgrave', 'vozrapida', 'vozlenta', 'vozeco', 'vozcaverna', 'bass', 'bass2', 'bass3', 'bassbn', 'grave', 'aumentarvolume', 'equalizar', 'overdrive', 'pitch', 'lowpass', 'audiorapido', 'audiolento', 'audioreverso', 'reverb', 'eco', 'chorus', 'phaser', 'flanger', 'tremolo', 'vibrato'],
+  edit: ['jornal', 'cinema', 'blackwhite', 'desfoque', 'wojakreaction', 'camera'],
+  logo: ['amongus', 'royal', 'mascotemetal', 'firework', 'summerbeach', 'cloudsky', 'techstyle', 'watercolor', 'ligatures', 'graffitistyle', 'frozen', 'colorful', 'balloon', 'multicolor', 'metal', 'doubleexposure', 'mascoteneon', 'eraser', 'america', 'snow', 'sunset', 'halloween', 'blood', 'hallobat', 'cemiterio', 'ffavatar', 'vintage3d', 'hollywood', 'glitch', 'galaxy', 'glossy', 'dragonfire', 'pubgavatar', 'comics', 'pornhub', 'avengers', 'marvel', 'deadpool'],
+  audio: ['tts'],
+  img: ['removebg', 'rmbg', 'upscale', 'ssweb', 'meuperfil'],
+  texto: ['letra', 'transcrever']
+};
+async function astaTiposProgresso() {
+  if (global.__astaProgTipos) return global.__astaProgTipos;
+  const mapa = new Map();
+  const base = new Map(); for (const [tipo, l] of Object.entries(ASTA_PROG_BASE)) for (const c of l) base.set(c, tipo);
+  // os atalhos de cada comando (ex.: .tt = .tiktok) usam a mesma barra
+  const fonte = fs.readFileSync(pathz.join(__dirname, 'index.js'), 'utf-8').split('\n');
+  for (let i = 0; i < fonte.length; i++) {
+    if (!/^\s*case '([^']+)':/.test(fonte[i])) continue;
+    let j = i; const rot = [];
+    while (j < fonte.length && /^\s*case '([^']+)':/.test(fonte[j])) { rot.push(fonte[j].match(/case '([^']+)':/)[1]); j++; }
+    const tipo = rot.map(r => base.get(r)).find(Boolean);
+    if (tipo) for (const r of rot) if (!mapa.has(r)) mapa.set(r, tipo);
+    i = j - 1;
+  }
+  for (const [c, t] of base) if (!mapa.has(c)) mapa.set(c, t);
+  global.__astaProgTipos = mapa;
+  return mapa;
 }
 
 // ===================== GRUPOS PARADOS (última mensagem de PESSOA em cada grupo) =====================
@@ -7102,6 +7133,14 @@ Entre em contato com o dono do bot:
           if (ajudaC) { await reply(astaTextoAjuda(prefix, command, ajudaC)); return; }
         }
       } catch (eAj) { console.error('[AJUDA]', eAj?.message || eAj); }
+    }
+
+    // ===== BARRA DE PROGRESSO: comando demorado ganha uma mensagem que o bot vai editando =====
+    if (isCmd && command && config.barraProgresso !== false) {
+      try {
+        const tipoProg = (await astaTiposProgresso()).get(command);
+        if (tipoProg) nazu = comProgresso(nazu, from, info, tipoProg).sock;
+      } catch (eP) { console.error('[PROGRESSO]', eP?.message || eP); }
     }
 
     switch (command) {
@@ -27584,7 +27623,7 @@ ${prefix}togglecmdvip premium_ia off`);
 │
 │ 💎 *Nome:* DevTokyo
 │ 📱 *WhatsApp:* wa.me/5532985076326
-│ 🌐 *GitHub:* github.com/DevTokyoVx
+│ 🌐 *GitHub:* github.com/DevTokyo2
 │
 ╰━━━━━━━━━━━━━━━━━━━━━━━━╯`;
           await reply(TextinCriadorInfo);
@@ -29610,6 +29649,17 @@ break;
           if (BTN_FORMATOS[f]) { cfgF.botoesFormato = f; fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfgF, null, 2)); global.__astaBotoesFormato = f; }
           const atual = String(cfgF.botoesFormato || 'AUTO').toUpperCase();
           return reply(`🔘 *FORMATO DOS BOTÕES:* ${atual} — ${BTN_FORMATOS[atual] || ''}\n\n${Object.entries(BTN_FORMATOS).map(([k, v]) => `${k === atual ? '👉' : '▫️'} *${k}* — ${v}`).join('\n')}\n\n• ${prefix}${command} AUTO → padrão (B + F, os que apareceram no iPhone)\n• ${prefix}${command} A → o formato de antes\n• ${prefix}testebotoes 5575... → descobre qual formato chega num celular`);
+        } catch (e) { console.error(e); }
+        break;
+
+      case 'barraprogresso':
+      case 'progresso':
+        try {
+          if (!isOwner) return reply('🚫 Só o dono.');
+          const v = String(args[0] || '').toLowerCase();
+          const cfgP = loadJsonFile(CONFIG_FILE, {});
+          if (['on', 'off'].includes(v)) { cfgP.barraProgresso = v === 'on'; fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfgP, null, 2)); }
+          return reply(`📊 *BARRA DE PROGRESSO:* ${cfgP.barraProgresso === false ? 'DESLIGADA' : 'LIGADA'}\n\nNos comandos que demoram (figurinhas, downloads, efeitos, logos, edições...), o bot manda uma barra que vai sendo editada: fazendo → enviando → enviada.\n\n• ${prefix}${command} on/off`);
         } catch (e) { console.error(e); }
         break;
 

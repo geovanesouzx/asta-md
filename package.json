@@ -1,6 +1,6 @@
 {
     "name": "asta-md",
-    "version": "10.11.1",
+    "version": "10.12.1",
     "description": "★彡 ASTA MD 彡★ - Bot de WhatsApp atualizado (baseado no Nazuna)",
     "type": "module",
     "main": "dados/src/connect.js",
@@ -13,7 +13,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/DevTokyoVx/nazuna"
+        "url": "git+https://github.com/DevTokyo2/nazuna"
     },
     "homepage": "https://vexapicom.br",
     "author": "Tokyo",

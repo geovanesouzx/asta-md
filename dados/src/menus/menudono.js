@@ -16,6 +16,7 @@ export default async function menuDono(prefix, botName = 'MeuBot', userName = 'U
         'instalarfundo — removedor de fundo local',
         'figfps 30/24/20/auto',
         'menubotoes on/off',
+        'barraprogresso on/off',
         'testebotoes <número> — qual formato de botão chega no celular',
         'formatobotoes AUTO/A-F — escolhe o formato dos botões',
         'tutorial'

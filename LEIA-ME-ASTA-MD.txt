@@ -620,3 +620,25 @@ v10.11.1 — ABA "TODOS OS COMANDOS" NO README DO GITHUB
   Total: 900 comandos (1841 contando os atalhos).
 - Saiu do bot a tela de "todos os comandos" (!todoscmd e a opção na LISTA do menu),
   porque ela era para ficar no GitHub.
+
+v10.12.0 — BARRA DE PROGRESSO
+==================================================
+- Nos comandos que fazem esperar, o bot manda UMA mensagem e vai editando ela:
+    🎨 Fazendo a figurinha...  [▰▰▰▰▱▱▱▱▱▱] 40%
+    📤 Enviando...             [▰▰▰▰▰▰▰▰▰▰] 95%
+    ✅ Figurinha enviada!      [▰▰▰▰▰▰▰▰▰▰] 100%
+- Vale para: figurinhas (s, sc, squadrado, scorte, sfundo, sl, ssom, sefeito, svoz, sfala, ttp, attp,
+  brat, qc, toimg, tovideo...), downloads (play, tiktok, instagram, spotify...), efeitos de áudio e vídeo,
+  logos, edições de imagem, tts, removebg, upscale, ssweb, letra, transcrever e meuperfil.
+- As mensagens de espera de cada comando ("⏳ Baixando...", "Aguarde...") viram a própria barra
+  (o chat não fica cheio de mensagens).
+- Se o comando for rápido (menos de 1,5 s), não aparece barra. Se der erro, a barra vira a mensagem de erro.
+- A barra sobe sozinha até 90% enquanto o bot trabalha e completa quando a mídia é enviada.
+- !barraprogresso on/off (dono)
+
+v10.12.1 — NOVO REPOSITÓRIO DA NAZUNA + CONTADOR ANIMADO
+==================================================
+- Todos os links da Nazuna agora apontam para https://github.com/DevTokyo2/nazuna
+  (README, créditos, config.json, comando de créditos do bot e package.json).
+- O contador de visitas do README agora é animado (tema "cat-girls-yay" do Moe-Counter).
+  A contagem continua a mesma (o nome do contador não mudou).
